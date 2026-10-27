@@ -96,16 +96,33 @@ function baglanti(a, url) {
   a.href = url; a.target = "_blank"; a.rel = "noopener";
 }
 
+// Fotoğrafı olmayan habere başlığına göre konu görseli (konu-*.jpg); sıra önemli, ilk eşleşen kazanır
+const KONULAR = [
+  ["spor", /\b(spor|maç|futbol|basketbol|voleybol|hentbol|lig|gol|şampiyon|stadyum|antrenör|olimpi|football|match)/i],
+  ["asayis", /(polis|tutukla|gözaltı|kaza|yaralan|öldü|hayatını kaybet|cinayet|hırsız|uyuşturucu|mahkeme|dava|yangın|saldırı|operasyon|police|arrest|court|crash|killed)/i],
+  ["saglik", /(sağlık|hastane|doktor|hekim|hasta|ilaç|aşı|kanser|tedavi|health|hospital)/i],
+  ["hava", /(hava durumu|yağmur|yağış|fırtına|sıcaklık|meteoroloji|rüzgar|sel |dolu |weather|rain|storm)/i],
+  ["ulasim", /(ercan|uçuş|havalimanı|feribot|liman|trafik|otobüs|ulaşım|airport|flight|traffic)/i],
+  ["egitim", /(okul|öğrenci|öğretmen|üniversite|eğitim|sınav|school|universit|student)/i],
+  ["kultur", /(festival|konser|sergi|tiyatro|kitap|film|sanat|müze|kültür|concert|exhibition)/i],
+  ["ekonomi", /(ekonomi|fiyat|zam|enflasyon|maaş|bütçe|vergi|dolar|euro|sterlin|ihracat|turizm|otel|banka|kredi|asgari|kampanya|economy|price|tax|bank)/i],
+  ["siyaset", /(cumhurbaşkan|başbakan|bakan|meclis|milletvekili|seçim|parti|ubp|ctp|erhürman|hristodulidis|müzakere|birleşmiş|çözüm|hükümet|belediye|president|minister|parliament|election|government)/i]
+];
+
+function konuGorseli(h) {
+  const metin = h.b + " " + (h.o || "");
+  const k = KONULAR.find(([, re]) => re.test(metin));
+  return "konu-" + (k ? k[0] : "gundem") + ".jpg";
+}
+
 function kartYap(h) {
   const kart = el("article", "kart" + (h.tvplas ? " tvplas" : ""));
-  const resim = el("a", "resim" + (h.g ? "" : " yok"));
+  const resim = el("a", "resim");
   baglanti(resim, h.l);
-  if (h.g) {
-    const img = el("img");
-    img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
-    img.onerror = () => { resim.classList.add("yok"); img.remove(); };
-    resim.append(img);
-  }
+  const img = el("img");
+  img.src = h.g || konuGorseli(h); img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
+  img.onerror = () => { img.onerror = null; img.src = konuGorseli(h); };
+  resim.append(img);
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
   ust.append(el("span", "etiket", h.tur), el("span", "", h.k), el("span", "", kac(h.t)));
