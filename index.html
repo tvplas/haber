@@ -86,6 +86,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
   <div class="arac">
     <input id="ara" placeholder="Haberlerde ara (ör. Ercan, seçim, Mağusa)…">
     <button data-f="" class="aktif">Tümü</button>
+    <button data-f="Dünya">🌍 Dünya</button>
     <button data-f="TVplas">TVplas</button>
     <button data-f="Haber sitesi">Haber siteleri</button>
     <button data-f="Arama">Haber arama</button>
@@ -214,7 +215,7 @@ function suz() {
   let gorunen = 0;
   liste.querySelectorAll(".kart").forEach(k => {
     const g = k.classList.contains("reklam-kart") ? !q && !tur
-      : (!tur || k.dataset.tur === tur) && k.dataset.ara.includes(q);
+      : (tur ? k.dataset.tur === tur : k.dataset.tur !== "Dünya") && k.dataset.ara.includes(q);   // dünya haberleri yalnızca kendi sekmesinde
     k.style.display = g ? "" : "none";
     if (g) gorunen++;
   });
@@ -257,8 +258,12 @@ async function yukle() {
     sayacGoster(veri.sayac);
     const ekler = veri.ekler || {};
     const benim = (ekler.haberler || []).map(h => ({ ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true }));
+    // Dünya haberleri listenin sonunda durur: Kıbrıs haberlerinin ve reklam sırasının arasına girmez
+    const tum = veri.haberler || [];
+    const dunya = tum.filter(h => h.tur === "Dünya");
     haberler = [...benim.filter(h => h.sabit),
-      ...[...benim.filter(h => !h.sabit), ...(veri.haberler || [])].sort((x, y) => (y.t || "").localeCompare(x.t || ""))];
+      ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.tur !== "Dünya")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
+      ...dunya];
 
     // Reklamlar sunucudan "Sıra no"ya göre dizili gelir. Numarası en küçük "Üst" reklam en üstte durur;
     // kalan her reklam numara sırasıyla REKLAM_ARALIGI haberde bir, yalnızca bir kez gösterilir (tekrar yok).
@@ -278,7 +283,7 @@ async function yukle() {
     });
     liste.replaceChildren(...kartlar);
     document.getElementById("zaman").textContent =
-      haberler.length + " haber · son güncelleme " + kac(veri.guncelleme);
+      (haberler.length - dunya.length) + " haber · " + dunya.length + " dünya haberi · son güncelleme " + kac(veri.guncelleme);
     suz();
   } catch (e) {
     liste.replaceChildren(el("div", "durum", "Haberler şu an yüklenemedi, lütfen sayfayı yenileyin."));
