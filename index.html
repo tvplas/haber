@@ -39,6 +39,16 @@ h2{font-size:17px;margin:6px 0;line-height:1.35}h2 a{color:inherit;text-decorati
 p{margin:0 0 10px;color:var(--soluk);font-size:14px}
 .paylas{margin-top:auto;align-self:flex-start;font-size:13px;color:#1877f2;text-decoration:none;font-weight:600}
 .durum{grid-column:1/-1;text-align:center;color:var(--soluk);padding:60px 0}
+.kart.tvplas{border:2px solid var(--vurgu)}
+.kart.tvplas .etiket{background:var(--vurgu);color:#fff;border-radius:4px;padding:0 6px}
+.tam{white-space:pre-line}
+#reklamUst{max-width:1200px;margin:0 auto;padding:0 16px;display:grid;gap:12px}
+#reklamUst:not(:empty){margin-bottom:16px}
+.reklam{position:relative;display:block;border-radius:12px;overflow:hidden;border:1px solid var(--cizgi);background:var(--kart)}
+.reklam img{width:100%;height:auto;display:block}
+.reklam .rk-etiket{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:1px 7px;border-radius:4px}
+.kart.reklam-kart{justify-content:center}
+.kart.reklam-kart .reklam{border:0;border-radius:0}
 footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 </style>
 </head>
@@ -49,11 +59,13 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
   <div class="arac">
     <input id="ara" placeholder="Haberlerde ara (ör. Ercan, seçim, Mağusa)…">
     <button data-f="" class="aktif">Tümü</button>
+    <button data-f="TVplas">TVplas</button>
     <button data-f="Haber sitesi">Haber siteleri</button>
     <button data-f="Arama">Haber arama</button>
     <button data-f="Sosyal">Sosyal medya</button>
   </div>
 </header>
+<div id="reklamUst"></div>
 <main id="liste"><div class="durum">Haberler yükleniyor…</div></main>
 <footer>Haberler kaynak sitelerine aittir; başlıklara tıklayarak haberin tamamını kaynağında okuyabilirsiniz. Yabancı dildeki haberler otomatik olarak Türkçeye çevrilmiştir.</footer>
 <script>
@@ -77,10 +89,17 @@ function el(etiket, sinif, metin) {
   return e;
 }
 
+const PORTAL = "https://tvplas.github.io/haber/";
+
+function baglanti(a, url) {
+  if (!url) return;
+  a.href = url; a.target = "_blank"; a.rel = "noopener";
+}
+
 function kartYap(h) {
-  const kart = el("article", "kart");
+  const kart = el("article", "kart" + (h.tvplas ? " tvplas" : ""));
   const resim = el("a", "resim" + (h.g ? "" : " yok"));
-  resim.href = h.l; resim.target = "_blank"; resim.rel = "noopener";
+  baglanti(resim, h.l);
   if (h.g) {
     const img = el("img");
     img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
@@ -92,22 +111,32 @@ function kartYap(h) {
   ust.append(el("span", "etiket", h.tur), el("span", "", h.k), el("span", "", kac(h.t)));
   if (h.ob) { const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c); }
   const h2 = el("h2"), a = el("a", "", h.b);
-  a.href = h.l; a.target = "_blank"; a.rel = "noopener"; h2.append(a);
+  baglanti(a, h.l); h2.append(a);
   const pay = el("a", "paylas", "Facebook'ta paylaş");
-  pay.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l);
-  pay.target = "_blank"; pay.rel = "noopener";
-  ic.append(ust, h2, el("p", "", h.o), pay);
+  baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL));
+  ic.append(ust, h2, el("p", h.tvplas ? "tam" : "", h.o), pay);
   kart.append(resim, ic);
   kart.dataset.tur = h.tur;
   kart.dataset.ara = (h.b + " " + h.o + " " + h.k + " " + (h.ob || "")).toLocaleLowerCase("tr");
   return kart;
 }
 
+function reklamYap(r) {
+  const a = el("a", "reklam");
+  baglanti(a, r.l);
+  const img = el("img");
+  img.src = r.g; img.alt = r.ad || "Reklam"; img.referrerPolicy = "no-referrer";
+  img.onerror = () => a.remove();
+  a.append(img, el("span", "rk-etiket", "Reklam"));
+  return a;
+}
+
 function suz() {
   const q = ara.value.toLocaleLowerCase("tr");
   let gorunen = 0;
   liste.querySelectorAll(".kart").forEach(k => {
-    const g = (!tur || k.dataset.tur === tur) && k.dataset.ara.includes(q);
+    const g = k.classList.contains("reklam-kart") ? !q && !tur
+      : (!tur || k.dataset.tur === tur) && k.dataset.ara.includes(q);
     k.style.display = g ? "" : "none";
     if (g) gorunen++;
   });
@@ -127,8 +156,25 @@ async function yukle() {
   try {
     const r = await fetch(API);
     const veri = await r.json();
-    haberler = veri.haberler || [];
-    liste.replaceChildren(...haberler.map(kartYap));
+    const ekler = veri.ekler || {};
+    const benim = (ekler.haberler || []).map(h => ({ ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true }));
+    haberler = [...benim.filter(h => h.sabit),
+      ...[...benim.filter(h => !h.sabit), ...(veri.haberler || [])].sort((x, y) => (y.t || "").localeCompare(x.t || ""))];
+
+    const reklamlar = ekler.reklamlar || [];
+    document.getElementById("reklamUst").replaceChildren(
+      ...reklamlar.filter(r => r.yer === "ust").map(reklamYap));
+    const araReklam = reklamlar.filter(r => r.yer === "ara");
+    const kartlar = [];
+    haberler.forEach((h, i) => {
+      kartlar.push(kartYap(h));
+      if (araReklam.length && (i + 1) % 8 === 0) {
+        const k = el("article", "kart reklam-kart");
+        k.append(reklamYap(araReklam[((i + 1) / 8 - 1) % araReklam.length]));
+        kartlar.push(k);
+      }
+    });
+    liste.replaceChildren(...kartlar);
     document.getElementById("zaman").textContent =
       haberler.length + " haber · son güncelleme " + kac(veri.guncelleme);
     suz();
