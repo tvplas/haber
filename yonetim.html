@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>TVplas Portal – Yönetim</title>
+<style>
+:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#c8102e;--cizgi:#d0d5dd;--iyi:#15803d;--uyari:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--kart:#1b2029;--yazi:#e8eaee;--soluk:#98a2b3;--vurgu:#ff5a6e;--cizgi:#344054;--iyi:#4ade80;--uyari:#fbbf24}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:16px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif}
+.kap{max-width:720px;margin:auto;padding:20px 16px 60px}
+h1{margin:0 0 4px;font-size:26px}h1 span{color:var(--vurgu)}
+.alt{color:var(--soluk);font-size:14px;margin-bottom:18px}
+.alt a{color:inherit}
+.kutu{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;padding:18px}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+label small{font-weight:400;color:var(--soluk)}
+input[type=text],input[type=url],input[type=password],input[type=date],textarea{width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
+textarea{min-height:110px;resize:vertical}
+.satir{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.secim{display:flex;gap:10px;flex-wrap:wrap}
+.secim label{display:flex;align-items:center;gap:8px;font-weight:400;margin:0;padding:10px 14px;border:1px solid var(--cizgi);border-radius:8px;cursor:pointer}
+.onay{display:flex;align-items:center;gap:8px;font-weight:400;margin-top:14px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);padding:10px 16px}
+button.ana{background:var(--vurgu);border-color:var(--vurgu);color:#fff;font-weight:600;width:100%;padding:13px;margin-top:18px}
+button:disabled{opacity:.6;cursor:wait}
+.sekmeler{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.sekmeler button.aktif{background:var(--vurgu);border-color:var(--vurgu);color:#fff}
+.sekmeler .cikis{margin-left:auto}
+.dosya{border:2px dashed var(--cizgi);border-radius:10px;padding:16px;text-align:center;color:var(--soluk);cursor:pointer;position:relative}
+.dosya input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.dosya img{max-width:100%;max-height:260px;border-radius:8px;display:block;margin:0 auto 8px}
+.mesaj{margin-top:14px;padding:12px;border-radius:8px;display:none}
+.mesaj.iyi{display:block;background:color-mix(in srgb,var(--iyi) 15%,transparent);color:var(--iyi)}
+.mesaj.kotu{display:block;background:color-mix(in srgb,var(--vurgu) 15%,transparent);color:var(--vurgu)}
+.liste h2{font-size:17px;margin:18px 0 8px}
+.kayit{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--cizgi)}
+.kayit img{width:72px;height:48px;object-fit:cover;border-radius:6px;background:var(--cizgi);flex:none}
+.kayit .bos{width:72px;height:48px;border-radius:6px;background:var(--cizgi);flex:none}
+.kayit .bilgi{flex:1;min-width:0}
+.kayit .bas{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kayit .det{font-size:13px;color:var(--soluk)}
+.durum-yayinda{color:var(--iyi)}.durum-bitti{color:var(--soluk)}.durum-bekliyor{color:var(--uyari)}
+.kayit button{padding:6px 12px;font-size:14px;color:var(--vurgu)}
+.gizli{display:none}
+@media (max-width:520px){.satir{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="kap">
+  <h1><span>TVplas</span> Portal – Yönetim</h1>
+  <div class="alt">Kendi haberlerinizi ve reklamlarınızı buradan ekleyin · <a href="./" target="_blank">Portalı aç</a></div>
+
+  <!-- Giriş -->
+  <div id="giris" class="kutu">
+    <label for="sifre">Yönetim şifresi</label>
+    <input id="sifre" type="password" autocomplete="current-password">
+    <label class="onay"><input id="hatirla" type="checkbox" checked> Bu cihazda beni hatırla</label>
+    <button class="ana" id="girisBtn">Giriş</button>
+    <div class="mesaj" id="girisMesaj"></div>
+  </div>
+
+  <!-- Panel -->
+  <div id="panel" class="gizli">
+    <div class="sekmeler">
+      <button data-s="haber" class="aktif">📰 Haber ekle</button>
+      <button data-s="reklam">📣 Reklam ekle</button>
+      <button data-s="liste">📋 Yayındakiler</button>
+      <button class="cikis" id="cikis">Çıkış</button>
+    </div>
+
+    <form id="haber" class="kutu sekme">
+      <label for="hBaslik">Başlık</label>
+      <input id="hBaslik" type="text" required maxlength="200">
+      <label for="hOzet">Haber metni <small>(isteğe bağlı)</small></label>
+      <textarea id="hOzet"></textarea>
+      <label>Fotoğraf <small>(isteğe bağlı)</small></label>
+      <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>📷 Fotoğraf seçmek için dokunun</span></div>
+      <label for="hLink">Habere link <small>(isteğe bağlı – boşsa metin portalda okunur)</small></label>
+      <input id="hLink" type="url" placeholder="https://…">
+      <div class="satir">
+        <div><label for="hBas">Yayın tarihi</label><input id="hBas" type="date"></div>
+        <div><label for="hBit">Kaldırılma tarihi <small>(boş = hep kalsın)</small></label><input id="hBit" type="date"></div>
+      </div>
+      <label class="onay"><input id="hSabit" type="checkbox"> En üstte sabit dursun</label>
+      <button class="ana" type="submit">Haberi yayınla</button>
+      <div class="mesaj"></div>
+    </form>
+
+    <form id="reklam" class="kutu sekme gizli">
+      <label for="rAd">Reklam adı <small>(sizin takibiniz için, ör. firma adı)</small></label>
+      <input id="rAd" type="text" maxlength="100">
+      <label>Reklam görseli</label>
+      <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>🖼️ Afiş seçmek için dokunun</span></div>
+      <label for="rLink">Tıklanınca gideceği adres <small>(isteğe bağlı)</small></label>
+      <input id="rLink" type="url" placeholder="https://…">
+      <label>Yeri</label>
+      <div class="secim">
+        <label><input type="radio" name="yer" value="ust" checked> Üstte geniş afiş</label>
+        <label><input type="radio" name="yer" value="ara"> Haberlerin arasında</label>
+      </div>
+      <div class="satir">
+        <div><label for="rBas">Başlangıç</label><input id="rBas" type="date"></div>
+        <div><label for="rBit">Bitiş</label><input id="rBit" type="date"></div>
+      </div>
+      <button class="ana" type="submit">Reklamı yayınla</button>
+      <div class="mesaj"></div>
+    </form>
+
+    <div id="liste" class="kutu sekme gizli liste">
+      <button id="yenile">↻ Yenile</button>
+      <div id="listeIcerik"></div>
+    </div>
+  </div>
+</div>
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
+const $ = id => document.getElementById(id);
+let sifre = "";
+
+function depo(islem, deger) {
+  try {
+    if (islem === "oku") return localStorage.getItem("tvplas_sifre") || "";
+    if (deger) localStorage.setItem("tvplas_sifre", deger); else localStorage.removeItem("tvplas_sifre");
+  } catch (e) { return ""; }
+}
+
+async function istek(veri) {
+  const r = await fetch(API, { method: "POST", body: JSON.stringify({ ...veri, sifre }) });
+  if (!r.ok) throw new Error("Sunucuya ulaşılamadı (" + r.status + ")");
+  return r.json();
+}
+
+function mesaj(el, metin, iyi) {
+  el.textContent = metin;
+  el.className = "mesaj " + (iyi ? "iyi" : "kotu");
+}
+
+function bugun(gunSonra) {
+  const d = new Date(Date.now() + (gunSonra || 0) * 864e5);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function tarihleriSifirla() {
+  $("hBas").value = bugun(); $("hBit").value = "";
+  $("rBas").value = bugun(); $("rBit").value = bugun(30);
+}
+
+// Fotoğrafı en fazla 1600 px'e küçültüp JPEG'e çevirir (telefon fotoğrafları da hızlı yüklenir)
+async function kucult(dosya) {
+  const img = await createImageBitmap(dosya);
+  const o = Math.min(1, 1600 / Math.max(img.width, img.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(img.width * o); c.height = Math.round(img.height * o);
+  const x = c.getContext("2d");
+  x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
+  x.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL("image/jpeg", 0.85);
+}
+
+document.querySelectorAll("[data-onizleme]").forEach(inp => inp.onchange = () => {
+  const kutu = inp.parentElement, f = inp.files[0];
+  kutu.querySelector("img")?.remove();
+  if (!f) return;
+  const img = document.createElement("img");
+  img.src = URL.createObjectURL(f);
+  kutu.prepend(img);
+  kutu.querySelector("span").textContent = f.name + " – değiştirmek için dokunun";
+});
+
+function dosyaSifirla(form) {
+  const inp = form.querySelector("[data-onizleme]");
+  inp.value = "";
+  inp.parentElement.querySelector("img")?.remove();
+  inp.parentElement.querySelector("span").textContent =
+    form.id === "haber" ? "📷 Fotoğraf seçmek için dokunun" : "🖼️ Afiş seçmek için dokunun";
+}
+
+async function girisYap(s, sessiz) {
+  sifre = s;
+  $("girisBtn").disabled = true;
+  try {
+    const c = await istek({ islem: "giris" });
+    if (!c.tamam) throw new Error(c.hata || "Giriş yapılamadı");
+    depo("yaz", $("hatirla").checked ? s : "");
+    $("giris").classList.add("gizli");
+    $("panel").classList.remove("gizli");
+    tarihleriSifirla();
+  } catch (e) {
+    sifre = "";
+    if (!sessiz) mesaj($("girisMesaj"), e.message, false);
+  } finally {
+    $("girisBtn").disabled = false;
+  }
+}
+
+$("girisBtn").onclick = () => girisYap($("sifre").value.trim());
+$("sifre").onkeydown = e => { if (e.key === "Enter") girisYap($("sifre").value.trim()); };
+$("cikis").onclick = () => { depo("yaz", ""); sifre = ""; location.reload(); };
+
+document.querySelectorAll(".sekmeler [data-s]").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".sekmeler [data-s]").forEach(x => x.classList.toggle("aktif", x === b));
+  document.querySelectorAll(".sekme").forEach(s => s.classList.toggle("gizli", s.id !== b.dataset.s));
+  if (b.dataset.s === "liste") listele();
+});
+
+async function gonder(form, veri) {
+  const btn = form.querySelector("button.ana"), m = form.querySelector(".mesaj");
+  const f = form.querySelector("[data-onizleme]").files[0];
+  btn.disabled = true;
+  mesaj(m, f ? "Fotoğraf hazırlanıyor ve yükleniyor…" : "Kaydediliyor…", true);
+  try {
+    if (f) veri.gorsel = await kucult(f);
+    const c = await istek(veri);
+    if (!c.tamam) throw new Error(c.hata || "Kaydedilemedi");
+    form.reset(); dosyaSifirla(form); tarihleriSifirla();
+    mesaj(m, "✅ Yayınlandı! Portalda hemen görünür (sayfayı yenileyin).", true);
+  } catch (e) {
+    mesaj(m, "Olmadı: " + e.message, false);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$("haber").onsubmit = e => {
+  e.preventDefault();
+  gonder($("haber"), {
+    islem: "haberEkle", baslik: $("hBaslik").value.trim(), ozet: $("hOzet").value.trim(),
+    link: $("hLink").value.trim(), bas: $("hBas").value, bit: $("hBit").value, sabit: $("hSabit").checked
+  });
+};
+
+$("reklam").onsubmit = e => {
+  e.preventDefault();
+  if (!$("reklam").querySelector("[data-onizleme]").files[0]) {
+    return mesaj($("reklam").querySelector(".mesaj"), "Lütfen bir reklam görseli seçin.", false);
+  }
+  gonder($("reklam"), {
+    islem: "reklamEkle", ad: $("rAd").value.trim(), link: $("rLink").value.trim(),
+    yer: document.querySelector("input[name=yer]:checked").value, bas: $("rBas").value, bit: $("rBit").value
+  });
+};
+
+function tarihYaz(t) {
+  return t ? new Date(t).toLocaleDateString("tr-TR") : "—";
+}
+
+function kayitYap(k, sayfa) {
+  const d = document.createElement("div");
+  d.className = "kayit";
+  if (k.gorsel) {
+    const img = document.createElement("img");
+    img.src = k.gorsel; img.referrerPolicy = "no-referrer"; img.alt = "";
+    d.append(img);
+  } else {
+    d.append(Object.assign(document.createElement("div"), { className: "bos" }));
+  }
+  const b = document.createElement("div");
+  b.className = "bilgi";
+  const durum = { yayinda: "Yayında", bitti: "Süresi doldu", bekliyor: "Tarihi bekliyor" }[k.durum];
+  b.innerHTML = '<div class="bas"></div><div class="det"><span class="durum-' + k.durum + '">' + durum + "</span> · <span class=t></span></div>";
+  b.querySelector(".bas").textContent = k.ilk;
+  b.querySelector(".t").textContent = tarihYaz(k.bas) + " → " + (k.bit ? tarihYaz(k.bit) : "süresiz") + (k.ek ? " · " + k.ek : "");
+  const sil = document.createElement("button");
+  sil.textContent = "Sil";
+  sil.onclick = async () => {
+    if (!confirm("\"" + k.ilk + "\" silinsin mi? Portaldan hemen kalkar.")) return;
+    sil.disabled = true;
+    try {
+      const c = await istek({ islem: "sil", sayfa, satir: k.satir, ilk: k.ilk });
+      if (!c.tamam) throw new Error(c.hata);
+      listele();
+    } catch (e) {
+      alert("Silinemedi: " + e.message);
+      sil.disabled = false;
+    }
+  };
+  d.append(b, sil);
+  return d;
+}
+
+async function listele() {
+  const yer = $("listeIcerik");
+  yer.textContent = "Yükleniyor…";
+  try {
+    const c = await istek({ islem: "liste" });
+    if (!c.tamam) throw new Error(c.hata);
+    yer.replaceChildren();
+    for (const [baslik, kayitlar, sayfa] of [["📰 Haberlerim", c.haberler, "Haberlerim"], ["📣 Reklamlarım", c.reklamlar, "Reklamlar"]]) {
+      const h = document.createElement("h2");
+      h.textContent = baslik + " (" + kayitlar.length + ")";
+      yer.append(h);
+      if (!kayitlar.length) yer.append(Object.assign(document.createElement("div"), { className: "det", textContent: "Henüz kayıt yok." }));
+      kayitlar.forEach(k => yer.append(kayitYap(k, sayfa)));
+    }
+  } catch (e) {
+    yer.textContent = "Liste alınamadı: " + e.message;
+  }
+}
+$("yenile").onclick = listele;
+
+const kayitli = depo("oku");
+if (kayitli) { $("sifre").value = kayitli; girisYap(kayitli, true); }
+</script>
+</body>
+</html>
