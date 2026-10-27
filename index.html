@@ -26,7 +26,7 @@ h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 #ara{flex:1;min-width:200px;padding:10px 12px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font-size:15px}
 .arac button{padding:9px 14px;border-radius:20px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);cursor:pointer;font-size:14px}
 .arac button.aktif{background:var(--vurgu);color:#fff;border-color:var(--vurgu)}
-main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;grid-auto-flow:dense}
 .kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
 .resim{display:block;aspect-ratio:16/9;background:var(--cizgi)}
 .resim img{width:100%;height:100%;object-fit:cover;display:block}
@@ -47,8 +47,9 @@ p{margin:0 0 10px;color:var(--soluk);font-size:14px}
 .reklam{position:relative;display:block;border-radius:12px;overflow:hidden;border:1px solid var(--cizgi);background:var(--kart)}
 .reklam img{width:100%;height:auto;display:block}
 .reklam .rk-etiket{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:1px 7px;border-radius:4px}
-.kart.reklam-kart{justify-content:center}
+.kart.reklam-kart{justify-content:center;grid-column:1/-1}
 .kart.reklam-kart .reklam{border:0;border-radius:0}
+.kart.reklam-kart .reklam img{max-height:340px;object-fit:contain;background:var(--kart)}
 footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 </style>
 </head>
@@ -90,6 +91,7 @@ function el(etiket, sinif, metin) {
 }
 
 const PORTAL = "https://tvplas.github.io/haber/";
+const REKLAM_ARALIGI = 3;   // kaç haberde bir reklam afişi girsin
 
 function baglanti(a, url) {
   if (!url) return;
@@ -178,16 +180,16 @@ async function yukle() {
     haberler = [...benim.filter(h => h.sabit),
       ...[...benim.filter(h => !h.sabit), ...(veri.haberler || [])].sort((x, y) => (y.t || "").localeCompare(x.t || ""))];
 
+    // Üstte yalnızca ilk "Üst" reklam durur; tüm reklamlar her REKLAM_ARALIGI haberden sonra sırayla döner
     const reklamlar = ekler.reklamlar || [];
     document.getElementById("reklamUst").replaceChildren(
-      ...reklamlar.filter(r => r.yer === "ust").map(reklamYap));
-    const araReklam = reklamlar.filter(r => r.yer === "ara");
+      ...reklamlar.filter(r => r.yer === "ust").slice(0, 1).map(reklamYap));
     const kartlar = [];
     haberler.forEach((h, i) => {
       kartlar.push(kartYap(h));
-      if (araReklam.length && (i + 1) % 8 === 0) {
+      if (reklamlar.length && (i + 1) % REKLAM_ARALIGI === 0) {
         const k = el("article", "kart reklam-kart");
-        k.append(reklamYap(araReklam[((i + 1) / 8 - 1) % araReklam.length]));
+        k.append(reklamYap(reklamlar[((i + 1) / REKLAM_ARALIGI - 1) % reklamlar.length]));
         kartlar.push(k);
       }
     });
