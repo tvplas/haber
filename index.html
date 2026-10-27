@@ -92,6 +92,9 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Kıbrıs" class="aktif">KIBRIS</button>
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
+    <button data-k="Etkinlikler">ETKİNLİKLER</button>
+    <button data-k="Müzik">MÜZİK</button>
+    <button data-k="Kültür-Sanat">KÜLTÜR-SANAT</button>
     <button data-k="Magazin">MAGAZİN</button>
     <button data-k="Bilim">BİLİM</button>
     <button data-k="Ekonomi">EKONOMİ</button>
@@ -116,7 +119,12 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
-const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Magazin", "Bilim", "Ekonomi", "Sağlık", "Spor"];
+const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Etkinlikler", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Ekonomi", "Sağlık", "Spor"];
+// Etkinlikler ve Müzik Bing aramalarından gelir; başlığı bu kelimelere uymayanlar kendi bölümüne aktarılır.
+// Ayrıca Kıbrıs haberlerinden etkinlik olanlar Etkinlikler'de, müzikle ilgili haberler Müzik'te de görünür.
+// Kelime başında aranır; kısa kelimeler kelime sonuyla sınırlı (ör. "opera" ≠ "operasyon", "rap" ≠ "rapor")
+const ETKINLIK = /(^|[\s"'“‘(])(konser|festival|sergi|tiyatro|gösteri|söyleşi|dinleti|etkinli|fuar|resital|opera\b|bale\b|sahne|gala\b|şenli|yarışma|anma\b|tören)/i;
+const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
 let bolum = "Kıbrıs", haberler = [], araReklam = [];
 const ara = document.getElementById("ara"), liste = document.getElementById("liste");
 
@@ -224,7 +232,10 @@ function reklamYap(r) {
 // Reklamlar her bölümde numara sırasıyla REKLAM_ARALIGI haberde bir, birer kez girer (aramada reklam yok).
 function ciz() {
   const q = ara.value.trim().toLocaleLowerCase("tr");
-  const secili = q ? haberler.filter(h => aramaMetni(h).includes(q)) : haberler.filter(h => h.kat === bolum);
+  const secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
+    : haberler.filter(h => h.kat === bolum || h.ekBolum.includes(bolum));
+  // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
+  if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (y.t || "").localeCompare(x.t || ""));
   const kartlar = [];
   secili.forEach((h, i) => {
     kartlar.push(kartYap(h));
@@ -273,9 +284,20 @@ async function yukle() {
     const veri = await r.json();
     sayacGoster(veri.sayac);
     const ekler = veri.ekler || {};
-    // Kendi haberlerimiz Kıbrıs bölümünde (sabitler en üstte); diğer bölümler sunucudan tarihe göre dizili gelir
-    const benim = (ekler.haberler || []).map(h => ({ ...h, k: "TVplas Portal", tur: "TVplas", kat: "Kıbrıs", tvplas: true }));
-    const tum = (veri.haberler || []).map(h => ({ ...h, kat: BOLUMLER.includes(h.tur) ? h.tur : "Kıbrıs" }));
+    // Kendi haberlerimiz panelde seçilen bölümde (boşsa Kıbrıs; sabitler en üstte); diğerleri sunucudan tarihe göre dizili gelir
+    const benim = (ekler.haberler || []).map(h => ({ ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true,
+      kat: BOLUMLER.includes(h.bolum) ? h.bolum : "Kıbrıs" }));
+    const tum = (veri.haberler || []).map(h => {
+      let kat = BOLUMLER.includes(h.tur) ? h.tur : "Kıbrıs";
+      if (kat === "Etkinlikler" && !ETKINLIK.test(h.b)) kat = "Kıbrıs";
+      if (kat === "Müzik" && !MUZIK.test(h.b)) kat = "Magazin";
+      return { ...h, kat };
+    });
+    [...benim, ...tum].forEach(h => {
+      h.ekBolum = [];
+      if (h.kat === "Kıbrıs" && ETKINLIK.test(h.b)) h.ekBolum.push("Etkinlikler");
+      if (h.kat !== "Müzik" && h.kat !== "Spor" && MUZIK.test(h.b)) h.ekBolum.push("Müzik");
+    });
     haberler = [...benim.filter(h => h.sabit),
       ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
       ...tum.filter(h => h.kat !== "Kıbrıs")];

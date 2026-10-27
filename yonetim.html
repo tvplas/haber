@@ -17,7 +17,7 @@ h1{margin:0 0 4px;font-size:26px}h1 span{color:var(--vurgu)}
 .kutu{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;padding:18px}
 label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
 label small{font-weight:400;color:var(--soluk)}
-input[type=text],input[type=url],input[type=password],input[type=date],input[type=number],textarea{width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
+input[type=text],input[type=url],input[type=password],input[type=date],input[type=number],select,textarea{width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
 textarea{min-height:110px;resize:vertical}
 .satir{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .secim{display:flex;gap:10px;flex-wrap:wrap}
@@ -81,6 +81,12 @@ button:disabled{opacity:.6;cursor:wait}
       <textarea id="hOzet"></textarea>
       <label>Fotoğraf <small>(isteğe bağlı)</small></label>
       <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>📷 Fotoğraf seçmek için dokunun</span></div>
+      <label for="hBolum">Bölüm <small>(haberin portalda çıkacağı menü)</small></label>
+      <select id="hBolum">
+        <option>Kıbrıs</option><option>Türkiye</option><option>Dünya</option><option>Etkinlikler</option>
+        <option>Müzik</option><option>Kültür-Sanat</option><option>Magazin</option><option>Bilim</option>
+        <option>Ekonomi</option><option>Sağlık</option><option>Spor</option>
+      </select>
       <label for="hLink">Habere link <small>(isteğe bağlı – boşsa metin portalda okunur)</small></label>
       <input id="hLink" type="url" placeholder="https://…">
       <div class="satir">
@@ -233,7 +239,8 @@ $("haber").onsubmit = e => {
   e.preventDefault();
   gonder($("haber"), {
     islem: "haberEkle", baslik: $("hBaslik").value.trim(), ozet: $("hOzet").value.trim(),
-    link: $("hLink").value.trim(), bas: $("hBas").value, bit: $("hBit").value, sabit: $("hSabit").checked
+    link: $("hLink").value.trim(), bas: $("hBas").value, bit: $("hBit").value, sabit: $("hSabit").checked,
+    bolum: $("hBolum").value
   });
 };
 
