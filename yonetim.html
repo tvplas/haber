@@ -17,7 +17,7 @@ h1{margin:0 0 4px;font-size:26px}h1 span{color:var(--vurgu)}
 .kutu{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;padding:18px}
 label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
 label small{font-weight:400;color:var(--soluk)}
-input[type=text],input[type=url],input[type=password],input[type=date],textarea{width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
+input[type=text],input[type=url],input[type=password],input[type=date],input[type=number],textarea{width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
 textarea{min-height:110px;resize:vertical}
 .satir{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .secim{display:flex;gap:10px;flex-wrap:wrap}
@@ -44,6 +44,9 @@ button:disabled{opacity:.6;cursor:wait}
 .kayit .det{font-size:13px;color:var(--soluk)}
 .durum-yayinda{color:var(--iyi)}.durum-bitti{color:var(--soluk)}.durum-bekliyor{color:var(--uyari)}
 .kayit button{padding:6px 12px;font-size:14px;color:var(--vurgu)}
+.numara{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;color:var(--soluk)}
+.numara input{width:70px;padding:5px 8px;border-radius:6px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
+.numara button{color:var(--yazi);padding:5px 10px;font-size:13px}
 .gizli{display:none}
 @media (max-width:520px){.satir{grid-template-columns:1fr}}
 </style>
@@ -96,10 +99,12 @@ button:disabled{opacity:.6;cursor:wait}
       <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>🖼️ Afiş seçmek için dokunun</span></div>
       <label for="rLink">Tıklanınca gideceği adres <small>(isteğe bağlı)</small></label>
       <input id="rLink" type="url" placeholder="https://…">
-      <label>Yeri <small>(tüm reklamlar her 3 haberden sonra sırayla gösterilir)</small></label>
+      <label for="rNo">Reklam numarası <small>(1, 2, 3… – boş bırakılırsa sona eklenir)</small></label>
+      <input id="rNo" type="number" min="1" step="1" placeholder="Sona ekle">
+      <label>Yeri <small>(Reklam 1 ilk 3 haberden sonra, Reklam 2 sonraki 3 haberden sonra… her reklam bir kez)</small></label>
       <div class="secim">
-        <label><input type="radio" name="yer" value="ust" checked> En üstte de göster</label>
-        <label><input type="radio" name="yer" value="ara"> Yalnızca haberlerin arasında</label>
+        <label><input type="radio" name="yer" value="ara" checked> Haberlerin arasında</label>
+        <label><input type="radio" name="yer" value="ust"> En üstte (haber aralarında tekrar edilmez)</label>
       </div>
       <div class="satir">
         <div><label for="rBas">Başlangıç</label><input id="rBas" type="date"></div>
@@ -238,7 +243,7 @@ $("reklam").onsubmit = e => {
     return mesaj($("reklam").querySelector(".mesaj"), "Lütfen bir reklam görseli seçin.", false);
   }
   gonder($("reklam"), {
-    islem: "reklamEkle", ad: $("rAd").value.trim(), link: $("rLink").value.trim(),
+    islem: "reklamEkle", ad: $("rAd").value.trim(), link: $("rLink").value.trim(), no: $("rNo").value,
     yer: document.querySelector("input[name=yer]:checked").value, bas: $("rBas").value, bit: $("rBit").value
   });
 };
@@ -261,8 +266,9 @@ function kayitYap(k, sayfa) {
   b.className = "bilgi";
   const durum = { yayinda: "Yayında", bitti: "Süresi doldu", bekliyor: "Tarihi bekliyor" }[k.durum];
   b.innerHTML = '<div class="bas"></div><div class="det"><span class="durum-' + k.durum + '">' + durum + "</span> · <span class=t></span></div>";
-  b.querySelector(".bas").textContent = k.ilk;
+  b.querySelector(".bas").textContent = (sayfa === "Reklamlar" ? "Reklam " + (k.no || "?") + " – " : "") + k.ilk;
   b.querySelector(".t").textContent = tarihYaz(k.bas) + " → " + (k.bit ? tarihYaz(k.bit) : "süresiz") + (k.ek ? " · " + k.ek : "");
+  if (sayfa === "Reklamlar") b.append(numaraKutusu(k));
   const sil = document.createElement("button");
   sil.textContent = "Sil";
   sil.onclick = async () => {
@@ -278,6 +284,28 @@ function kayitYap(k, sayfa) {
     }
   };
   d.append(b, sil);
+  return d;
+}
+
+// Listede reklamın numarasını değiştirme kutusu
+function numaraKutusu(k) {
+  const d = document.createElement("div");
+  d.className = "numara";
+  const inp = Object.assign(document.createElement("input"), { type: "number", min: 1, step: 1, value: k.no || "" });
+  const btn = Object.assign(document.createElement("button"), { textContent: "Numarayı kaydet" });
+  btn.onclick = async () => {
+    if (!(+inp.value >= 1)) return alert("1 veya daha büyük bir numara yazın.");
+    btn.disabled = true;
+    try {
+      const c = await istek({ islem: "sira", satir: k.satir, ilk: k.ilk, no: inp.value });
+      if (!c.tamam) throw new Error(c.hata);
+      listele();
+    } catch (e) {
+      alert("Kaydedilemedi: " + e.message);
+      btn.disabled = false;
+    }
+  };
+  d.append("Numara: ", inp, btn);
   return d;
 }
 

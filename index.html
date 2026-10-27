@@ -180,16 +180,19 @@ async function yukle() {
     haberler = [...benim.filter(h => h.sabit),
       ...[...benim.filter(h => !h.sabit), ...(veri.haberler || [])].sort((x, y) => (y.t || "").localeCompare(x.t || ""))];
 
-    // Üstte yalnızca ilk "Üst" reklam durur; tüm reklamlar her REKLAM_ARALIGI haberden sonra sırayla döner
+    // Reklamlar sunucudan "Sıra no"ya göre dizili gelir. Numarası en küçük "Üst" reklam en üstte durur;
+    // kalan her reklam numara sırasıyla REKLAM_ARALIGI haberde bir, yalnızca bir kez gösterilir (tekrar yok).
     const reklamlar = ekler.reklamlar || [];
-    document.getElementById("reklamUst").replaceChildren(
-      ...reklamlar.filter(r => r.yer === "ust").slice(0, 1).map(reklamYap));
+    const ust = reklamlar.find(r => r.yer === "ust");
+    document.getElementById("reklamUst").replaceChildren(...(ust ? [reklamYap(ust)] : []));
+    const araReklam = reklamlar.filter(r => r !== ust);
     const kartlar = [];
     haberler.forEach((h, i) => {
       kartlar.push(kartYap(h));
-      if (reklamlar.length && (i + 1) % REKLAM_ARALIGI === 0) {
+      const sira = (i + 1) / REKLAM_ARALIGI - 1;
+      if (Number.isInteger(sira) && sira < araReklam.length) {
         const k = el("article", "kart reklam-kart");
-        k.append(reklamYap(reklamlar[((i + 1) / REKLAM_ARALIGI - 1) % reklamlar.length]));
+        k.append(reklamYap(araReklam[sira]));
         kartlar.push(k);
       }
     });
