@@ -102,8 +102,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Dünya">DÜNYA</button>
     <button data-k="Etkinlikler">ETKİNLİKLER</button>
     <button data-k="Sanat-Magazin">MÜZİK · KÜLTÜR-SANAT · MAGAZİN</button>
-    <button data-k="Bilim-Sağlık">BİLİM · SAĞLIK</button>
-    <button data-k="Ekonomi">EKONOMİ</button>
+    <button data-k="Bilim-Sağlık-Ekonomi">BİLİM · SAĞLIK · EKONOMİ</button>
     <button data-k="Spor">SPOR</button>
     <a class="gazete" href="gazeteler.html">📰 GAZETELER</a>
   </nav>
@@ -125,9 +124,9 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
-const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Etkinlikler", "Sanat-Magazin", "Bilim-Sağlık", "Ekonomi", "Spor"];
+const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Etkinlikler", "Sanat-Magazin", "Bilim-Sağlık-Ekonomi", "Spor"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
-const GRUPLAR = { "Sanat-Magazin": ["Müzik", "Kültür-Sanat", "Magazin"], "Bilim-Sağlık": ["Bilim", "Sağlık"] };
+const GRUPLAR = { "Sanat-Magazin": ["Müzik", "Kültür-Sanat", "Magazin"], "Bilim-Sağlık-Ekonomi": ["Bilim", "Sağlık", "Ekonomi"] };
 const ORTAK = "Sanat-Magazin";   // müzik haberlerinin çapraz eklendiği menü
 const bolumBul = t => {
   const grup = Object.keys(GRUPLAR).find(g => GRUPLAR[g].includes(t));
