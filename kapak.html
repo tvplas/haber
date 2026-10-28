@@ -26,6 +26,10 @@ textarea{width:100%;min-height:170px;padding:10px 12px;border-radius:10px;border
 .nasil{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;padding:12px 16px;font-size:14px;margin-top:18px}
 .nasil ol{margin:6px 0 10px;padding-left:20px}
 a{color:var(--vurgu)}
+a.dugme{text-decoration:none;display:inline-block}
+.tiklanir{background:var(--kart);border:2px solid var(--vurgu);border-radius:12px;padding:12px 16px;margin-bottom:18px}
+.tiklanir p{margin:4px 0 10px;font-size:14px;color:var(--soluk)}
+.tiklanir .eylem{margin:10px 0 0}
 </style>
 </head>
 <body>
@@ -50,6 +54,17 @@ a{color:var(--vurgu)}
     <button class="dugme" id="paylas" hidden>📤 Paylaş (Facebook'u seçin)</button>
   </div>
 
+  <div class="tiklanir">
+    <b>🔗 Tıklanınca portala giden Facebook paylaşımı</b>
+    <p>Kapağı portalda yayınlar ve Facebook'ta bağlantı olarak paylaşmanızı sağlar: gönderideki kapağa tıklayan kişi doğrudan TVplas Portal'a gider. Facebook bağlantı görsellerini yatay gösterdiği için kapak yatay biçimde hazırlanır.</p>
+    <button class="dugme ana" id="tiklanirBtn">🔗 Tıklanabilir paylaşım hazırla</button>
+    <div class="durum" id="tiklanirDurum"></div>
+    <div class="eylem" id="tiklanirEylem" hidden>
+      <a class="dugme ana" id="fbPaylas" target="_blank" rel="noopener">📘 Facebook'ta paylaş</a>
+      <button class="dugme" id="adresKopyala">📋 Bağlantıyı kopyala</button>
+    </div>
+  </div>
+
   <div class="grup"><b>Günün paylaşım metni</b>
     <textarea id="metin"></textarea>
     <div class="eylem" style="margin-top:8px">
@@ -64,6 +79,11 @@ a{color:var(--vurgu)}
       <li>Beğenmezseniz tasarımı, haberi ya da rengi değiştirin.</li>
       <li><b>Kapağı indir</b>'e basın (telefonda <b>Paylaş</b> ile doğrudan Facebook'u da seçebilirsiniz).</li>
       <li><b>Metni kopyala</b>'ya basın; Facebook'ta yeni gönderiye görseli ekleyip metni yapıştırın.</li>
+    </ol>
+    <b>Kapağa tıklanınca portal açılsın istiyorsanız</b>
+    <ol>
+      <li><b>Tıklanabilir paylaşım hazırla</b>'ya basın (ilk seferde yönetim şifrenizi sorar).</li>
+      <li>1–2 dakika sonra <b>Facebook'ta paylaş</b> düğmesi açılır; Facebook penceresine günün metnini yapıştırıp paylaşın.</li>
     </ol>
     <a href="./">← TVplas Portal'a dön</a>
   </div>
@@ -331,6 +351,47 @@ if (navigator.canShare) {
     try { await navigator.share(veri); } catch (e) { }
   }, "image/jpeg", 0.92);
 }
+
+// ---- Tıklanabilir paylaşım: kapak portalda bir paylaşım sayfasıyla yayınlanır (sunucu GitHub'a yükler) ----
+// Yönetim şifresi, yönetim panelinde "beni hatırla" ile kaydedildiyse oradan alınır (aynı site)
+function kayitliSifre() { try { return localStorage.getItem("tvplas_sifre") || ""; } catch (e) { return ""; } }
+const bekle = ms => new Promise(r => setTimeout(r, ms));
+let paylasimAdresi = "";
+document.getElementById("tiklanirBtn").onclick = async () => {
+  const btn = document.getElementById("tiklanirBtn"), d = document.getElementById("tiklanirDurum"), eylem = document.getElementById("tiklanirEylem");
+  const sifre = kayitliSifre() || (prompt("Yönetim şifrenizi girin:") || "").trim();
+  if (!sifre) return;
+  btn.disabled = true; eylem.hidden = true;
+  try {
+    if (boyut !== "yatay") { boyut = "yatay"; d.textContent = "Kapak yatay biçimde hazırlanıyor…"; await ciz(); }
+    d.textContent = "Kapak portala yükleniyor…";
+    const cevap = await fetch(API, { method: "POST", body: JSON.stringify({
+      islem: "kapakYayinla", sifre, veri: tuval.toDataURL("image/jpeg", 0.9),
+      baslik: "TVplas Portal – " + tarihUzun, aciklama: haber().b
+    }) }).then(r => r.json());
+    if (!cevap.tamam) throw new Error(cevap.hata || "Kapak yüklenemedi");
+    if (!kayitliSifre()) try { localStorage.setItem("tvplas_sifre", sifre); } catch (e) { }
+    paylasimAdresi = cevap.adres;
+    // GitHub Pages yeni sayfayı 1–2 dakikada yayına alır; hazır olunca paylaşım düğmesi açılır
+    for (let i = 0; i < 48; i++) {
+      d.textContent = "Kapak yüklendi, paylaşım sayfası yayına alınıyor… (" + (i * 5) + " sn)";
+      try { if ((await fetch(paylasimAdresi + "?v=" + Date.now(), { cache: "no-store" })).ok) break; } catch (e) { }
+      await bekle(5000);
+    }
+    document.getElementById("fbPaylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasimAdresi);
+    eylem.hidden = false;
+    d.textContent = "Hazır! Facebook'ta paylaşın; paylaşım penceresine günün metnini yapıştırabilirsiniz. Bağlantı: " + paylasimAdresi;
+  } catch (e) {
+    d.textContent = "Olmadı: " + e.message + (/[Şş]ifre/.test(e.message) ? " (yönetim panelinden yeniden giriş yapın)" : "");
+    if (/[Şş]ifre yanlış/.test(e.message)) try { localStorage.removeItem("tvplas_sifre"); } catch (x) { }
+  } finally {
+    btn.disabled = false;
+  }
+};
+document.getElementById("adresKopyala").onclick = async () => {
+  try { await navigator.clipboard.writeText(paylasimAdresi); } catch (e) { prompt("Bağlantıyı kopyalayın:", paylasimAdresi); }
+  document.getElementById("tiklanirDurum").textContent = "Bağlantı kopyalandı: " + paylasimAdresi;
+};
 
 // ---- Veriler: fotoğraflı en yeni Kıbrıs haberleri ve günün gazeteleri ----
 Promise.all([
