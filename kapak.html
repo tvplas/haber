@@ -277,7 +277,7 @@ async function ciz() {
   const no = ++cizimNo;
   [...tasarimKutu.children].forEach((b, i) => b.classList.toggle("aktif", i === tasarimSira));
   document.querySelectorAll("#boyutlar button").forEach(b => b.classList.toggle("aktif", b.dataset.b === boyut));
-  durum.textContent = "Kapak hazırlanıyor…";
+  durum.textContent = "Kapak hazırlanıyor… Fotoğraflar alınıyor; ilk açılışta 30–40 saniye sürebilir, sonraki değişiklikler hızlıdır.";
   const t = TASARIMLAR[tasarimSira];
   const resimler = await Promise.all(t.gorseller().map(gorselAl));
   if (no !== cizimNo) return;   // bu arada başka bir seçim yapıldı
