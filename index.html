@@ -44,6 +44,9 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .resim{display:block;aspect-ratio:16/9;background:var(--cizgi)}
 .resim img{width:100%;height:100%;object-fit:cover;display:block}
 .resim.yok{aspect-ratio:auto;height:6px;background:var(--vurgu)}
+.resim.video{position:relative}
+.resim.video::after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.6);box-shadow:0 0 0 3px rgba(255,255,255,.85);color:#fff;font-size:26px;display:grid;place-items:center;padding-left:5px;box-sizing:border-box}
+#detay iframe{width:100%;aspect-ratio:16/9;max-height:70vh;border:0;display:block;background:#000}
 .icerik{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
 .ust{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--soluk)}
 .etiket{color:var(--vurgu);font-weight:600}
@@ -258,7 +261,7 @@ function turkceAdres(h) {
 
 function kartYap(h) {
   const kart = el("article", "kart" + (h.tvplas ? " tvplas" : ""));
-  const resim = el("a", "resim");
+  const resim = el("a", "resim" + (h.v ? " video" : ""));
   const adres = turkceAdres(h);
   baglanti(resim, adres);
   if (h.g) {
@@ -279,8 +282,8 @@ function kartYap(h) {
   }
   const h2 = el("h2"), a = el("a", "", h.b);
   baglanti(a, adres); h2.append(a);
-  // Linki olmayan kendi haberlerimizde başlık ve fotoğraf tam metni açar
-  if (h.tvplas && !h.l) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(h); }; });
+  // Linki olmayan ya da videolu kendi haberlerimizde başlık ve fotoğraf tam metni (videoyu) portalda açar
+  if (h.tvplas && (!h.l || h.v)) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(h); }; });
   const pay = el("a", "paylas", "Facebook'ta paylaş");
   baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL));
   ic.append(ust, h2, el("p", "ozet", h.o));
@@ -302,7 +305,13 @@ function aramaMetni(h) {
 function detayAc(h) {
   const d = document.getElementById("detay");
   const kutu = d.querySelector(".d-gorsel");
-  if (h.g) {
+  if (h.v) {
+    // Panelden yüklenen video Drive oynatıcısıyla portalın içinde oynar
+    const f = el("iframe");
+    f.src = "https://drive.google.com/file/d/" + encodeURIComponent(h.v) + "/preview";
+    f.allow = "autoplay; fullscreen"; f.allowFullscreen = true; f.title = h.b;
+    kutu.replaceChildren(f);
+  } else if (h.g) {
     const img = el("img");
     img.src = h.g; img.alt = ""; img.referrerPolicy = "no-referrer";
     img.onerror = () => kutu.replaceChildren(metaforYap(h));
@@ -477,6 +486,7 @@ function ciz() {
 ara.oninput = ciz;
 const detay = document.getElementById("detay");
 detay.querySelector(".kapat").onclick = () => detay.close();
+detay.addEventListener("close", () => detay.querySelector("iframe")?.remove());   // kapanınca video da durur
 detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
 document.querySelectorAll(".menu button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".menu button").forEach(x => x.classList.toggle("aktif", x === b));

@@ -31,7 +31,7 @@ button:disabled{opacity:.6;cursor:wait}
 .sekmeler .cikis{margin-left:auto}
 .dosya{border:2px dashed var(--cizgi);border-radius:10px;padding:16px;text-align:center;color:var(--soluk);cursor:pointer;position:relative}
 .dosya input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.dosya img{max-width:100%;max-height:260px;border-radius:8px;display:block;margin:0 auto 8px}
+.dosya img,.dosya video{max-width:100%;max-height:260px;border-radius:8px;display:block;margin:0 auto 8px}
 .mesaj{margin-top:14px;padding:12px;border-radius:8px;display:none}
 .mesaj.iyi{display:block;background:color-mix(in srgb,var(--iyi) 15%,transparent);color:var(--iyi)}
 .mesaj.kotu{display:block;background:color-mix(in srgb,var(--vurgu) 15%,transparent);color:var(--vurgu)}
@@ -81,6 +81,8 @@ button:disabled{opacity:.6;cursor:wait}
       <textarea id="hOzet"></textarea>
       <label>Fotoğraf <small>(isteğe bağlı)</small></label>
       <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>📷 Fotoğraf seçmek için dokunun</span></div>
+      <label>Video <small>(isteğe bağlı – müzik klibi vb., en fazla 200 MB; fotoğraf seçilmezse videodan bir kare kapak olur)</small></label>
+      <div class="dosya"><input type="file" accept="video/*" id="hVideo"><span>🎬 Video seçmek için dokunun</span></div>
       <label for="hBolum">Bölüm <small>(haberin portalda çıkacağı menü)</small></label>
       <select id="hBolum">
         <option>Kıbrıs</option><option>Güney</option><option>Türkiye</option><option>Dünya</option>
@@ -186,12 +188,68 @@ document.querySelectorAll("[data-onizleme]").forEach(inp => inp.onchange = () =>
   kutu.querySelector("span").textContent = f.name + " – değiştirmek için dokunun";
 });
 
+$("hVideo").onchange = () => {
+  const inp = $("hVideo"), kutu = inp.parentElement, f = inp.files[0];
+  kutu.querySelector("video")?.remove();
+  if (!f) return;
+  const v = document.createElement("video");
+  v.src = URL.createObjectURL(f); v.muted = true; v.preload = "metadata";
+  kutu.prepend(v);
+  kutu.querySelector("span").textContent = f.name + " (" + (f.size / 1048576).toFixed(1) + " MB) – değiştirmek için dokunun";
+};
+
 function dosyaSifirla(form) {
   const inp = form.querySelector("[data-onizleme]");
   inp.value = "";
   inp.parentElement.querySelector("img")?.remove();
   inp.parentElement.querySelector("span").textContent =
     form.id === "haber" ? "📷 Fotoğraf seçmek için dokunun" : "🖼️ Afiş seçmek için dokunun";
+  if (form.id === "haber") {
+    $("hVideo").value = "";
+    $("hVideo").parentElement.querySelector("video")?.remove();
+    $("hVideo").parentElement.querySelector("span").textContent = "🎬 Video seçmek için dokunun";
+  }
+}
+
+const base64 = parca => new Promise((ok, hata) => {
+  const r = new FileReader();
+  r.onload = () => ok(r.result.split(",")[1]);
+  r.onerror = () => hata(r.error);
+  r.readAsDataURL(parca);
+});
+
+// Videoyu sunucu üzerinden Drive'a parça parça yükler, Drive dosya kimliğini döndürür
+async function videoYukle(dosya, m) {
+  if (dosya.size > 200 * 1048576) throw new Error("Video en fazla 200 MB olabilir.");
+  const b = await istek({ islem: "videoBasla", ad: dosya.name, boyut: dosya.size, tur: dosya.type });
+  if (!b.tamam) throw new Error(b.hata || "Video yüklemesi başlamadı");
+  for (let bas = 0; bas < dosya.size; bas += b.parca) {
+    mesaj(m, "🎬 Video yükleniyor… %" + Math.floor(bas / dosya.size * 100) + " (sayfayı kapatmayın)", true);
+    const c = await istek({ islem: "videoParca", anahtar: b.anahtar, bas, veri: await base64(dosya.slice(bas, bas + b.parca)) });
+    if (!c.tamam) throw new Error(c.hata || "Video yüklenemedi");
+    if (c.video) return c.video;
+  }
+  throw new Error("Video yüklemesi tamamlanmadı");
+}
+
+// Fotoğraf seçilmediyse videonun bir karesini (süresinin üçte biri, en çok 20. saniye) kapak yapar; olmazsa boş döner
+function kareAl(dosya) {
+  return new Promise(ok => {
+    const v = document.createElement("video"), adres = URL.createObjectURL(dosya);
+    const bitir = s => { clearTimeout(sure); URL.revokeObjectURL(adres); ok(s); };
+    const sure = setTimeout(() => bitir(""), 15000);
+    v.muted = true; v.playsInline = true; v.preload = "auto";
+    v.onloadedmetadata = () => { v.currentTime = Math.min(v.duration / 3 || 1, 20); };
+    v.onseeked = () => {
+      const o = Math.min(1, 1600 / Math.max(v.videoWidth, v.videoHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.round(v.videoWidth * o); c.height = Math.round(v.videoHeight * o);
+      c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+      bitir(c.width ? c.toDataURL("image/jpeg", 0.85) : "");
+    };
+    v.onerror = () => bitir("");
+    v.src = adres;
+  });
 }
 
 async function girisYap(s, sessiz) {
@@ -225,10 +283,14 @@ document.querySelectorAll(".sekmeler [data-s]").forEach(b => b.onclick = () => {
 async function gonder(form, veri) {
   const btn = form.querySelector("button.ana"), m = form.querySelector(".mesaj");
   const f = form.querySelector("[data-onizleme]").files[0];
+  const v = form.id === "haber" ? $("hVideo").files[0] : null;
   btn.disabled = true;
   mesaj(m, f ? "Fotoğraf hazırlanıyor ve yükleniyor…" : "Kaydediliyor…", true);
   try {
     if (f) veri.gorsel = await kucult(f);
+    else if (v) veri.gorsel = await kareAl(v);
+    if (v) veri.video = await videoYukle(v, m);
+    mesaj(m, "Kaydediliyor…", true);
     const c = await istek(veri);
     if (!c.tamam) throw new Error(c.hata || "Kaydedilemedi");
     form.reset(); dosyaSifirla(form); tarihleriSifirla();
