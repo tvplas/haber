@@ -101,9 +101,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
     <button data-k="Etkinlikler">ETKİNLİKLER</button>
-    <button data-k="Müzik">MÜZİK</button>
-    <button data-k="Kültür-Sanat">KÜLTÜR-SANAT</button>
-    <button data-k="Magazin">MAGAZİN</button>
+    <button data-k="Sanat-Magazin">MÜZİK · KÜLTÜR-SANAT · MAGAZİN</button>
     <button data-k="Bilim">BİLİM</button>
     <button data-k="Ekonomi">EKONOMİ</button>
     <button data-k="Sağlık">SAĞLIK</button>
@@ -128,9 +126,12 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
-const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Etkinlikler", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Ekonomi", "Sağlık", "Spor"];
+const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Etkinlikler", "Sanat-Magazin", "Bilim", "Ekonomi", "Sağlık", "Spor"];
+// Müzik, Kültür-Sanat ve Magazin tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
+const ORTAK = "Sanat-Magazin", ORTAK_ALT = ["Müzik", "Kültür-Sanat", "Magazin"];
+const bolumBul = t => ORTAK_ALT.includes(t) ? [ORTAK, t] : [BOLUMLER.includes(t) ? t : "Kıbrıs", null];
 // Etkinlikler ve Müzik Bing aramalarından gelir; başlığı bu kelimelere uymayanlar kendi bölümüne aktarılır.
-// Ayrıca Kıbrıs haberlerinden etkinlik olanlar Etkinlikler'de, müzikle ilgili haberler Müzik'te de görünür.
+// Ayrıca Kıbrıs haberlerinden etkinlik olanlar Etkinlikler'de, müzikle ilgili haberler Sanat-Magazin'de de görünür.
 // Kelime başında aranır; kısa kelimeler kelime sonuyla sınırlı (ör. "opera" ≠ "operasyon", "rap" ≠ "rapor")
 const ETKINLIK = /(^|[\s"'“‘(])(konser|festival|sergi|tiyatro|gösteri|söyleşi|dinleti|etkinli|fuar|resital|opera\b|bale\b|sahne|gala\b|şenli|yarışma|anma\b|tören)/i;
 const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
@@ -231,8 +232,8 @@ function metaforYap(h) {
   // Önce başlık, başlıkta ipucu yoksa özet (Türkçe küçük harfe çevrilerek: "YAĞIŞ" → "yağış")
   const baslik = h.b.toLocaleLowerCase("tr"), ozet = (h.o || "").toLocaleLowerCase("tr");
   const kural = METAFORLAR.find(([, re]) => re.test(baslik)) || METAFORLAR.find(([, re]) => re.test(ozet));
-  const ikon = kural ? kural[0] : (BOLUM_SEMBOL[h.kat] || "newspaper");
-  const [r1, r2] = BOLUM_RENK[h.kat] || BOLUM_RENK["Kıbrıs"];
+  const ikon = kural ? kural[0] : (BOLUM_SEMBOL[h.alt || h.kat] || "newspaper");
+  const [r1, r2] = BOLUM_RENK[h.alt || h.kat] || BOLUM_RENK["Kıbrıs"];
   const d = el("div", "metafor");
   d.style.setProperty("--r1", r1);
   d.style.setProperty("--r2", r2);
@@ -255,7 +256,7 @@ function kartYap(h) {
   }
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
-  ust.append(el("span", "etiket", h.tvplas ? "TVplas" : h.kat), el("span", "", h.k), el("span", "", kac(h.t)));
+  ust.append(el("span", "etiket", h.tvplas ? "TVplas" : (h.alt || h.kat)), el("span", "", h.k), el("span", "", kac(h.t)));
   if (h.ob) { const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c); }
   const h2 = el("h2"), a = el("a", "", h.b);
   baglanti(a, h.l); h2.append(a);
@@ -367,18 +368,21 @@ async function yukle() {
     sayacGoster(veri.sayac);
     const ekler = veri.ekler || {};
     // Kendi haberlerimiz panelde seçilen bölümde (boşsa Kıbrıs; sabitler en üstte); diğerleri sunucudan tarihe göre dizili gelir
-    const benim = (ekler.haberler || []).map(h => ({ ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true,
-      kat: BOLUMLER.includes(h.bolum) ? h.bolum : "Kıbrıs" }));
+    const benim = (ekler.haberler || []).map(h => {
+      const [kat, alt] = bolumBul(h.bolum);
+      return { ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true, kat, alt };
+    });
     const tum = (veri.haberler || []).map(h => {
-      let kat = BOLUMLER.includes(h.tur) ? h.tur : "Kıbrıs";
-      if (kat === "Etkinlikler" && !ETKINLIK.test(h.b)) kat = "Kıbrıs";
-      if (kat === "Müzik" && !MUZIK.test(h.b)) kat = "Magazin";
-      return { ...h, kat };
+      let tur = h.tur;
+      if (tur === "Etkinlikler" && !ETKINLIK.test(h.b)) tur = "Kıbrıs";
+      if (tur === "Müzik" && !MUZIK.test(h.b)) tur = "Magazin";
+      const [kat, alt] = bolumBul(tur);
+      return { ...h, kat, alt };
     });
     [...benim, ...tum].forEach(h => {
       h.ekBolum = [];
       if (h.kat === "Kıbrıs" && ETKINLIK.test(h.b)) h.ekBolum.push("Etkinlikler");
-      if (h.kat !== "Müzik" && h.kat !== "Spor" && MUZIK.test(h.b)) h.ekBolum.push("Müzik");
+      if (h.kat !== ORTAK && h.kat !== "Spor" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
     });
     haberler = [...benim.filter(h => h.sabit),
       ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
