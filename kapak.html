@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>TVplas Kapak Hazırlayıcı</title>
+<style>
+:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#c8102e;--cizgi:#e4e7ec}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--kart:#1b2029;--yazi:#e8eaee;--soluk:#98a2b3;--vurgu:#ff5a6e;--cizgi:#2a313d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:15px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif}
+main{max-width:620px;margin:auto;padding:20px 16px 48px}
+h1{margin:0;font-size:24px}h1 span{color:var(--vurgu)}
+.bilgi{color:var(--soluk);font-size:14px;margin:2px 0 16px}
+.grup{margin:0 0 12px}
+.grup b{display:block;font-size:13px;color:var(--soluk);margin-bottom:6px}
+.secim{display:flex;gap:6px;flex-wrap:wrap}
+.secim button,.dugme{padding:9px 14px;border-radius:9px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font:inherit;font-weight:600;cursor:pointer}
+.secim button.aktif{background:var(--vurgu);border-color:var(--vurgu);color:#fff}
+#tuval{display:block;width:100%;height:auto;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.25);background:#222;margin:8px 0 14px}
+.eylem{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.ana{background:var(--vurgu)!important;border-color:var(--vurgu)!important;color:#fff!important}
+textarea{width:100%;min-height:170px;padding:10px 12px;border-radius:10px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font:inherit}
+.durum{color:var(--soluk);font-size:14px;min-height:21px}
+.nasil{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;padding:12px 16px;font-size:14px;margin-top:18px}
+.nasil ol{margin:6px 0 10px;padding-left:20px}
+a{color:var(--vurgu)}
+</style>
+</head>
+<body>
+<main>
+  <h1><span>TVplas</span> Kapak Hazırlayıcı</h1>
+  <div class="bilgi">Her gün günün haberleri ve gazeteleriyle yeni bir Facebook kapağı · <span id="tarihYazi"></span></div>
+
+  <div class="grup"><b>Tasarım</b><div class="secim" id="tasarimlar"></div></div>
+  <div class="grup"><b>Boyut</b><div class="secim" id="boyutlar">
+    <button data-b="kare">Kare (Facebook gönderisi)</button>
+    <button data-b="yatay">Yatay (bağlantı / kapak)</button>
+  </div></div>
+  <div class="grup"><b>Haber ve renk</b><div class="secim">
+    <button id="baskaHaber">⟳ Başka haber</button>
+    <button id="baskaRenk">🎨 Başka renk</button>
+  </div></div>
+
+  <canvas id="tuval" width="1080" height="1080"></canvas>
+  <div class="durum" id="durum">Günün haberleri yükleniyor…</div>
+  <div class="eylem">
+    <button class="dugme ana" id="indir">⬇ Kapağı indir</button>
+    <button class="dugme" id="paylas" hidden>📤 Paylaş (Facebook'u seçin)</button>
+  </div>
+
+  <div class="grup"><b>Günün paylaşım metni</b>
+    <textarea id="metin"></textarea>
+    <div class="eylem" style="margin-top:8px">
+      <button class="dugme" id="kopyala">📋 Metni kopyala</button>
+      <button class="dugme" id="baskaMetin">⟳ Başka metin</button>
+    </div>
+  </div>
+
+  <div class="nasil"><b>Nasıl kullanılır?</b>
+    <ol>
+      <li>Bu sayfayı her sabah açın: kapak o günün haberi ve gazeteleriyle kendiliğinden hazırlanır, tasarım ve renk her gün değişir.</li>
+      <li>Beğenmezseniz tasarımı, haberi ya da rengi değiştirin.</li>
+      <li><b>Kapağı indir</b>'e basın (telefonda <b>Paylaş</b> ile doğrudan Facebook'u da seçebilirsiniz).</li>
+      <li><b>Metni kopyala</b>'ya basın; Facebook'ta yeni gönderiye görseli ekleyip metni yapıştırın.</li>
+    </ol>
+    <a href="./">← TVplas Portal'a dön</a>
+  </div>
+</main>
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
+const PORTAL = "https://tvplas.github.io/haber/";
+const BOLUMLER = ["Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Güney"];
+// Her gün farklı renk teması: [canlı ton, koyu ton]
+const RENKLER = [["#c8102e", "#5c0614"], ["#0f766e", "#042f2e"], ["#1d4ed8", "#0b1a4a"], ["#c2410c", "#431407"],
+  ["#7c3aed", "#2e1065"], ["#be185d", "#4a0420"], ["#0369a1", "#082f49"]];
+const tuval = document.getElementById("tuval"), ctx = tuval.getContext("2d");
+const durum = document.getElementById("durum");
+const bugun = new Date();
+const gunNo = Math.floor((bugun - new Date(bugun.getFullYear(), 0, 0)) / 864e5);   // yılın kaçıncı günü
+const tarihUzun = bugun.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+document.getElementById("tarihYazi").textContent = tarihUzun;
+
+let haberler = [], gazeteler = [], haberSira = 0, renkSira = gunNo % RENKLER.length, metinSira = gunNo, boyut = "kare";
+const gorselOnbellek = {};
+
+// Görseller sunucu üzerinden alınır: başka sitelerin görselleri tuvale çizilince kapak indirilemez (CORS)
+function gorselAl(url) {
+  if (!url) return Promise.resolve(null);
+  if (!gorselOnbellek[url]) {
+    gorselOnbellek[url] = fetch(API + "?islem=gorsel&u=" + encodeURIComponent(url)).then(r => r.json()).then(v => new Promise(coz => {
+      if (!v.veri) return coz(null);
+      const img = new Image();
+      img.onload = () => coz(img);
+      img.onerror = () => coz(null);
+      img.src = "data:" + v.tip + ";base64," + v.veri;
+    })).catch(() => null);
+  }
+  return gorselOnbellek[url];
+}
+
+// ---- Çizim yardımcıları ----
+const YAZI = '"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif';
+const renk = () => RENKLER[renkSira];
+function yazi(px, kalin = 700) { ctx.font = kalin + " " + px + "px " + YAZI; ctx.textBaseline = "top"; ctx.textAlign = "left"; }
+// object-fit: cover gibi; ust: dikey hiza (0 üstten, 0.5 ortadan)
+function kapla(img, x, y, w, h, ust = 0.35) {
+  const o = Math.max(w / img.width, h / img.height), gw = img.width * o, gh = img.height * o;
+  ctx.drawImage(img, x + (w - gw) / 2, y + (h - gh) * ust, gw, gh);
+}
+function satirla(metin, enGenislik, enSatir) {
+  const satirlar = [];
+  let satir = "";
+  for (const k of metin.split(/\s+/)) {
+    const dene = satir ? satir + " " + k : k;
+    if (ctx.measureText(dene).width > enGenislik && satir) { satirlar.push(satir); satir = k; } else satir = dene;
+  }
+  if (satir) satirlar.push(satir);
+  if (satirlar.length > enSatir) {
+    satirlar.length = enSatir;
+    let son = satirlar[enSatir - 1];
+    while (ctx.measureText(son + "…").width > enGenislik && son.includes(" ")) son = son.slice(0, son.lastIndexOf(" "));
+    satirlar[enSatir - 1] = son + "…";
+  }
+  return satirlar;
+}
+// Metni kutuya sığana kadar yazı boyunu küçültür; yazdığı yüksekliği döndürür
+function sigdir(metin, x, y, w, enBuyuk, enKucuk, enSatir, renkKodu, kalin = 800) {
+  let px = enBuyuk;
+  for (; px > enKucuk; px -= 2) {
+    yazi(px, kalin);
+    const s = satirla(metin, w, 99);
+    if (s.length <= enSatir) break;
+  }
+  yazi(px, kalin);
+  const satirlar = satirla(metin, w, enSatir);
+  ctx.fillStyle = renkKodu;
+  satirlar.forEach((s, i) => ctx.fillText(s, x, y + i * px * 1.2));
+  return satirlar.length * px * 1.2;
+}
+function yuvarlak(x, y, w, h, r) {
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+}
+// Yuvarlak köşeli etiket; sagdan: x sağ kenar kabul edilir
+function rozet(metin, x, y, px, arka, sagdan = false) {
+  yazi(px, 800);
+  const w = ctx.measureText(metin).width + px * 1.3, h = px * 1.8, sx = sagdan ? x - w : x;
+  yuvarlak(sx, y, w, h, h / 2); ctx.fillStyle = arka; ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.textBaseline = "middle"; ctx.fillText(metin, sx + px * 0.65, y + h / 2 + 1);
+  ctx.textBaseline = "top";
+  return h;
+}
+function logo(x, y, px = 46) {
+  yazi(px, 900);
+  ctx.fillStyle = "#ff4058"; ctx.fillText("TVplas", x, y);
+  ctx.fillStyle = "#fff"; ctx.fillText(" Portal", x + ctx.measureText("TVplas").width, y);
+}
+function altBant(W, H, yuk, sagMetin) {
+  ctx.fillStyle = renk()[0]; ctx.fillRect(0, H - yuk, W, yuk);
+  yazi(Math.round(yuk * 0.36), 700); ctx.fillStyle = "#fff"; ctx.textBaseline = "middle";
+  ctx.fillText("🌐 tvplas.github.io/haber", 40, H - yuk / 2);
+  ctx.textAlign = "right"; ctx.fillText(sagMetin, W - 40, H - yuk / 2);
+  ctx.textAlign = "left"; ctx.textBaseline = "top";
+}
+function renkliZemin(x, y, w, h) {
+  const g = ctx.createLinearGradient(x, y, x + w, y + h); g.addColorStop(0, renk()[0]); g.addColorStop(1, renk()[1]);
+  ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+}
+const haber = (i = 0) => haberler[(haberSira + i) % haberler.length];
+// Günden güne farklı gazeteler
+const gununGazeteleri = () => [0, 1, 2, 3, 4].map(i => gazeteler[(gunNo * 5 + i * 11) % gazeteler.length]);
+
+// ---- Tasarımlar: gorseller() çizimden önce yüklenecek adresleri, ciz() eşzamanlı çizimi verir ----
+const TASARIMLAR = [
+  { ad: "Manşet", gorseller: () => [haber().g], ciz(W, H, [img]) {
+    img ? kapla(img, 0, 0, W, H) : renkliZemin(0, 0, W, H);
+    const g = ctx.createLinearGradient(0, H * 0.25, 0, H);
+    g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(0.55, "rgba(0,0,0,.72)"); g.addColorStop(1, "rgba(0,0,0,.93)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const ust = ctx.createLinearGradient(0, 0, 0, 150); ust.addColorStop(0, "rgba(0,0,0,.65)"); ust.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = ust; ctx.fillRect(0, 0, W, 150);
+    logo(40, 34);
+    rozet(tarihUzun.toLocaleUpperCase("tr"), W - 40, 40, 22, renk()[0], true);
+    const kare = boyut === "kare", bant = 74;
+    const y = H - bant - (kare ? 330 : 230);
+    rozet("KIBRIS'TA BUGÜN", 40, y - 66, 24, renk()[0]);
+    sigdir(haber().b, 40, y, W - 80, kare ? 66 : 54, 34, kare ? 4 : 3, "#fff");
+    altBant(W, H, bant, "Kıbrıs'ın haberi tek adreste");
+  } },
+  { ad: "Gazeteler", gorseller: () => gununGazeteleri().map(x => x.g), ciz(W, H, resimler) {
+    const kare = boyut === "kare";
+    const g = ctx.createRadialGradient(W / 2, H * 0.6, 40, W / 2, H * 0.6, W * 0.9);
+    g.addColorStop(0, renk()[0]); g.addColorStop(1, "#08080a");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    logo(40, 34);
+    rozet(tarihUzun.toLocaleUpperCase("tr"), W - 40, 40, 22, "rgba(0,0,0,.45)", true);
+    yazi(kare ? 70 : 54, 900); ctx.fillStyle = "#fff"; ctx.textAlign = "center";
+    ctx.fillText("Bugünün Gazeteleri", W / 2, kare ? 130 : 108);
+    yazi(kare ? 30 : 24, 600); ctx.fillStyle = "rgba(255,255,255,.88)"; ctx.textAlign = "center";
+    ctx.fillText("Kıbrıs gazetelerinin birinci sayfaları tek sayfada", W / 2, kare ? 222 : 176);
+    ctx.textAlign = "left";
+    // Beş gazete yelpaze gibi dizilir; ortadaki en önde
+    const sh = kare ? 560 : 330, sw = sh * 0.74, merkezY = kare ? 600 : 400;
+    const aci = [-15, -7.5, 0, 7.5, 15], kay = [-2, -1, 0, 1, 2];
+    [0, 4, 1, 3, 2].forEach(i => {
+      const r = resimler[i]; if (!r) return;
+      ctx.save();
+      ctx.translate(W / 2 + kay[i] * sw * 0.66, merkezY + Math.abs(kay[i]) * 20);
+      ctx.rotate(aci[i] * Math.PI / 180);
+      ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 34; ctx.shadowOffsetY = 12;
+      ctx.fillStyle = "#fff"; ctx.fillRect(-sw / 2 - 6, -sh / 2 - 6, sw + 12, sh + 12);
+      ctx.shadowColor = "transparent";
+      kapla(r, -sw / 2, -sh / 2, sw, sh, 0);
+      ctx.restore();
+    });
+    altBant(W, H, 74, gazeteler.length + " gazetenin manşeti");
+  } },
+  { ad: "Günün Gündemi", gorseller: () => [0, 1, 2].map(i => haber(i).g), ciz(W, H, resimler) {
+    const kare = boyut === "kare", [a, k] = renk();
+    const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, k); g.addColorStop(1, "#0b0b0f");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = a; ctx.fillRect(0, 0, 14, H);
+    logo(48, 34);
+    rozet(tarihUzun.toLocaleUpperCase("tr"), W - 40, 40, 22, a, true);
+    yazi(kare ? 62 : 46, 900); ctx.fillStyle = "#fff"; ctx.fillText("Günün Gündemi", 48, kare ? 122 : 100);
+    const adet = kare ? 3 : 2;
+    const ustY = kare ? 222 : 172, satirH = kare ? 250 : 182, rw = kare ? 340 : 290, rh = satirH - 32;
+    for (let i = 0; i < adet; i++) {
+      const y = ustY + i * satirH;
+      ctx.save(); yuvarlak(48, y, rw, rh, 18); ctx.clip();
+      if (resimler[i]) kapla(resimler[i], 48, y, rw, rh, 0.4); else { ctx.fillStyle = a; ctx.fillRect(48, y, rw, rh); }
+      ctx.restore();
+      rozet(String(i + 1), 62, y + 12, 26, a);
+      sigdir(haber(i).b, 48 + rw + 30, y + 6, W - (48 + rw + 30) - 40, kare ? 40 : 34, 24, kare ? 4 : 3, "#fff", 700);
+    }
+    altBant(W, H, 74, "Kıbrıs, Türkiye ve dünyadan");
+  } },
+  { ad: "Takvim", gorseller: () => [haber().g], ciz(W, H, [img]) {
+    const kare = boyut === "kare";
+    // Fotoğraf: kare biçimde üst yarı, yatay biçimde sol yarı; kalan kısım renkli panel
+    const fw = kare ? W : W * 0.5, fh = kare ? H * 0.5 : H;
+    img ? kapla(img, 0, 0, fw, fh) : renkliZemin(0, 0, fw, fh);
+    const px = kare ? 0 : W * 0.5, py = kare ? H * 0.5 : 0, pw = kare ? W : W * 0.5, ph = kare ? H * 0.5 : H;
+    renkliZemin(px, py, pw, ph);
+    yazi(44, 900);
+    const lw = ctx.measureText("TVplas Portal").width + 52;
+    ctx.fillStyle = "rgba(0,0,0,.78)"; yuvarlak(26, 26, lw, 80, 40); ctx.fill();
+    logo(52, 41, 44);
+    const gun = String(bugun.getDate());
+    const ay = bugun.toLocaleDateString("tr-TR", { month: "long" }).toLocaleUpperCase("tr");
+    const hafta = bugun.toLocaleDateString("tr-TR", { weekday: "long" }).toLocaleUpperCase("tr");
+    yazi(kare ? 128 : 120, 900); ctx.fillStyle = "#fff"; ctx.fillText(gun, px + 44, py + 28);
+    const gw = ctx.measureText(gun).width;
+    yazi(36, 800); ctx.fillStyle = "#fff"; ctx.fillText(ay, px + 64 + gw, py + 52);
+    yazi(26, 600); ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.fillText(hafta, px + 64 + gw, py + 98);
+    ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.fillRect(px + 44, py + 182, 96, 6);
+    sigdir(haber().b, px + 44, py + 212, pw - 88, kare ? 46 : 40, 26, kare ? 4 : 6, "#fff");
+    yazi(24, 700); ctx.fillStyle = "#fff"; ctx.textBaseline = "bottom";
+    ctx.fillText("🌐 tvplas.github.io/haber", px + 44, py + ph - 28); ctx.textBaseline = "top";
+  } }
+];
+
+let tasarimSira = gunNo % TASARIMLAR.length;   // her gün kendiliğinden farklı tasarım
+const tasarimKutu = document.getElementById("tasarimlar");
+TASARIMLAR.forEach((t, i) => {
+  const b = document.createElement("button");
+  b.textContent = t.ad;
+  b.onclick = () => { tasarimSira = i; ciz(); };
+  tasarimKutu.append(b);
+});
+
+let cizimNo = 0;
+async function ciz() {
+  if (!haberler.length) return;
+  const no = ++cizimNo;
+  [...tasarimKutu.children].forEach((b, i) => b.classList.toggle("aktif", i === tasarimSira));
+  document.querySelectorAll("#boyutlar button").forEach(b => b.classList.toggle("aktif", b.dataset.b === boyut));
+  durum.textContent = "Kapak hazırlanıyor…";
+  const t = TASARIMLAR[tasarimSira];
+  const resimler = await Promise.all(t.gorseller().map(gorselAl));
+  if (no !== cizimNo) return;   // bu arada başka bir seçim yapıldı
+  const W = boyut === "kare" ? 1080 : 1200, H = boyut === "kare" ? 1080 : 630;
+  tuval.width = W; tuval.height = H;
+  t.ciz(W, H, resimler);
+  durum.textContent = "Kapak hazır: " + t.ad + " · " + (boyut === "kare" ? "1080×1080" : "1200×630");
+  metniYaz();
+}
+
+// ---- Paylaşım metni: her gün farklı kalıp ----
+function metniYaz() {
+  const b = haber().b, n = gazeteler.length;
+  const kaliplar = [
+    `📰 ${tarihUzun} | Kıbrıs'ın gündemi TVplas Portal'da!\n\nGünün öne çıkan haberi: ${b}\n\n✅ ${n} gazetenin birinci sayfası\n✅ Kıbrıs, Güney, Türkiye ve dünyadan haberler\n✅ Her 30 dakikada güncel\n\n👉 ${PORTAL}`,
+    `☕ Günaydın Kıbrıs! Bugün ${tarihUzun}.\n\nSabah kahvenizin yanına günün gazeteleri ve son dakika haberleri hazır. ${n} gazetenin manşeti tek sayfada!\n\n👉 ${PORTAL}`,
+    `🔴 GÜNDEM | ${tarihUzun}\n\n${b}\n\nAyrıntılar ve günün tüm gelişmeleri TVplas Portal'da 👇\n${PORTAL}`,
+    `🗞️ Bugün gazeteler ne yazdı?\n\n${n} Kıbrıs gazetesinin birinci sayfası, Rum basınından Türkçe haberler ve dünyadan son gelişmeler tek adreste.\n\n👉 ${PORTAL}`,
+    `📲 Kıbrıs'ın haberi cebinizde!\n\n${tarihUzun} · Öne çıkan: ${b}\n\nUygulama indirmeden, tek dokunuşla 👉 ${PORTAL}`,
+    `🌍 Kıbrıs'tan ve dünyadan bugün neler oldu?\n\n${b}\n\nTüm haberler Türkçe, her 30 dakikada güncel. Takipte kalın!\n👉 ${PORTAL}`,
+    `✨ ${tarihUzun} — günün özeti hazır!\n\nGazete manşetleri, son dakika, spor, ekonomi, magazin… Hepsi TVplas Portal'da.\n\n👉 ${PORTAL}`
+  ];
+  const etiketler = "\n\n#TVplas #Kıbrıs #KKTC #KıbrısHaber #Lefkoşa #Girne #Mağusa #GüncelHaber #Gazeteler\n📣 Reklam ve tanıtım: WhatsApp 0533 863 6839";
+  document.getElementById("metin").value = kaliplar[metinSira % kaliplar.length] + etiketler;
+}
+
+// ---- Düğmeler ----
+document.querySelectorAll("#boyutlar button").forEach(b => b.onclick = () => { boyut = b.dataset.b; ciz(); });
+document.getElementById("baskaHaber").onclick = () => { haberSira++; ciz(); };
+document.getElementById("baskaRenk").onclick = () => { renkSira = (renkSira + 1) % RENKLER.length; ciz(); };
+document.getElementById("baskaMetin").onclick = () => { metinSira++; metniYaz(); };
+document.getElementById("kopyala").onclick = async () => {
+  const t = document.getElementById("metin");
+  try { await navigator.clipboard.writeText(t.value); } catch (e) { t.select(); document.execCommand("copy"); }
+  durum.textContent = "Paylaşım metni kopyalandı; Facebook'ta gönderiye yapıştırabilirsiniz.";
+};
+const dosyaAdi = () => "TVplas-Kapak-" + bugun.toLocaleDateString("sv-SE") + ".jpg";
+document.getElementById("indir").onclick = () => tuval.toBlob(b => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(b); a.download = dosyaAdi(); a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  durum.textContent = "Kapak indirildi: " + dosyaAdi();
+}, "image/jpeg", 0.92);
+// Telefonda paylaşım menüsü (Facebook dahil) doğrudan açılır
+const paylas = document.getElementById("paylas");
+if (navigator.canShare) {
+  paylas.hidden = false;
+  paylas.onclick = () => tuval.toBlob(async b => {
+    const veri = { files: [new File([b], dosyaAdi(), { type: "image/jpeg" })], text: document.getElementById("metin").value };
+    if (!navigator.canShare(veri)) { durum.textContent = "Bu cihaz görsel paylaşmayı desteklemiyor; lütfen kapağı indirin."; return; }
+    try { await navigator.share(veri); } catch (e) { }
+  }, "image/jpeg", 0.92);
+}
+
+// ---- Veriler: fotoğraflı en yeni Kıbrıs haberleri ve günün gazeteleri ----
+Promise.all([
+  fetch(API + "?ziyaret=0").then(r => r.json()),
+  fetch(API + "?islem=gazeteler").then(r => r.json()).catch(() => ({}))
+]).then(([v, gz]) => {
+  haberler = (v.haberler || []).filter(h => h.g && !BOLUMLER.includes(h.tur)).slice(0, 30);
+  gazeteler = (gz.gazeteler || []).filter(g => g.g);
+  if (!haberler.length) { durum.textContent = "Haberler şu an alınamadı, lütfen sayfayı yenileyin."; return; }
+  if (!gazeteler.length && TASARIMLAR[tasarimSira].ad === "Gazeteler") tasarimSira = 0;
+  ciz();
+}).catch(() => { durum.textContent = "Haberler şu an alınamadı, lütfen sayfayı yenileyin."; });
+</script>
+</body>
+</html>
