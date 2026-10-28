@@ -403,6 +403,8 @@ function gazeteAc(g) {
   const d = document.getElementById("detay");
   const img = el("img");
   img.src = g.g; img.alt = g.ad + " birinci sayfa"; img.referrerPolicy = "no-referrer";
+  // Kaynak sayfalar ~370×500 piksel: kendi boyutundan büyük gösterilirse bulanıklaşır, bu yüzden şişirilmez
+  img.style.cssText = "width:auto;max-width:100%;margin:0 auto";
   d.querySelector(".d-gorsel").replaceChildren(img);
   d.querySelector("h2").textContent = g.ad + (g.basliklar[0] ? ": " + g.basliklar[0] : "");
   d.querySelector(".metin").textContent = g.basliklar.slice(1).map(b => "• " + b).join("\n");
