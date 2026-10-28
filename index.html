@@ -100,7 +100,6 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Kıbrıs" class="aktif">KIBRIS</button>
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
-    <button data-k="Etkinlikler">ETKİNLİKLER</button>
     <button data-k="Sanat-Magazin">MÜZİK · KÜLTÜR-SANAT · MAGAZİN</button>
     <button data-k="Bilim-Sağlık-Ekonomi">BİLİM · SAĞLIK · EKONOMİ</button>
     <button data-k="Spor">SPOR</button>
@@ -124,7 +123,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
-const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Etkinlikler", "Sanat-Magazin", "Bilim-Sağlık-Ekonomi", "Spor"];
+const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Sanat-Magazin", "Bilim-Sağlık-Ekonomi", "Spor"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
 const GRUPLAR = { "Sanat-Magazin": ["Müzik", "Kültür-Sanat", "Magazin"], "Bilim-Sağlık-Ekonomi": ["Bilim", "Sağlık", "Ekonomi"] };
 const ORTAK = "Sanat-Magazin";   // müzik haberlerinin çapraz eklendiği menü
@@ -132,10 +131,9 @@ const bolumBul = t => {
   const grup = Object.keys(GRUPLAR).find(g => GRUPLAR[g].includes(t));
   return grup ? [grup, t] : [BOLUMLER.includes(t) ? t : "Kıbrıs", null];
 };
-// Etkinlikler ve Müzik Bing aramalarından gelir; başlığı bu kelimelere uymayanlar kendi bölümüne aktarılır.
-// Ayrıca Kıbrıs haberlerinden etkinlik olanlar Etkinlikler'de, müzikle ilgili haberler Sanat-Magazin'de de görünür.
+// Müzik Bing aramalarından gelir; başlığı bu kelimelere uymayanlar Magazin'e aktarılır.
+// Ayrıca müzikle ilgili diğer haberler Sanat-Magazin'de de görünür.
 // Kelime başında aranır; kısa kelimeler kelime sonuyla sınırlı (ör. "opera" ≠ "operasyon", "rap" ≠ "rapor")
-const ETKINLIK = /(^|[\s"'“‘(])(konser|festival|sergi|tiyatro|gösteri|söyleşi|dinleti|etkinli|fuar|resital|opera\b|bale\b|sahne|gala\b|şenli|yarışma|anma\b|tören)/i;
 const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
 let bolum = "Kıbrıs", haberler = [], araReklam = [];
 const ara = document.getElementById("ara"), liste = document.getElementById("liste");
@@ -374,16 +372,15 @@ async function yukle() {
       const [kat, alt] = bolumBul(h.bolum);
       return { ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true, kat, alt };
     });
-    const tum = (veri.haberler || []).map(h => {
+    // Etkinlikler bölümü kaldırıldı: sunucunun önbelleğinden gelebilecek eski etkinlik haberleri atlanır
+    const tum = (veri.haberler || []).filter(h => h.tur !== "Etkinlikler").map(h => {
       let tur = h.tur;
-      if (tur === "Etkinlikler" && !ETKINLIK.test(h.b)) tur = "Kıbrıs";
       if (tur === "Müzik" && !MUZIK.test(h.b)) tur = "Magazin";
       const [kat, alt] = bolumBul(tur);
       return { ...h, kat, alt };
     });
     [...benim, ...tum].forEach(h => {
       h.ekBolum = [];
-      if (h.kat === "Kıbrıs" && ETKINLIK.test(h.b)) h.ekBolum.push("Etkinlikler");
       if (h.kat !== ORTAK && h.kat !== "Spor" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
     });
     haberler = [...benim.filter(h => h.sabit),
