@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>TVplas Portal – Türkçe haber</title>
+<style>
+:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#c8102e;--cizgi:#e4e7ec}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--kart:#1b2029;--yazi:#e8eaee;--soluk:#98a2b3;--vurgu:#ff5a6e;--cizgi:#2a313d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:16px/1.6 "Segoe UI",system-ui,-apple-system,sans-serif}
+header{max-width:760px;margin:auto;padding:20px 16px 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-size:24px;font-weight:700;color:var(--yazi);text-decoration:none;letter-spacing:-.5px}.logo span{color:var(--vurgu)}
+.wa{display:inline-flex;align-items:center;gap:8px;background:#128c7e;color:#fff;font-weight:700;font-size:14px;text-decoration:none;padding:7px 13px;border-radius:999px;white-space:nowrap}
+main{max-width:760px;margin:auto;padding:8px 16px 40px}
+article{background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;overflow:hidden}
+.gorsel img{width:100%;max-height:420px;object-fit:cover;display:block;background:var(--cizgi)}
+.govde{padding:18px 20px 22px}
+.ust{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--soluk)}
+.ust b{color:var(--vurgu)}
+h1{font-size:25px;line-height:1.3;margin:8px 0 6px}
+.ozgun{font-size:14px;color:var(--soluk);font-style:italic;margin:0 0 14px}
+.metin p{margin:0 0 14px}
+.not{font-size:13px;color:var(--soluk);border-top:1px solid var(--cizgi);padding-top:12px;margin-top:6px}
+.dugmeler{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.dugmeler a{display:block;text-align:center;padding:11px 14px;border-radius:10px;font-weight:700;text-decoration:none}
+.ana{background:var(--vurgu);color:#fff}
+.ikinci{border:1px solid var(--cizgi);color:var(--yazi)}
+.geri{display:inline-block;margin:16px 0 0;color:var(--vurgu);font-weight:600;text-decoration:none}
+.durum{text-align:center;color:var(--soluk);padding:60px 0}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="./"><span>TVplas</span> Portal</a>
+  <a class="wa" href="https://wa.me/905338636839" target="_blank" rel="noopener">WhatsApp: 0533 863 6839</a>
+</header>
+<main id="alan"><div class="durum">Haber Türkçeye çevriliyor…</div></main>
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
+const alan = document.getElementById("alan");
+const adres = new URLSearchParams(location.search).get("u") || "";
+
+function el(etiket, sinif, metin) {
+  const e = document.createElement(etiket);
+  if (sinif) e.className = sinif;
+  if (metin != null) e.textContent = metin;
+  return e;
+}
+function baglanti(sinif, metin, url) {
+  const a = el("a", sinif, metin);
+  a.href = url; a.target = "_blank"; a.rel = "noopener";
+  return a;
+}
+// Haberin tamamı için Google Çeviri adresi (bazı sitelerde çeviri çalışmayabilir)
+function googleCeviri(u, ozgun) {
+  const dil = /[\u0370-\u03ff]/.test(ozgun) ? "el" : /[\u0400-\u04ff]/.test(ozgun) ? "auto" : "en";
+  const x = new URL(u);
+  const alanAdi = x.hostname.replace(/-/g, "--").replace(/\./g, "-") + ".translate.goog";
+  x.searchParams.set("_x_tr_sl", dil); x.searchParams.set("_x_tr_tl", "tr"); x.searchParams.set("_x_tr_hl", "tr");
+  return "https://" + alanAdi + x.pathname + x.search + x.hash;
+}
+
+function goster(h) {
+  document.title = h.b + " – TVplas Portal";
+  const art = el("article");
+  if (h.g) {
+    const kutu = el("div", "gorsel"), img = el("img");
+    img.src = h.g; img.alt = ""; img.referrerPolicy = "no-referrer";
+    img.onerror = () => kutu.remove();
+    kutu.append(img); art.append(kutu);
+  }
+  const govde = el("div", "govde");
+  const ust = el("div", "ust");
+  ust.append(el("b", "", "Türkçe çeviri"), el("span", "", "Kaynak: " + h.k));
+  if (h.t) ust.append(el("span", "", new Date(h.t).toLocaleString("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })));
+  govde.append(ust, el("h1", "", h.b));
+  if (h.ob) govde.append(el("p", "ozgun", "Özgün başlık: " + h.ob));
+  const metin = el("div", "metin");
+  const paragraflar = h.paragraflar && h.paragraflar.length ? h.paragraflar : (h.o ? [h.o] : []);
+  paragraflar.forEach(p => metin.append(el("p", "", p)));
+  govde.append(metin);
+  govde.append(el("p", "not", "Bu sayfada haberin giriş bölümünün Türkçe çevirisi yer alır; çeviri otomatiktir. Haberin tamamı ve tüm hakları " + h.k + "'e aittir."));
+  const d = el("div", "dugmeler");
+  d.append(baglanti("ana", "Haberin tamamını kaynağında oku →", h.l));
+  try { d.append(baglanti("ikinci", "Tamamını Google Çeviri ile Türkçe dene", googleCeviri(h.l, h.ob || ""))); } catch (e) { }
+  govde.append(d);
+  art.append(govde);
+  const geri = el("a", "geri", "← TVplas Portal'a dön");
+  geri.href = "./";
+  alan.replaceChildren(art, geri);
+}
+
+if (!adres) {
+  alan.replaceChildren(el("div", "durum", "Haber bulunamadı."));
+} else {
+  fetch(API + "?islem=ozet&u=" + encodeURIComponent(adres)).then(r => r.json()).then(h => {
+    if (h.hata && !h.b) {
+      alan.replaceChildren(el("div", "durum", h.hata + " "));
+      alan.firstChild.append(baglanti("", "Haberi kaynağında açın →", adres));
+    } else goster(h);
+  }).catch(() => {
+    alan.replaceChildren(el("div", "durum", "Haber şu an yüklenemedi. "));
+    alan.firstChild.append(baglanti("", "Haberi kaynağında açın →", adres));
+  });
+}
+</script>
+</body>
+</html>

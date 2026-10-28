@@ -243,14 +243,11 @@ function metaforYap(h) {
   return d;
 }
 
-// Yabancı dildeki (çevrilmiş) haberler Google Çeviri'de Türkçe olarak açılır: haberin tamamı
-// yayıncının kendi sayfasından gelir, metin portala kopyalanmaz. Google Haberler ve Reddit bağlantıları çeviriyle açılmaz.
-// Kaynak dil özgün başlıktan belirlenir: bazı siteler (ör. Hürriyet Daily News) İngilizce sayfayı "tr" diye
-// tanımladığından otomatik algılamada çeviri yapılmıyor.
+// Yabancı dildeki (çevrilmiş) haberler portalın Türkçe okuma sayfasında (oku.html) açılır: sunucu haberin
+// giriş bölümünü Türkçeye çevirir, haberin tamamı için kaynağa bağlantı verilir. Google Haberler ve Reddit hariç.
 function turkceAdres(h) {
   if (!h.ob || !h.l || /news\.google\.|reddit\.com/.test(h.l)) return h.l;
-  const dil = /[\u0370-\u03ff]/.test(h.ob) ? "el" : /[\u0400-\u04ff]/.test(h.ob) ? "auto" : "en";
-  return "https://translate.google.com/translate?sl=" + dil + "&tl=tr&hl=tr&u=" + encodeURIComponent(h.l);
+  return "oku.html?u=" + encodeURIComponent(h.l);
 }
 
 function kartYap(h) {
