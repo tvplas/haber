@@ -138,8 +138,10 @@ detay.addEventListener('click', e => { if (e.target === detay) detay.close(); })
 ara.addEventListener('input', ciz);
 
 fetch(API).then(r => r.json()).then(v => {
-  gazeteler = (v.gazeteler || []).filter(g => g.g).sort((a, b) => a.sira - b.sira)
-    .map(g => ({ ...g, ad: coz(g.ad), basliklar: (g.basliklar || []).map(coz) }));
+  // Gazeteler adlarına göre Türkçe alfabetik sırada (Ç, Ğ, İ, Ö, Ş, Ü kendi yerlerinde)
+  gazeteler = (v.gazeteler || []).filter(g => g.g)
+    .map(g => ({ ...g, ad: coz(g.ad), basliklar: (g.basliklar || []).map(coz) }))
+    .sort((a, b) => a.ad.localeCompare(b.ad, 'tr'));
   const z = document.getElementById('zaman');
   if (v.tarih) {
     const [gun, ay, yil] = v.tarih.split('-');
