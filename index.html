@@ -249,7 +249,8 @@ function kartYap(h) {
   if (h.g) {
     const img = el("img");
     img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
-    img.onerror = () => resim.replaceChildren(metaforYap(h));
+    // Kıbrıs haberleri gerçek fotoğrafla gösterilir: fotoğrafı açılmayan haber listeden çıkar (kendi haberlerimiz hariç)
+    img.onerror = () => h.kat === "Kıbrıs" && !h.tvplas ? kart.remove() : resim.replaceChildren(metaforYap(h));
     resim.append(img);
   } else {
     resim.append(metaforYap(h));
