@@ -83,7 +83,7 @@ a.dugme{text-decoration:none;display:inline-block}
     <b>Kapağa tıklanınca portal açılsın istiyorsanız</b>
     <ol>
       <li><b>Tıklanabilir paylaşım hazırla</b>'ya basın (ilk seferde yönetim şifrenizi sorar).</li>
-      <li>1–2 dakika sonra <b>Facebook'ta paylaş</b> düğmesi açılır; Facebook penceresine günün metnini yapıştırıp paylaşın.</li>
+      <li>Birkaç saniye sonra <b>Facebook'ta paylaş</b> düğmesi açılır; Facebook penceresine günün metnini yapıştırıp paylaşın.</li>
     </ol>
     <a href="./">← TVplas Portal'a dön</a>
   </div>
@@ -352,10 +352,9 @@ if (navigator.canShare) {
   }, "image/jpeg", 0.92);
 }
 
-// ---- Tıklanabilir paylaşım: kapak portalda bir paylaşım sayfasıyla yayınlanır (sunucu GitHub'a yükler) ----
+// ---- Tıklanabilir paylaşım: sunucu kapağı günün Drive yuvasına yazar; portaldaki günün paylaşım sayfası (p/NNN.html) onu gösterir ----
 // Yönetim şifresi, yönetim panelinde "beni hatırla" ile kaydedildiyse oradan alınır (aynı site)
 function kayitliSifre() { try { return localStorage.getItem("tvplas_sifre") || ""; } catch (e) { return ""; } }
-const bekle = ms => new Promise(r => setTimeout(r, ms));
 let paylasimAdresi = "";
 document.getElementById("tiklanirBtn").onclick = async () => {
   const btn = document.getElementById("tiklanirBtn"), d = document.getElementById("tiklanirDurum"), eylem = document.getElementById("tiklanirEylem");
@@ -372,12 +371,6 @@ document.getElementById("tiklanirBtn").onclick = async () => {
     if (!cevap.tamam) throw new Error(cevap.hata || "Kapak yüklenemedi");
     if (!kayitliSifre()) try { localStorage.setItem("tvplas_sifre", sifre); } catch (e) { }
     paylasimAdresi = cevap.adres;
-    // GitHub Pages yeni sayfayı 1–2 dakikada yayına alır; hazır olunca paylaşım düğmesi açılır
-    for (let i = 0; i < 48; i++) {
-      d.textContent = "Kapak yüklendi, paylaşım sayfası yayına alınıyor… (" + (i * 5) + " sn)";
-      try { if ((await fetch(paylasimAdresi + "?v=" + Date.now(), { cache: "no-store" })).ok) break; } catch (e) { }
-      await bekle(5000);
-    }
     document.getElementById("fbPaylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasimAdresi);
     eylem.hidden = false;
     d.textContent = "Hazır! Facebook'ta paylaşın; paylaşım penceresine günün metnini yapıştırabilirsiniz. Bağlantı: " + paylasimAdresi;

@@ -71,7 +71,6 @@ button:disabled{opacity:.6;cursor:wait}
       <button data-s="haber" class="aktif">📰 Haber ekle</button>
       <button data-s="reklam">📣 Reklam ekle</button>
       <button data-s="liste">📋 Yayındakiler</button>
-      <button data-s="ayar">⚙️ Ayarlar</button>
       <button class="cikis" id="cikis">Çıkış</button>
     </div>
 
@@ -130,14 +129,6 @@ button:disabled{opacity:.6;cursor:wait}
       <button id="yenile">↻ Yenile</button>
       <div id="listeIcerik"></div>
     </div>
-
-    <form id="ayar" class="kutu sekme gizli">
-      <label for="gAnahtar">GitHub anahtarı <small>(tıklanınca portala giden Facebook kapakları için; bir kez girilir)</small></label>
-      <input id="gAnahtar" type="password" autocomplete="off" placeholder="github_pat_…">
-      <button class="ana" type="submit">Anahtarı kaydet</button>
-      <div class="mesaj" id="ayarMesaj"></div>
-      <p><small>Durum: <span id="gDurum">denetleniyor…</span></small></p>
-    </form>
   </div>
 </div>
 <script>
@@ -229,33 +220,7 @@ document.querySelectorAll(".sekmeler [data-s]").forEach(b => b.onclick = () => {
   document.querySelectorAll(".sekmeler [data-s]").forEach(x => x.classList.toggle("aktif", x === b));
   document.querySelectorAll(".sekme").forEach(s => s.classList.toggle("gizli", s.id !== b.dataset.s));
   if (b.dataset.s === "liste") listele();
-  if (b.dataset.s === "ayar") githubDurumu();
 });
-
-// GitHub anahtarı sunucuda saklanır; kapak hazırlayıcı tıklanabilir paylaşım sayfalarını bununla yükler
-async function githubDurumu() {
-  try {
-    const c = await istek({ islem: "githubDurum" });
-    $("gDurum").textContent = c.tanimli ? "✅ Anahtar tanımlı, tıklanabilir paylaşım kullanılabilir." : "Anahtar henüz girilmedi.";
-  } catch (e) { $("gDurum").textContent = e.message; }
-}
-$("ayar").onsubmit = async e => {
-  e.preventDefault();
-  const btn = $("ayar").querySelector("button.ana");
-  btn.disabled = true;
-  mesaj($("ayarMesaj"), "Anahtar denetleniyor…", true);
-  try {
-    const c = await istek({ islem: "githubAnahtar", anahtar: $("gAnahtar").value.trim() });
-    if (!c.tamam) throw new Error(c.hata || "Kaydedilemedi");
-    $("gAnahtar").value = "";
-    mesaj($("ayarMesaj"), "Anahtar kaydedildi ve doğrulandı.", true);
-    githubDurumu();
-  } catch (err) {
-    mesaj($("ayarMesaj"), err.message, false);
-  } finally {
-    btn.disabled = false;
-  }
-};
 
 async function gonder(form, veri) {
   const btn = form.querySelector("button.ana"), m = form.querySelector(".mesaj");
