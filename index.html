@@ -33,6 +33,8 @@ h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 .menu{display:flex;gap:6px;margin:12px 0 4px;overflow-x:auto;scrollbar-width:none}
 .menu::-webkit-scrollbar{display:none}
 .menu button{flex:none;padding:10px 16px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:.4px}
+.menu a.gazete{flex:none;padding:10px 16px;border-radius:8px;border:1px solid var(--vurgu);color:var(--vurgu);font-size:14px;font-weight:700;letter-spacing:.4px;text-decoration:none}
+.menu a.gazete:hover{background:var(--vurgu);color:#fff}
 .menu button.aktif{background:var(--vurgu);color:#fff;border-color:var(--vurgu)}
 main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;grid-auto-flow:dense}
 .kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
@@ -106,6 +108,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Ekonomi">EKONOMİ</button>
     <button data-k="Sağlık">SAĞLIK</button>
     <button data-k="Spor">SPOR</button>
+    <a class="gazete" href="gazeteler.html">📰 GAZETELER</a>
   </nav>
 </header>
 <div id="reklamUst"></div>
