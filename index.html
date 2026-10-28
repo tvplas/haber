@@ -54,6 +54,12 @@ p.ozet{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;over
 dialog#detay{max-width:720px;width:calc(100% - 32px);max-height:calc(100% - 48px);padding:0;border:1px solid var(--cizgi);border-radius:14px;background:var(--kart);color:var(--yazi)}
 dialog#detay::backdrop{background:rgba(0,0,0,.65)}
 #detay img{width:100%;max-height:70vh;object-fit:contain;display:block;background:#000}
+#detay .d-gorsel .metafor{aspect-ratio:16/9;max-height:50vh}
+.metafor{position:relative;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at 28% 22%,rgba(255,255,255,.2),transparent 55%),linear-gradient(135deg,var(--r1),var(--r2))}
+.metafor .m-desen{position:absolute;inset:-30%;transform:rotate(-14deg);background:#fff;opacity:.09;-webkit-mask:var(--ikon) 0 0/58px 58px repeat;mask:var(--ikon) 0 0/58px 58px repeat}
+.metafor .m-halka{position:absolute;left:50%;top:50%;width:46%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:rgba(255,255,255,.12);box-shadow:0 0 0 14px rgba(255,255,255,.05)}
+.metafor .m-ikon{position:absolute;left:50%;top:50%;width:30%;aspect-ratio:1;transform:translate(-50%,-50%);background:#fff;-webkit-mask:var(--ikon) center/contain no-repeat;mask:var(--ikon) center/contain no-repeat}
+.metafor .m-etiket{position:absolute;right:8px;bottom:6px;font-size:10px;letter-spacing:.3px;color:rgba(255,255,255,.75)}
 #detay .govde{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px}
 #detay h2{font-size:22px;margin:4px 0 8px}
 #detay .metin{white-space:pre-line;font-size:16px;line-height:1.65;color:var(--yazi);margin:0 0 10px}
@@ -106,7 +112,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 <main id="liste"><div class="durum">Haberler yükleniyor…</div></main>
 <dialog id="detay" aria-label="Haberin tamamı">
   <button class="kapat" aria-label="Kapat">✕</button>
-  <img alt="">
+  <div class="d-gorsel"></div>
   <div class="govde">
     <div class="ust"><span class="etiket">TVplas</span><span>TVplas Portal</span></div>
     <h2></h2>
@@ -152,33 +158,98 @@ function baglanti(a, url) {
   a.href = url; a.target = "_blank"; a.rel = "noopener";
 }
 
-// Fotoğrafı olmayan habere başlığına göre konu görseli (konu-*.jpg); sıra önemli, ilk eşleşen kazanır
-const KONULAR = [
-  ["spor", /\b(spor|maç|futbol|basketbol|voleybol|hentbol|lig|gol|şampiyon|stadyum|antrenör|olimpi|football|match)/i],
-  ["asayis", /(polis|tutukla|gözaltı|kaza|yaralan|öldü|hayatını kaybet|cinayet|hırsız|uyuşturucu|mahkeme|dava|yangın|saldırı|operasyon|police|arrest|court|crash|killed)/i],
-  ["saglik", /(sağlık|hastane|doktor|hekim|hasta|ilaç|aşı|kanser|tedavi|health|hospital)/i],
-  ["hava", /(hava durumu|yağmur|yağış|fırtına|sıcaklık|meteoroloji|rüzgar|sel |dolu |weather|rain|storm)/i],
-  ["ulasim", /(ercan|uçuş|havalimanı|feribot|liman|trafik|otobüs|ulaşım|airport|flight|traffic)/i],
-  ["egitim", /(okul|öğrenci|öğretmen|üniversite|eğitim|sınav|school|universit|student)/i],
-  ["kultur", /(festival|konser|sergi|tiyatro|kitap|film|sanat|müze|kültür|concert|exhibition)/i],
-  ["ekonomi", /(ekonomi|fiyat|zam|enflasyon|maaş|bütçe|vergi|dolar|euro|sterlin|ihracat|turizm|otel|banka|kredi|asgari|kampanya|economy|price|tax|bank)/i],
-  ["siyaset", /(cumhurbaşkan|başbakan|bakan|meclis|milletvekili|seçim|parti|ubp|ctp|erhürman|hristodulidis|müzakere|birleşmiş|çözüm|hükümet|belediye|president|minister|parliament|election|government)/i]
-];
+// Fotoğrafı olmayan (ya da fotoğrafı açılmayan) habere başlığının konusunu simgeleyen metafor illüstrasyon:
+// bölüm renginde zemin, büyük bir sembol ve arkasında soluk desen. Semboller Lucide (MIT lisanslı).
+// Sıra önemli: ilk eşleşen kural kazanır, özel konular genellerden önce. Kelime başında aranır.
+const IKON = "https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/icons/";
+const KB = "(^|[\\s\"'“‘(])";
+const METAFORLAR = [
+  ["ribbon", "kanser|meme kanseri|farkındalık"],
+  ["syringe", "aşı|aşılama"],
+  ["pill", "ilaç|eczane"],
+  ["heart-pulse", "kalp|organ bağış|kan bağış"],
+  ["stethoscope", "hastane|doktor|hekim|sağlık|hasta|tedavi|ameliyat"],
+  ["gavel", "mahkeme|dava|yargı|hakim|savcı|tutuk|hapis|ceza|sanık"],
+  ["siren", "polis|gözaltı|operasyon|uyuşturucu|hırsız|asayiş|soygun|cinayet"],
+  ["car", "kaza|çarpış|trafik|araç"],
+  ["flame", "yangın|alev"],
+  ["activity", "deprem|sarsıntı"],
+  ["shield", "savaş|asker|ordu|saldırı|füze|savunma|nato"],
+  ["vote", "seçim|sandık|aday|oy |oylama"],
+  ["mic", "gazeteci|basın|medya|röportaj"],
+  ["megaphone", "protesto|eylem|grev|sendika|miting"],
+  ["handshake", "müzakere|görüşme|anlaşma|diplomasi|zirve|birleşmiş|ziyaret"],
+  ["landmark", "meclis|genel kurul|milletvekil|yasa|kanun|cumhurbaşkan|başbakan|bakan|hükümet|parti|belediye|üstel|erhürman|tatar|hristodulidis"],
+  ["music", "konser|şarkı|albüm|müzik|orkestra|koro|dinleti"],
+  ["drama", "tiyatro|sahne|oyuncu"],
+  ["clapperboard", "film|sinema|dizi"],
+  ["palette", "sergi|resim|ressam|sanat|müze"],
+  ["book-open", "kitap|şiir|yazar|edebiyat|kütüphane"],
+  ["party-popper", "festival|şenlik|kutlama|bayram|tören|etkinlik"],
+  ["graduation-cap", "okul|öğrenci|öğretmen|eğitim|üniversite|sınav|mezun"],
+  ["trophy", "şampiyon|turnuva|kupa|madalya|final"],
+  ["volleyball", "voleybol"],
+  ["dumbbell", "fitness|halter|güreş|boks"],
+  ["bike", "bisiklet"],
+  ["trophy", "futbol|maç|gol|lig|stadyum|basketbol|teknik direktör|transfer"],
+  ["piggy-bank", "banka|kredi|tasarruf|faiz"],
+  ["trending-up", "ekonomi|enflasyon|borsa|dolar|euro|sterlin|kur |ihracat|büyüme"],
+  ["banknote", "fiyat|zam|maaş|ücret|asgari|vergi|bütçe|para"],
+  ["tree-palm", "turizm|otel|turist|tatil"],
+  ["plane", "uçuş|havalimanı|ercan|uçak|havayolu"],
+  ["ship", "liman|gemi|feribot|deniz"],
+  ["bus", "otobüs|toplu taşıma|ulaşım"],
+  ["zap", "elektrik|enerji|kıb-tek|kesinti|santral"],
+  ["droplets", "su kesintisi|baraj|kuraklık|su "],
+  ["cloud-rain", "hava durumu|yağmur|yağış|fırtına|rüzgar|sıcaklık|meteoroloji|sel"],
+  ["wheat", "tarım|çiftçi|hasat|hayvancılık|üretici"],
+  ["trees", "çevre|orman|ağaç|iklim|doğa"],
+  ["construction", "inşaat|yol çalışması|altyapı"],
+  ["building-2", "konut|bina|imar|kira"],
+  ["cpu", "teknoloji|yapay zeka|yazılım|internet|siber|dijital"],
+  ["rocket", "uzay|roket|uydu|nasa"],
+  ["atom", "bilim|araştırma|bilim insanı|keşif"],
+  ["flower-2", "anma|vefat|hayatını kaybet|cenaze|başsağlığı|veda|son yolculu"],
+  ["footprints", "göç|mülteci|sığınmacı"],
+  ["baby", "çocuk|bebek"],
+  ["paw-print", "hayvan|köpek|kedi|sokak hayvan"],
+  ["utensils", "yemek|gıda|restoran|mutfak"],
+  ["star", "ünlü|şarkıcı|oyuncu|magazin"]
+].map(([ikon, kelimeler]) => [ikon, new RegExp(KB + "(" + kelimeler + ")", "i")]);
+// Hiçbir kural uymazsa bölümün sembolü; renkler bölüme göre
+const BOLUM_SEMBOL = { "Kıbrıs": "map-pin", "Türkiye": "flag", "Dünya": "globe", "Etkinlikler": "calendar-days", "Müzik": "music",
+  "Kültür-Sanat": "palette", "Magazin": "star", "Bilim": "atom", "Ekonomi": "trending-up", "Sağlık": "heart-pulse", "Spor": "trophy" };
+const BOLUM_RENK = { "Kıbrıs": ["#c8102e", "#5c0614"], "Türkiye": ["#e30a17", "#6e050b"], "Dünya": ["#1e40af", "#0a1a4a"],
+  "Etkinlikler": ["#7c3aed", "#35106e"], "Müzik": ["#db2777", "#5f0d33"], "Kültür-Sanat": ["#9d174d", "#430920"],
+  "Magazin": ["#ea580c", "#6b2605"], "Bilim": ["#0891b2", "#063847"], "Ekonomi": ["#047857", "#022a1f"],
+  "Sağlık": ["#0e7490", "#05303c"], "Spor": ["#c2410c", "#521b04"] };
 
-function konuGorseli(h) {
-  const metin = h.b + " " + (h.o || "");
-  const k = KONULAR.find(([, re]) => re.test(metin));
-  return "konu-" + (k ? k[0] : "gundem") + ".jpg";
+function metaforYap(h) {
+  // Önce başlık, başlıkta ipucu yoksa özet (Türkçe küçük harfe çevrilerek: "YAĞIŞ" → "yağış")
+  const baslik = h.b.toLocaleLowerCase("tr"), ozet = (h.o || "").toLocaleLowerCase("tr");
+  const kural = METAFORLAR.find(([, re]) => re.test(baslik)) || METAFORLAR.find(([, re]) => re.test(ozet));
+  const ikon = kural ? kural[0] : (BOLUM_SEMBOL[h.kat] || "newspaper");
+  const [r1, r2] = BOLUM_RENK[h.kat] || BOLUM_RENK["Kıbrıs"];
+  const d = el("div", "metafor");
+  d.style.setProperty("--r1", r1);
+  d.style.setProperty("--r2", r2);
+  d.style.setProperty("--ikon", "url(" + IKON + ikon + ".svg)");
+  d.append(el("span", "m-desen"), el("span", "m-halka"), el("span", "m-ikon"), el("span", "m-etiket", "temsili görsel"));
+  return d;
 }
 
 function kartYap(h) {
   const kart = el("article", "kart" + (h.tvplas ? " tvplas" : ""));
   const resim = el("a", "resim");
   baglanti(resim, h.l);
-  const img = el("img");
-  img.src = h.g || konuGorseli(h); img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
-  img.onerror = () => { img.onerror = null; img.src = konuGorseli(h); };
-  resim.append(img);
+  if (h.g) {
+    const img = el("img");
+    img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
+    img.onerror = () => resim.replaceChildren(metaforYap(h));
+    resim.append(img);
+  } else {
+    resim.append(metaforYap(h));
+  }
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
   ust.append(el("span", "etiket", h.tvplas ? "TVplas" : h.kat), el("span", "", h.k), el("span", "", kac(h.t)));
@@ -207,7 +278,15 @@ function aramaMetni(h) {
 // Kendi haberimizin tam metnini fotoğrafıyla birlikte pencerede gösterir
 function detayAc(h) {
   const d = document.getElementById("detay");
-  d.querySelector("img").src = h.g || konuGorseli(h);
+  const kutu = d.querySelector(".d-gorsel");
+  if (h.g) {
+    const img = el("img");
+    img.src = h.g; img.alt = ""; img.referrerPolicy = "no-referrer";
+    img.onerror = () => kutu.replaceChildren(metaforYap(h));
+    kutu.replaceChildren(img);
+  } else {
+    kutu.replaceChildren(metaforYap(h));
+  }
   d.querySelector("h2").textContent = h.b;
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
