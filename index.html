@@ -33,10 +33,13 @@ h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 .menu{display:flex;gap:6px;margin:12px 0 4px;overflow-x:auto;scrollbar-width:none}
 .menu::-webkit-scrollbar{display:none}
 .menu button{flex:none;padding:10px 16px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:.4px}
-.menu a.gazete{flex:none;padding:10px 16px;border-radius:8px;border:1px solid var(--vurgu);color:var(--vurgu);font-size:14px;font-weight:700;letter-spacing:.4px;text-decoration:none}
-.menu a.gazete:hover{background:var(--vurgu);color:#fff}
 .menu button.aktif{background:var(--vurgu);color:#fff;border-color:var(--vurgu)}
 main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;grid-auto-flow:dense}
+.bolum-baslik{grid-column:1/-1;font-size:15px;font-weight:600;color:var(--soluk);margin:2px 0 -4px}
+.gazete-kart .sayfa{display:block;aspect-ratio:3/4;background:var(--cizgi);overflow:hidden;cursor:pointer}
+.gazete-kart .sayfa img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.gazete-kart h2{cursor:pointer}
+.gazete-kart ul{margin:0 0 10px;padding-left:18px;color:var(--soluk);font-size:14px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
 .resim{display:block;aspect-ratio:16/9;background:var(--cizgi)}
 .resim img{width:100%;height:100%;object-fit:cover;display:block}
@@ -98,13 +101,13 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
   </div>
   <nav class="menu" aria-label="Bölümler">
-    <button data-k="Kıbrıs" class="aktif">KIBRIS</button>
+    <button data-k="Gazeteler" class="aktif">📰 GAZETELER</button>
+    <button data-k="Kıbrıs">KIBRIS</button>
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
     <button data-k="Sanat-Magazin">MÜZİK · KÜLTÜR-SANAT · MAGAZİN</button>
     <button data-k="Bilim-Sağlık-Ekonomi">BİLİM · SAĞLIK · EKONOMİ</button>
     <button data-k="Spor">SPOR</button>
-    <a class="gazete" href="gazeteler.html">📰 GAZETELER</a>
   </nav>
 </header>
 <div id="reklamUst"></div>
@@ -136,7 +139,8 @@ const bolumBul = t => {
 // Ayrıca müzikle ilgili diğer haberler Sanat-Magazin'de de görünür.
 // Kelime başında aranır; kısa kelimeler kelime sonuyla sınırlı (ör. "opera" ≠ "operasyon", "rap" ≠ "rapor")
 const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
-let bolum = "Kıbrıs", haberler = [], araReklam = [];
+// Portal izleyicilerin isteğiyle günün gazeteleriyle açılır; haber bölümleri menüden seçilir
+let bolum = "Gazeteler", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "";
 const ara = document.getElementById("ara"), liste = document.getElementById("liste");
 
 function kac(t) {
@@ -307,11 +311,65 @@ function detayAc(h) {
   d.querySelector("h2").textContent = h.b;
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
+  kaynak.textContent = "Habere git →";
   kaynak.hidden = !h.l;
   if (h.l) kaynak.href = h.l;
   d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL);
   d.showModal();
   d.scrollTop = 0;
+}
+
+// ---- Gazeteler: kibrisgazeteleri.com'daki günün birinci sayfaları (sunucu her sabah toplar) ----
+const coz = s => new DOMParser().parseFromString(s || "", "text/html").documentElement.textContent;
+
+function gazeteKartYap(g) {
+  const kart = el("article", "kart gazete-kart");
+  const sayfa = el("a", "sayfa"), img = el("img");
+  img.src = g.g; img.alt = g.ad + " birinci sayfa"; img.loading = "lazy"; img.referrerPolicy = "no-referrer";
+  img.onerror = () => kart.remove();
+  sayfa.append(img);
+  const ic = el("div", "icerik");
+  const ust = el("div", "ust");
+  ust.append(el("span", "etiket", g.ad));
+  const h2 = el("h2", "", g.basliklar[0] || g.ad);
+  ic.append(ust, h2);
+  if (g.basliklar.length > 1) {
+    const ul = el("ul");
+    g.basliklar.slice(1).forEach(b => ul.append(el("li", "", b)));
+    ic.append(ul);
+  }
+  kart.append(sayfa, ic);
+  [sayfa, h2].forEach(x => x.onclick = () => gazeteAc(g));
+  return kart;
+}
+
+// Gazetenin birinci sayfası büyük, okunan başlıklarla birlikte pencerede açılır
+function gazeteAc(g) {
+  const d = document.getElementById("detay");
+  const img = el("img");
+  img.src = g.g; img.alt = g.ad + " birinci sayfa"; img.referrerPolicy = "no-referrer";
+  d.querySelector(".d-gorsel").replaceChildren(img);
+  d.querySelector("h2").textContent = g.ad + (g.basliklar[0] ? ": " + g.basliklar[0] : "");
+  d.querySelector(".metin").textContent = g.basliklar.slice(1).map(b => "• " + b).join("\n");
+  const kaynak = d.querySelector(".kaynakLink");
+  kaynak.textContent = "Gazete sayfaları: kibrisgazeteleri.com →";
+  kaynak.hidden = false;
+  kaynak.href = "http://kibrisgazeteleri.com/";
+  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(PORTAL);
+  d.showModal();
+  d.scrollTop = 0;
+}
+
+function gazeteleriYukle() {
+  fetch(API + "?islem=gazeteler").then(r => r.json()).then(v => {
+    gazeteler = (v.gazeteler || []).filter(g => g.g)
+      .map(g => ({ ...g, ad: coz(g.ad), basliklar: (g.basliklar || []).map(coz) }))
+      .sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
+    if (v.tarih) {
+      const [gun, ay, yil] = v.tarih.split("-");
+      gazeteTarihi = new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+    }
+  }).catch(() => { gazeteler = []; }).then(() => { if (bolum === "Gazeteler" && !ara.value.trim()) ciz(); });
 }
 
 function reklamYap(r) {
@@ -326,22 +384,35 @@ function reklamYap(r) {
 
 // Seçili bölümün haberlerini çizer; arama yazılıysa tüm bölümlerde arar.
 // Reklamlar her bölümde numara sırasıyla REKLAM_ARALIGI haberde bir, birer kez girer (aramada reklam yok).
-function ciz() {
-  const q = ara.value.trim().toLocaleLowerCase("tr");
-  const secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
-    : haberler.filter(h => h.kat === bolum || h.ekBolum.includes(bolum));
-  // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
-  if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (y.t || "").localeCompare(x.t || ""));
+// Kartları dizer; reklamlıysa REKLAM_ARALIGI kartta bir reklam afişi girer
+function diz(ogeler, yap, reklamli) {
   const kartlar = [];
-  secili.forEach((h, i) => {
-    kartlar.push(kartYap(h));
+  ogeler.forEach((x, i) => {
+    kartlar.push(yap(x));
     const sira = (i + 1) / REKLAM_ARALIGI - 1;
-    if (!q && Number.isInteger(sira) && sira < araReklam.length) {
+    if (reklamli && Number.isInteger(sira) && sira < araReklam.length) {
       const k = el("article", "kart reklam-kart");
       k.append(reklamYap(araReklam[sira]));
       kartlar.push(k);
     }
   });
+  return kartlar;
+}
+
+function ciz() {
+  const q = ara.value.trim().toLocaleLowerCase("tr");
+  if (!q && bolum === "Gazeteler") {
+    if (!gazeteler) { liste.replaceChildren(el("div", "durum", "Gazeteler yükleniyor…")); return; }
+    if (!gazeteler.length) { liste.replaceChildren(el("div", "durum", "Bugünün gazeteleri henüz hazırlanıyor, haberler için menüden bir bölüm seçin.")); return; }
+    const baslik = el("div", "bolum-baslik", "📰 " + (gazeteTarihi ? gazeteTarihi + " · " : "") + "Kıbrıs gazetelerinin birinci sayfaları (" + gazeteler.length + " gazete) · büyütmek için sayfaya dokunun");
+    liste.replaceChildren(baslik, ...diz(gazeteler, gazeteKartYap, true));
+    return;
+  }
+  const secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
+    : haberler.filter(h => h.kat === bolum || h.ekBolum.includes(bolum));
+  // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
+  if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (y.t || "").localeCompare(x.t || ""));
+  const kartlar = diz(secili, kartYap, !q);
   liste.replaceChildren(...(kartlar.length ? kartlar
     : [el("div", "durum", q ? "Aramaya uyan haber yok." : "Bu bölümde şu an haber yok.")]));
 }
@@ -414,6 +485,7 @@ async function yukle() {
     document.getElementById("zaman").textContent = "";
   }
 }
+gazeteleriYukle();
 yukle();
 </script>
 </body>
