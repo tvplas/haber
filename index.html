@@ -322,6 +322,51 @@ function detayAc(h) {
 // ---- Gazeteler: kibrisgazeteleri.com'daki günün birinci sayfaları (sunucu her sabah toplar) ----
 const coz = s => new DOMParser().parseFromString(s || "", "text/html").documentElement.textContent;
 
+// Gazetelerin internet siteleri (her biri açılıp Kıbrıs içeriği doğrulandı). Spor ekleri ana gazetenin sitesine gider.
+// Listede olmayan gazete (sitesi yok ya da bulunamadı) tıklanınca birinci sayfası portalda büyür.
+const GAZETE_SITELERI = {
+  "AJANS ADA": "https://www.ajansada.com/",
+  "AJANS CYPRUS": "https://ajanscyprus.com/",
+  "AVRUPA": "https://www.avrupagazetesi.com/",
+  "BAĞIMSIZ": "https://www.bagimsiz.com/",
+  "DEMOKRAT": "https://www.demokratkibris.com.tr/",
+  "DİYALOG": "https://www.diyaloggazetesi.com/",
+  "DİYALOG SPOR": "https://www.diyaloggazetesi.com/",
+  "FLAŞ KIBRIS": "https://www.flaskibris.com/",
+  "GIYNIK": "https://giynikgazetesi.com/",
+  "GIYNIK SPOR": "https://giynikgazetesi.com/",
+  "GÜNCEL KIBRIS": "https://www.guncelkibris.com/",
+  "GÜNDEM KIBRIS": "https://www.gundemkibris.com/",
+  "GÜNEŞ": "https://guneskibris.com/",
+  "GÜNEŞ SPOR": "https://guneskibris.com/",
+  "HABER VER KIBRIS": "https://haberverkibris.com/",
+  "HABERCİ": "https://www.kibrishaberci.com/",
+  "HABERLER": "https://haberlerkibris.com/",
+  "HAKİKAT": "https://kibrishakikat.com/",
+  "HALKIN SESİ": "https://www.halkinsesikibris.com/",
+  "HALKIN SESİ SPOR": "https://www.halkinsesikibris.com/",
+  "HAVADİS": "https://www.havadiskibris.com/",
+  "İNKİLAPÇI": "https://www.inkilapci.com/",
+  "KALEM": "https://www.kibriskalem.com/",
+  "KIBRIS": "https://kibrisgazetesi.com/",
+  "KIBRIS GERÇEK": "https://www.kibrisgercek.com/",
+  "KIBRIS HABER AJANS": "https://kibrishaberajans.com/",
+  "KIBRIS MANŞET": "https://www.kibrismanset.com/",
+  "KIBRIS NE HABER": "https://kibrisnehaber.com/",
+  "KIBRIS TÜRK": "https://www.kibristurk.com/",
+  "KIBRISIN SESİ": "https://www.kibrisinsesi.com/",
+  "MEYDAN": "https://www.meydankibris.com/",
+  "OBJEKTİF": "https://www.kibrisobjektif.com/",
+  "ÖZGÜR": "https://ozgurgazetekibris.com/",
+  "STAR": "https://www.starkibris.net/",
+  "TELESKOP": "https://teleskopkibris.com/",
+  "TERCÜMAN": "https://kibristercuman.com/",
+  "YENİ BAKIŞ": "https://yenibakisgazetesi.com/",
+  "YENİ BAKIŞ SPOR": "https://yenibakisgazetesi.com/",
+  "YENİ DÜZEN": "https://www.yeniduzen.com/",
+  "ZİRVE": "https://www.zirvekibris.com/"
+};
+
 function gazeteKartYap(g) {
   const kart = el("article", "kart gazete-kart");
   const sayfa = el("a", "sayfa"), img = el("img");
@@ -339,7 +384,15 @@ function gazeteKartYap(g) {
     ic.append(ul);
   }
   kart.append(sayfa, ic);
-  [sayfa, h2].forEach(x => x.onclick = () => gazeteAc(g));
+  // İnternet sitesi olan gazete kendi sitesinde açılır; olmayanın birinci sayfası portalda büyür
+  const site = GAZETE_SITELERI[g.ad];
+  if (site) {
+    baglanti(sayfa, site);
+    h2.onclick = () => window.open(site, "_blank", "noopener");
+    ust.append(el("span", "", "🌐 sitesine gider"));
+  } else {
+    [sayfa, h2].forEach(x => x.onclick = () => gazeteAc(g));
+  }
   return kart;
 }
 
