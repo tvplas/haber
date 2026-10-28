@@ -45,6 +45,7 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .ust{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--soluk)}
 .etiket{color:var(--vurgu);font-weight:600}
 .ceviri{border:1px solid var(--cizgi);border-radius:4px;padding:0 5px;cursor:help}
+.orijinal{color:var(--soluk)}
 h2{font-size:17px;margin:6px 0;line-height:1.35}h2 a{color:inherit;text-decoration:none}h2 a:hover{text-decoration:underline}
 p{margin:0 0 10px;color:var(--soluk);font-size:14px}
 .paylas{margin-top:auto;align-self:flex-start;font-size:13px;color:#1877f2;text-decoration:none;font-weight:600}
@@ -242,10 +243,18 @@ function metaforYap(h) {
   return d;
 }
 
+// Yabancı dildeki (çevrilmiş) haberler Google Çeviri'de Türkçe olarak açılır: haberin tamamı
+// yayıncının kendi sayfasından gelir, metin portala kopyalanmaz. Google Haberler ve Reddit bağlantıları çeviriyle açılmaz.
+function turkceAdres(h) {
+  if (!h.ob || !h.l || /news\.google\.|reddit\.com/.test(h.l)) return h.l;
+  return "https://translate.google.com/translate?sl=auto&tl=tr&hl=tr&u=" + encodeURIComponent(h.l);
+}
+
 function kartYap(h) {
   const kart = el("article", "kart" + (h.tvplas ? " tvplas" : ""));
   const resim = el("a", "resim");
-  baglanti(resim, h.l);
+  const adres = turkceAdres(h);
+  baglanti(resim, adres);
   if (h.g) {
     const img = el("img");
     img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
@@ -258,9 +267,12 @@ function kartYap(h) {
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
   ust.append(el("span", "etiket", h.tvplas ? "TVplas" : (h.alt || h.kat)), el("span", "", h.k), el("span", "", kac(h.t)));
-  if (h.ob) { const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c); }
+  if (h.ob) {
+    const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c);
+    if (adres !== h.l) { const o = el("a", "orijinal", "orijinali"); baglanti(o, h.l); ust.append(o); }
+  }
   const h2 = el("h2"), a = el("a", "", h.b);
-  baglanti(a, h.l); h2.append(a);
+  baglanti(a, adres); h2.append(a);
   // Linki olmayan kendi haberlerimizde başlık ve fotoğraf tam metni açar
   if (h.tvplas && !h.l) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(h); }; });
   const pay = el("a", "paylas", "Facebook'ta paylaş");
