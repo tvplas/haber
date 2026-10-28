@@ -103,6 +103,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
   <nav class="menu" aria-label="Bölümler">
     <button data-k="Gazeteler" class="aktif">📰 GAZETELER</button>
     <button data-k="Kıbrıs">KIBRIS</button>
+    <button data-k="Güney">GÜNEY</button>
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
     <button data-k="Sanat-Magazin">MÜZİK · KÜLTÜR-SANAT · MAGAZİN</button>
@@ -127,7 +128,8 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
-const BOLUMLER = ["Kıbrıs", "Türkiye", "Dünya", "Sanat-Magazin", "Bilim-Sağlık-Ekonomi", "Spor"];
+// "Güney": yalnızca Güney Kıbrıs'taki Rum basınının haberleri (sunucu ayırır; Kıbrıs menüsüne girmez)
+const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Sanat-Magazin", "Bilim-Sağlık-Ekonomi", "Spor"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
 const GRUPLAR = { "Sanat-Magazin": ["Müzik", "Kültür-Sanat", "Magazin"], "Bilim-Sağlık-Ekonomi": ["Bilim", "Sağlık", "Ekonomi"] };
 const ORTAK = "Sanat-Magazin";   // müzik haberlerinin çapraz eklendiği menü
@@ -226,9 +228,9 @@ const METAFORLAR = [
   ["star", "ünlü|şarkıcı|oyuncu|magazin"]
 ].map(([ikon, kelimeler]) => [ikon, new RegExp(KB + "(" + kelimeler + ")", "i")]);
 // Hiçbir kural uymazsa bölümün sembolü; renkler bölüme göre
-const BOLUM_SEMBOL = { "Kıbrıs": "map-pin", "Türkiye": "flag", "Dünya": "globe", "Etkinlikler": "calendar-days", "Müzik": "music",
+const BOLUM_SEMBOL = { "Kıbrıs": "map-pin", "Güney": "landmark", "Türkiye": "flag", "Dünya": "globe", "Etkinlikler": "calendar-days", "Müzik": "music",
   "Kültür-Sanat": "palette", "Magazin": "star", "Bilim": "atom", "Ekonomi": "trending-up", "Sağlık": "heart-pulse", "Spor": "trophy" };
-const BOLUM_RENK = { "Kıbrıs": ["#c8102e", "#5c0614"], "Türkiye": ["#e30a17", "#6e050b"], "Dünya": ["#1e40af", "#0a1a4a"],
+const BOLUM_RENK = { "Kıbrıs": ["#c8102e", "#5c0614"], "Güney": ["#0369a1", "#082f49"], "Türkiye": ["#e30a17", "#6e050b"], "Dünya": ["#1e40af", "#0a1a4a"],
   "Etkinlikler": ["#7c3aed", "#35106e"], "Müzik": ["#db2777", "#5f0d33"], "Kültür-Sanat": ["#9d174d", "#430920"],
   "Magazin": ["#ea580c", "#6b2605"], "Bilim": ["#0891b2", "#063847"], "Ekonomi": ["#047857", "#022a1f"],
   "Sağlık": ["#0e7490", "#05303c"], "Spor": ["#c2410c", "#521b04"] };
