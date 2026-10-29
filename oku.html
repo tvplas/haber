@@ -55,8 +55,11 @@ function baglanti(sinif, metin, url) {
 }
 // Haberin tamamı için Google Çeviri adresi (bazı sitelerde çeviri çalışmayabilir)
 function googleCeviri(u, ozgun) {
-  const dil = /[\u0370-\u03ff]/.test(ozgun) ? "el" : /[\u0400-\u04ff]/.test(ozgun) ? "auto" : "en";
-  const x = new URL(u);
+  const x = new URL(u), h = x.hostname;
+  // Dünya menüsündeki Fransız, Alman, İspanyol ve İtalyan gazeteleri sitelerinin adından tanınır
+  const dil = /[\u0370-\u03ff]/.test(ozgun) ? "el" : /[\u0400-\u04ff]/.test(ozgun) ? "auto"
+    : /lemonde\.fr|lefigaro\.fr/.test(h) ? "fr" : /faz\.net|sueddeutsche\.de/.test(h) ? "de"
+    : /elpais\.com/.test(h) ? "es" : /corriere\.it/.test(h) ? "it" : "en";
   const alanAdi = x.hostname.replace(/-/g, "--").replace(/\./g, "-") + ".translate.goog";
   x.searchParams.set("_x_tr_sl", dil); x.searchParams.set("_x_tr_tl", "tr"); x.searchParams.set("_x_tr_hl", "tr");
   return "https://" + alanAdi + x.pathname + x.search + x.hash;

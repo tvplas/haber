@@ -481,7 +481,8 @@ function ciz() {
   const secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
     : haberler.filter(h => h.kat === bolum || h.ekBolum.includes(bolum));
   // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
-  if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (y.t || "").localeCompare(x.t || ""));
+  // Dünya'da sunucunun öncelikli saydığı büyük gazeteler (h.on) diğer kaynaklardan önce gelir
+  if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
   const kartlar = diz(secili, kartYap, !q);
   liste.replaceChildren(...(kartlar.length ? kartlar
     : [el("div", "durum", q ? "Aramaya uyan haber yok." : "Bu bölümde şu an haber yok.")]));
