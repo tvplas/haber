@@ -30,6 +30,18 @@ a.dugme{text-decoration:none;display:inline-block}
 .tiklanir{background:var(--kart);border:2px solid var(--vurgu);border-radius:12px;padding:12px 16px;margin-bottom:18px}
 .tiklanir p{margin:4px 0 10px;font-size:14px;color:var(--soluk)}
 .tiklanir .eylem{margin:10px 0 0}
+.kendi{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;padding:12px 16px;margin:4px 0 12px}
+.kendi>b{display:block;font-size:15px}
+.kendi small{font-weight:400;color:var(--soluk)}
+.kendi label{display:block;font-size:13px;font-weight:600;color:var(--soluk);margin:10px 0 4px}
+.kendi input[type=text]{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
+.kendi textarea{min-height:72px;background:var(--bg)}
+.kendi input[type=range]{width:100%}
+.dosya{position:relative;border:2px dashed var(--cizgi);border-radius:10px;padding:14px;text-align:center;color:var(--soluk);margin-top:8px;cursor:pointer}
+.dosya input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.onizler{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.onizler img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+.kendi .eylem{margin:10px 0 0}
 </style>
 </head>
 <body>
@@ -46,6 +58,23 @@ a.dugme{text-decoration:none;display:inline-block}
     <button id="baskaHaber">⟳ Başka haber</button>
     <button id="baskaRenk">🎨 Başka renk</button>
   </div></div>
+
+  <div class="kendi">
+    <b>⭐ Kendi içeriğim <small>(isteğe bağlı – kendi fotoğraf ya da videolarınızla, kendi başlığınızla özel kapak)</small></b>
+    <div class="dosya"><input type="file" id="kDosya" accept="image/*,video/*" multiple><span id="kDosyaYazi">📷 🎬 Fotoğraf ya da video seçin (en çok 4)</span></div>
+    <div class="onizler" id="kOnizler"></div>
+    <div id="kVideoAyar" hidden>
+      <label for="kKare">Kapakta videonun hangi anı görünsün?</label>
+      <input type="range" id="kKare" min="0" max="100" value="30">
+    </div>
+    <label for="kEtiket">Üst etiket <small>(ör. YENİ KLİP, ÖZEL HABER, DUYURU)</small></label>
+    <input type="text" id="kEtiket" maxlength="30" placeholder="TVplas ÖZEL">
+    <label for="kBaslik">Başlık</label>
+    <input type="text" id="kBaslik" maxlength="140" placeholder="ör. AŞK YAKAR – Yeni klibimiz yayında!">
+    <label for="kGiris">Giriş metni <small>(kapakta başlığın altında görünür, paylaşım metnine de eklenir)</small></label>
+    <textarea id="kGiris" maxlength="400"></textarea>
+    <div class="eylem"><button class="dugme" id="kTemizle">✕ Kendi içeriğimi kaldır</button></div>
+  </div>
 
   <canvas id="tuval" width="1080" height="1080"></canvas>
   <div class="durum" id="durum">Günün haberleri yükleniyor…</div>
@@ -84,6 +113,13 @@ a.dugme{text-decoration:none;display:inline-block}
     <ol>
       <li><b>Tıklanabilir paylaşım hazırla</b>'ya basın (ilk seferde yönetim şifrenizi sorar).</li>
       <li>Birkaç saniye sonra <b>Facebook'ta paylaş</b> düğmesi açılır; Facebook penceresine günün metnini yapıştırıp paylaşın.</li>
+    </ol>
+    <b>Kendi fotoğraf ya da videonuzla kapak</b>
+    <ol>
+      <li><b>⭐ Kendi içeriğim</b> kutusundan en çok 4 fotoğraf ya da video seçin; başlık, giriş metni ve üst etiketi yazın. Kapak <b>⭐ Benim Seçimim</b> tasarımıyla hazırlanır, paylaşım metni de sizin başlık ve giriş metninizden oluşur.</li>
+      <li>Videoda kapakta görünecek anı kaydırma çubuğuyla seçin.</li>
+      <li>Videoyu Facebook'ta video olarak paylaşmak için: telefonda <b>Paylaş</b> düğmesi videoyu ve metni birlikte gönderir; bilgisayarda videoyu Facebook'a kendiniz yükleyip metni yapıştırın, indirdiğiniz kapağı da küçük resim olarak seçebilirsiniz.</li>
+      <li>Günün hazır tasarımlarına dönmek için üstten bir tasarım seçin ya da <b>Kendi içeriğimi kaldır</b>'a basın. Dosyalarınız hiçbir yere yüklenmez, yalnızca sizin cihazınızda kalır.</li>
     </ol>
     <a href="./">← TVplas Portal'a dön</a>
   </div>
@@ -279,10 +315,54 @@ const TASARIMLAR = [
     sigdir(haber().b, px + 44, py + 212, pw - 88, kare ? 46 : 40, 26, kare ? 4 : 6, "#fff");
     yazi(24, 700); ctx.fillStyle = "#fff"; ctx.textBaseline = "bottom";
     ctx.fillText("🌐 tvplas.github.io/haber", px + 44, py + ph - 28); ctx.textBaseline = "top";
+  } },
+  // Kullanıcının kendi fotoğraf/videoları ve kendi başlığı (günlük döngüye girmez; dosya seçilince ya da başlık yazılınca açılır)
+  { ad: "⭐ Benim Seçimim", kendi: true, ciz(W, H, resimler) {
+    const kare = boyut === "kare", bant = kare ? 74 : 60;
+    // Fotoğraf alanı: kare biçimde üst kısım, yatay biçimde sol kısım; kalan kısım renkli yazı paneli
+    const fw = kare ? W : Math.round(W * 0.55), fh = kare ? Math.round(H * 0.56) : H - bant;
+    renkliZemin(0, 0, W, H);
+    kolaj(resimler, 0, 0, fw, fh);
+    if (!resimler.length) { yazi(kare ? 120 : 90, 900); ctx.fillStyle = "rgba(255,255,255,.12)"; ctx.textAlign = "center"; ctx.fillText("TVplas", fw / 2, fh / 2 - 60); ctx.textAlign = "left"; }
+    yazi(44, 900);
+    const lw = ctx.measureText("TVplas Portal").width + 52;
+    ctx.fillStyle = "rgba(0,0,0,.72)"; yuvarlak(26, 26, lw, 80, 40); ctx.fill();
+    logo(52, 41, 44);
+    rozet(tarihUzun.toLocaleUpperCase("tr"), W - 40, 40, 22, "rgba(0,0,0,.55)", true);
+    const px = kare ? 48 : fw + 40, pw = kare ? W - 96 : W - fw - 80;
+    let y = kare ? fh + 30 : 130;
+    const etiket = kendi.etiket.trim() || "TVplas ÖZEL";
+    y += rozet(etiket.toLocaleUpperCase("tr"), px, y, kare ? 24 : 22, "rgba(0,0,0,.45)") + 18;
+    y += sigdir(kendi.baslik.trim() || "Başlığınızı yazın", px, y, pw, kare ? 58 : 46, 28, kare ? 3 : 4, "#fff", 900) + 14;
+    if (kendi.giris.trim()) sigdir(kendi.giris.trim(), px, y, pw, kare ? 32 : 26, 18, kare ? 3 : 6, "rgba(255,255,255,.9)", 500);
+    altBant(W, H, bant, "Kıbrıs'ın haberi tek adreste");
   } }
 ];
 
-let tasarimSira = gunNo % TASARIMLAR.length;   // her gün kendiliğinden farklı tasarım
+// 1–4 görseli verilen alana yerleştirir (tek / yan yana / büyük + iki küçük / 2×2); videolarda ▶ işareti
+function kolaj(resimler, x, y, w, h) {
+  const n = resimler.length, a = 6, yarW = (w - a) / 2, yarH = (h - a) / 2;
+  const yerler = n === 1 ? [[x, y, w, h]]
+    : n === 2 ? [[x, y, yarW, h], [x + yarW + a, y, yarW, h]]
+    : n === 3 ? [[x, y, yarW, h], [x + yarW + a, y, yarW, yarH], [x + yarW + a, y + yarH + a, yarW, yarH]]
+    : [[x, y, yarW, yarH], [x + yarW + a, y, yarW, yarH], [x, y + yarH + a, yarW, yarH], [x + yarW + a, y + yarH + a, yarW, yarH]];
+  resimler.forEach((r, i) => {
+    const [rx, ry, rw, rh] = yerler[i];
+    ctx.save(); ctx.beginPath(); ctx.rect(rx, ry, rw, rh); ctx.clip();
+    kapla(r, rx, ry, rw, rh, 0.4);
+    ctx.restore();
+    if (r.video) oynatIsareti(rx + rw / 2, ry + rh / 2, Math.min(rw, rh) * (n === 1 ? 0.13 : 0.18));
+  });
+}
+function oynatIsareti(cx, cy, r) {
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fill();
+  ctx.lineWidth = Math.max(3, r * 0.08); ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - r * 0.3, cy - r * 0.45); ctx.lineTo(cx + r * 0.5, cy); ctx.lineTo(cx - r * 0.3, cy + r * 0.45); ctx.closePath();
+  ctx.fillStyle = "#fff"; ctx.fill();
+}
+
+const OTOMATIK = TASARIMLAR.filter(t => !t.kendi).length;
+let tasarimSira = gunNo % OTOMATIK;   // her gün kendiliğinden farklı tasarım ("Benim Seçimim" döngüye girmez)
 const tasarimKutu = document.getElementById("tasarimlar");
 TASARIMLAR.forEach((t, i) => {
   const b = document.createElement("button");
@@ -291,15 +371,93 @@ TASARIMLAR.forEach((t, i) => {
   tasarimKutu.append(b);
 });
 
+// ---- Kendi içeriğim: seçilen dosyalar yalnızca bu tarayıcıda kalır; başlık/giriş/etiket bir sonraki açılış için hatırlanır ----
+const kendi = { ogeler: [], baslik: "", giris: "", etiket: "" };
+const KENDI_TASARIM = TASARIMLAR.findIndex(t => t.kendi);
+try { Object.assign(kendi, JSON.parse(localStorage.getItem("tvplas_kendi") || "{}"), { ogeler: [] }); } catch (e) { }
+["Baslik", "Giris", "Etiket"].forEach(ad => {
+  const alan = document.getElementById("k" + ad), anahtar = ad.toLowerCase();
+  alan.value = kendi[anahtar] || "";
+  let bekle;
+  alan.oninput = () => {
+    kendi[anahtar] = alan.value;
+    try { localStorage.setItem("tvplas_kendi", JSON.stringify({ baslik: kendi.baslik, giris: kendi.giris, etiket: kendi.etiket })); } catch (e) { }
+    if (tasarimSira !== KENDI_TASARIM) tasarimSira = KENDI_TASARIM;
+    clearTimeout(bekle); bekle = setTimeout(ciz, 250);
+  };
+});
+
+// Videonun istenen anını (yüzde) tuvale kopyalar; kapakta fotoğraf gibi kullanılır
+function videoKaresi(o) {
+  return new Promise(coz => {
+    const v = o.v;
+    const al = () => {
+      const c = document.createElement("canvas");
+      c.width = v.videoWidth; c.height = v.videoHeight;
+      c.getContext("2d").drawImage(v, 0, 0);
+      c.video = true; o.resim = c; coz();
+    };
+    v.onseeked = al;
+    v.currentTime = Math.min(v.duration - 0.1, v.duration * (+document.getElementById("kKare").value / 100)) || 0.1;
+  });
+}
+
+document.getElementById("kDosya").onchange = async e => {
+  const dosyalar = [...e.target.files].slice(0, 4);
+  if (!dosyalar.length) return;
+  durum.textContent = "Seçtiğiniz dosyalar hazırlanıyor…";
+  kendi.ogeler.forEach(o => o.adres && URL.revokeObjectURL(o.adres));
+  kendi.ogeler = [];
+  for (const f of dosyalar) {
+    const o = { dosya: f, adres: URL.createObjectURL(f) };
+    try {
+      if (f.type.startsWith("video/")) {
+        o.v = document.createElement("video"); o.v.muted = true; o.v.playsInline = true; o.v.preload = "auto";
+        await new Promise((coz, red) => { o.v.onloadedmetadata = coz; o.v.onerror = red; o.v.src = o.adres; });
+        await videoKaresi(o);
+      } else {
+        o.resim = await createImageBitmap(f);
+      }
+      kendi.ogeler.push(o);
+    } catch (hata) { durum.textContent = f.name + " açılamadı (bu tarayıcı bu dosya türünü desteklemiyor olabilir)."; }
+  }
+  document.getElementById("kVideoAyar").hidden = !kendi.ogeler.some(o => o.v);
+  const onizler = document.getElementById("kOnizler");
+  onizler.replaceChildren(...kendi.ogeler.map(o => {
+    const c = document.createElement("canvas"), i = document.createElement("img");
+    c.width = 144; c.height = 144; const x = c.getContext("2d"), r = o.resim, s = Math.max(144 / r.width, 144 / r.height);
+    x.drawImage(r, (144 - r.width * s) / 2, (144 - r.height * s) / 2, r.width * s, r.height * s);
+    i.src = c.toDataURL("image/jpeg", 0.8); i.title = o.dosya.name; return i;
+  }));
+  document.getElementById("kDosyaYazi").textContent = kendi.ogeler.length + " dosya seçildi – değiştirmek için dokunun";
+  tasarimSira = KENDI_TASARIM;
+  ciz();
+};
+document.getElementById("kKare").onchange = async () => {
+  for (const o of kendi.ogeler) if (o.v) await videoKaresi(o);
+  ciz();
+};
+document.getElementById("kTemizle").onclick = () => {
+  kendi.ogeler.forEach(o => o.adres && URL.revokeObjectURL(o.adres));
+  Object.assign(kendi, { ogeler: [], baslik: "", giris: "", etiket: "" });
+  ["kBaslik", "kGiris", "kEtiket", "kDosya"].forEach(id => document.getElementById(id).value = "");
+  try { localStorage.removeItem("tvplas_kendi"); } catch (e) { }
+  document.getElementById("kOnizler").replaceChildren();
+  document.getElementById("kVideoAyar").hidden = true;
+  document.getElementById("kDosyaYazi").textContent = "📷 🎬 Fotoğraf ya da video seçin (en çok 4)";
+  tasarimSira = gunNo % OTOMATIK;
+  ciz();
+};
+
 let cizimNo = 0;
 async function ciz() {
-  if (!haberler.length) return;
+  const t = TASARIMLAR[tasarimSira];
+  if (!haberler.length && !t.kendi) return;
   const no = ++cizimNo;
   [...tasarimKutu.children].forEach((b, i) => b.classList.toggle("aktif", i === tasarimSira));
   document.querySelectorAll("#boyutlar button").forEach(b => b.classList.toggle("aktif", b.dataset.b === boyut));
   durum.textContent = "Kapak hazırlanıyor… Fotoğraflar alınıyor; ilk açılışta 30–40 saniye sürebilir, sonraki değişiklikler hızlıdır.";
-  const t = TASARIMLAR[tasarimSira];
-  const resimler = await Promise.all(t.gorseller().map(gorselAl));
+  const resimler = t.kendi ? kendi.ogeler.map(o => o.resim).filter(Boolean) : await Promise.all(t.gorseller().map(gorselAl));
   if (no !== cizimNo) return;   // bu arada başka bir seçim yapıldı
   const W = boyut === "kare" ? 1080 : 1200, H = boyut === "kare" ? 1080 : 630;
   tuval.width = W; tuval.height = H;
@@ -310,6 +468,15 @@ async function ciz() {
 
 // ---- Paylaşım metni: her gün farklı kalıp ----
 function metniYaz() {
+  const etiketler = "\n\n#TVplas #Kıbrıs #KKTC #KıbrısHaber #Lefkoşa #Girne #Mağusa #GüncelHaber #Gazeteler\n📣 Reklam ve tanıtım: WhatsApp 0533 863 6839";
+  // Kendi içeriğimde paylaşım metni kullanıcının başlığı ve giriş metninden kurulur
+  if (TASARIMLAR[tasarimSira].kendi) {
+    const e = kendi.etiket.trim(), b = kendi.baslik.trim(), g = kendi.giris.trim();
+    document.getElementById("metin").value = (e ? "⭐ " + e.toLocaleUpperCase("tr") + "\n\n" : "") + (b ? b + "\n\n" : "") +
+      (g ? g + "\n\n" : "") + "👉 Daha fazlası TVplas Portal'da: " + PORTAL + etiketler;
+    return;
+  }
+  if (!haberler.length) return;
   const b = haber().b, n = gazeteler.length;
   const kaliplar = [
     `📰 ${tarihUzun} | Kıbrıs'ın gündemi TVplas Portal'da!\n\nGünün öne çıkan haberi: ${b}\n\n✅ ${n} gazetenin birinci sayfası\n✅ Kıbrıs, Güney, Türkiye ve dünyadan haberler\n✅ Her 30 dakikada güncel\n\n👉 ${PORTAL}`,
@@ -320,7 +487,6 @@ function metniYaz() {
     `🌍 Kıbrıs'tan ve dünyadan bugün neler oldu?\n\n${b}\n\nTüm haberler Türkçe, her 30 dakikada güncel. Takipte kalın!\n👉 ${PORTAL}`,
     `✨ ${tarihUzun} — günün özeti hazır!\n\nGazete manşetleri, son dakika, spor, ekonomi, magazin… Hepsi TVplas Portal'da.\n\n👉 ${PORTAL}`
   ];
-  const etiketler = "\n\n#TVplas #Kıbrıs #KKTC #KıbrısHaber #Lefkoşa #Girne #Mağusa #GüncelHaber #Gazeteler\n📣 Reklam ve tanıtım: WhatsApp 0533 863 6839";
   document.getElementById("metin").value = kaliplar[metinSira % kaliplar.length] + etiketler;
 }
 
@@ -346,7 +512,9 @@ const paylas = document.getElementById("paylas");
 if (navigator.canShare) {
   paylas.hidden = false;
   paylas.onclick = () => tuval.toBlob(async b => {
-    const veri = { files: [new File([b], dosyaAdi(), { type: "image/jpeg" })], text: document.getElementById("metin").value };
+    // Kendi videolarım seçiliyse paylaşıma videolar gider (Facebook'ta video gönderisi); yoksa kapak görseli
+    const videolar = TASARIMLAR[tasarimSira].kendi ? kendi.ogeler.filter(o => o.v).map(o => o.dosya) : [];
+    const veri = { files: videolar.length ? videolar : [new File([b], dosyaAdi(), { type: "image/jpeg" })], text: document.getElementById("metin").value };
     if (!navigator.canShare(veri)) { durum.textContent = "Bu cihaz görsel paylaşmayı desteklemiyor; lütfen kapağı indirin."; return; }
     try { await navigator.share(veri); } catch (e) { }
   }, "image/jpeg", 0.92);
@@ -366,7 +534,7 @@ document.getElementById("tiklanirBtn").onclick = async () => {
     d.textContent = "Kapak portala yükleniyor…";
     const cevap = await fetch(API, { method: "POST", body: JSON.stringify({
       islem: "kapakYayinla", sifre, veri: tuval.toDataURL("image/jpeg", 0.9),
-      baslik: "TVplas Portal – " + tarihUzun, aciklama: haber().b
+      baslik: "TVplas Portal – " + tarihUzun, aciklama: TASARIMLAR[tasarimSira].kendi ? kendi.baslik : haber().b
     }) }).then(r => r.json());
     if (!cevap.tamam) throw new Error(cevap.hata || "Kapak yüklenemedi");
     if (!kayitliSifre()) try { localStorage.setItem("tvplas_sifre", sifre); } catch (e) { }
