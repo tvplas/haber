@@ -37,6 +37,7 @@ a.dugme{text-decoration:none;display:inline-block}
 .kendi input[type=text]{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
 .kendi textarea{min-height:72px;background:var(--bg)}
 .kendi input[type=range]{width:100%}
+.kendi select{width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit}
 .dosya{position:relative;border:2px dashed var(--cizgi);border-radius:10px;padding:14px;text-align:center;color:var(--soluk);margin-top:8px;cursor:pointer}
 .dosya input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .onizler{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -74,6 +75,16 @@ a.dugme{text-decoration:none;display:inline-block}
     <label for="kGiris">Giriş metni <small>(kapakta başlığın altında görünür, paylaşım metnine de eklenir)</small></label>
     <textarea id="kGiris" maxlength="400"></textarea>
     <div class="eylem"><button class="dugme" id="kTemizle">✕ Kendi içeriğimi kaldır</button></div>
+  </div>
+
+  <div class="kendi">
+    <b>📣 Reklam kapağı <small>(portalda yayında olan reklamlarınızdan biriyle Facebook kapağı)</small></b>
+    <label for="rSecim">Reklam</label>
+    <select id="rSecim"><option value="">Reklamlar yükleniyor…</option></select>
+    <label for="rBaslik">Kapak başlığı <small>(boş bırakılırsa reklamın adı yazılır)</small></label>
+    <input type="text" id="rBaslik" maxlength="140">
+    <label for="rGiris">Alt yazı <small>(isteğe bağlı – ör. adres, telefon, kampanya; paylaşım metnine de eklenir)</small></label>
+    <textarea id="rGiris" maxlength="300"></textarea>
   </div>
 
   <canvas id="tuval" width="1080" height="1080"></canvas>
@@ -120,6 +131,12 @@ a.dugme{text-decoration:none;display:inline-block}
       <li>Videoda kapakta görünecek anı kaydırma çubuğuyla seçin.</li>
       <li>Videoyu Facebook'ta video olarak paylaşmak için: telefonda <b>Paylaş</b> düğmesi videoyu ve metni birlikte gönderir; bilgisayarda videoyu Facebook'a kendiniz yükleyip metni yapıştırın, indirdiğiniz kapağı da küçük resim olarak seçebilirsiniz.</li>
       <li>Günün hazır tasarımlarına dönmek için üstten bir tasarım seçin ya da <b>Kendi içeriğimi kaldır</b>'a basın. Dosyalarınız hiçbir yere yüklenmez, yalnızca sizin cihazınızda kalır.</li>
+    </ol>
+    <b>Reklamınızla kapak</b>
+    <ol>
+      <li><b>📣 Reklam kapağı</b> kutusundan portalda yayında olan reklamı seçin; kapak <b>📣 Reklam</b> tasarımıyla, afişin tamamı görünecek şekilde hazırlanır. Videolu reklamlarda afişin üstünde ▶ işareti çıkar.</li>
+      <li>İsterseniz kapak başlığını ve alt yazıyı (adres, telefon, kampanya) değiştirin; paylaşım metni bunlardan ve reklamın bağlantısından oluşur.</li>
+      <li>Kapağı indirin ya da <b>Tıklanabilir paylaşım hazırla</b> ile Facebook'ta paylaşın.</li>
     </ol>
     <a href="./">← TVplas Portal'a dön</a>
   </div>
@@ -336,6 +353,39 @@ const TASARIMLAR = [
     y += sigdir(kendi.baslik.trim() || "Başlığınızı yazın", px, y, pw, kare ? 58 : 46, 28, kare ? 3 : 4, "#fff", 900) + 14;
     if (kendi.giris.trim()) sigdir(kendi.giris.trim(), px, y, pw, kare ? 32 : 26, 18, kare ? 3 : 6, "rgba(255,255,255,.9)", 500);
     altBant(W, H, bant, "Kıbrıs'ın haberi tek adreste");
+  } },
+  // Yayındaki bir reklamın afişi (kesilmeden, tamamı görünür) ve reklam yazısı (günlük döngüye girmez)
+  { ad: "📣 Reklam", reklam: true, gorseller: () => [secilenReklam()?.g], ciz(W, H, [img]) {
+    const kare = boyut === "kare", bant = kare ? 74 : 60, r = secilenReklam() || {};
+    // Zemin: afişin bulanık ve koyulaştırılmış hâli (yoksa renkli zemin)
+    renkliZemin(0, 0, W, H);
+    if (img) {
+      ctx.save(); ctx.filter = "blur(28px)"; kapla(img, -60, -60, W + 120, H + 120, 0.5); ctx.restore();
+      ctx.fillStyle = "rgba(0,0,0,.58)"; ctx.fillRect(0, 0, W, H);   // yazılar okunsun (filtre desteklenmeyen tarayıcılarda da)
+    }
+    // Afiş alanı: kare biçimde üst kısım, yatay biçimde sol kısım
+    const ax = kare ? 40 : 30, ay = kare ? 130 : 30, aw = kare ? W - 80 : Math.round(W * 0.5) - 30, ah = kare ? H - bant - 410 : H - bant - 60;
+    if (img) {
+      const o = Math.min(aw / img.width, ah / img.height), gw = img.width * o, gh = img.height * o;
+      const gx = ax + (aw - gw) / 2, gy = ay + (ah - gh) / 2;
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 30; ctx.shadowOffsetY = 10;
+      ctx.drawImage(img, gx, gy, gw, gh); ctx.restore();
+      if (r.v) oynatIsareti(gx + gw / 2, gy + gh / 2, Math.min(gw, gh) * 0.16);
+    }
+    if (kare) {
+      yazi(44, 900);
+      const lw = ctx.measureText("TVplas Portal").width + 52;
+      ctx.fillStyle = "rgba(0,0,0,.72)"; yuvarlak(26, 26, lw, 80, 40); ctx.fill();
+      logo(52, 41, 44);
+    }
+    const px = kare ? 48 : Math.round(W * 0.5) + 30, pw = kare ? W - 96 : W - px - 40;
+    let y = kare ? ay + ah + 24 : 40;
+    if (!kare) { logo(px, y, 40); y += 70; }
+    y += rozet(r.v ? "🎬 VİDEOLU TANITIM" : "TANITIM", px, y, kare ? 22 : 20, renk()[0]) + 14;
+    y += sigdir(reklamBasligi() || "Reklam seçin", px, y, pw, kare ? 46 : 42, 26, kare ? 2 : 4, "#fff", 900) + 10;
+    const alt = document.getElementById("rGiris").value.trim();
+    if (alt) sigdir(alt, px, y, pw, kare ? 27 : 24, 18, kare ? 2 : 5, "rgba(255,255,255,.9)", 500);
+    altBant(W, H, bant, "Reklam ve tanıtım: 0533 863 6839");
   } }
 ];
 
@@ -361,8 +411,8 @@ function oynatIsareti(cx, cy, r) {
   ctx.fillStyle = "#fff"; ctx.fill();
 }
 
-const OTOMATIK = TASARIMLAR.filter(t => !t.kendi).length;
-let tasarimSira = gunNo % OTOMATIK;   // her gün kendiliğinden farklı tasarım ("Benim Seçimim" döngüye girmez)
+const OTOMATIK = TASARIMLAR.filter(t => !t.kendi && !t.reklam).length;
+let tasarimSira = gunNo % OTOMATIK;   // her gün kendiliğinden farklı tasarım ("Benim Seçimim" ve "Reklam" döngüye girmez)
 const tasarimKutu = document.getElementById("tasarimlar");
 TASARIMLAR.forEach((t, i) => {
   const b = document.createElement("button");
@@ -449,10 +499,32 @@ document.getElementById("kTemizle").onclick = () => {
   ciz();
 };
 
+// ---- Reklam kapağı: portalda yayındaki reklamlardan biri seçilir ----
+let reklamlar = [];
+const REKLAM_TASARIM = TASARIMLAR.findIndex(t => t.reklam);
+const rSecim = document.getElementById("rSecim");
+const secilenReklam = () => reklamlar[+rSecim.value];
+const reklamBasligi = () => document.getElementById("rBaslik").value.trim() || (secilenReklam() || {}).ad || "";
+function reklamlariListele() {
+  rSecim.replaceChildren(...(reklamlar.length
+    ? reklamlar.map((r, i) => new Option((i + 1) + ". " + (r.ad || "Reklam") + (r.v ? " 🎬" : ""), i))
+    : [new Option("Portalda yayında reklam yok", "")]));
+  rSecim.disabled = !reklamlar.length;
+}
+rSecim.onchange = () => { tasarimSira = REKLAM_TASARIM; ciz(); };
+["rBaslik", "rGiris"].forEach(id => {
+  let bekle;
+  document.getElementById(id).oninput = () => {
+    if (!reklamlar.length) return;
+    tasarimSira = REKLAM_TASARIM;
+    clearTimeout(bekle); bekle = setTimeout(ciz, 250);
+  };
+});
+
 let cizimNo = 0;
 async function ciz() {
   const t = TASARIMLAR[tasarimSira];
-  if (!haberler.length && !t.kendi) return;
+  if (!haberler.length && !t.kendi && !t.reklam) return;
   const no = ++cizimNo;
   [...tasarimKutu.children].forEach((b, i) => b.classList.toggle("aktif", i === tasarimSira));
   document.querySelectorAll("#boyutlar button").forEach(b => b.classList.toggle("aktif", b.dataset.b === boyut));
@@ -474,6 +546,13 @@ function metniYaz() {
     const e = kendi.etiket.trim(), b = kendi.baslik.trim(), g = kendi.giris.trim();
     document.getElementById("metin").value = (e ? "⭐ " + e.toLocaleUpperCase("tr") + "\n\n" : "") + (b ? b + "\n\n" : "") +
       (g ? g + "\n\n" : "") + "👉 Daha fazlası TVplas Portal'da: " + PORTAL + etiketler;
+    return;
+  }
+  // Reklam kapağında paylaşım metni reklamın başlığı, alt yazısı ve adresinden kurulur
+  if (TASARIMLAR[tasarimSira].reklam) {
+    const r = secilenReklam() || {}, b = reklamBasligi(), g = document.getElementById("rGiris").value.trim();
+    document.getElementById("metin").value = "📣 " + (b || "Tanıtım") + "\n\n" + (g ? g + "\n\n" : "") +
+      (r.l ? "👉 " + r.l + "\n" : "") + (r.v ? "🎬 Tanıtım videosunu TVplas Portal'da izleyin: " : "📍 TVplas Portal'da: ") + PORTAL + etiketler;
     return;
   }
   if (!haberler.length) return;
@@ -534,7 +613,8 @@ document.getElementById("tiklanirBtn").onclick = async () => {
     d.textContent = "Kapak portala yükleniyor…";
     const cevap = await fetch(API, { method: "POST", body: JSON.stringify({
       islem: "kapakYayinla", sifre, veri: tuval.toDataURL("image/jpeg", 0.9),
-      baslik: "TVplas Portal – " + tarihUzun, aciklama: TASARIMLAR[tasarimSira].kendi ? kendi.baslik : haber().b
+      baslik: "TVplas Portal – " + tarihUzun,
+      aciklama: TASARIMLAR[tasarimSira].kendi ? kendi.baslik : TASARIMLAR[tasarimSira].reklam ? reklamBasligi() : haber().b
     }) }).then(r => r.json());
     if (!cevap.tamam) throw new Error(cevap.hata || "Kapak yüklenemedi");
     if (!kayitliSifre()) try { localStorage.setItem("tvplas_sifre", sifre); } catch (e) { }
@@ -559,6 +639,8 @@ Promise.all([
   fetch(API + "?ziyaret=0").then(r => r.json()),
   fetch(API + "?islem=gazeteler").then(r => r.json()).catch(() => ({}))
 ]).then(([v, gz]) => {
+  reklamlar = ((v.ekler || {}).reklamlar || []).filter(r => r.g);
+  reklamlariListele();
   haberler = (v.haberler || []).filter(h => h.g && !BOLUMLER.includes(h.tur)).slice(0, 30);
   gazeteler = (gz.gazeteler || []).filter(g => g.g);
   if (!haberler.length) { durum.textContent = "Haberler şu an alınamadı, lütfen sayfayı yenileyin."; return; }
