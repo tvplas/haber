@@ -124,6 +124,7 @@ a.dugme{text-decoration:none;display:inline-block}
     <ol>
       <li><b>Tıklanabilir paylaşım hazırla</b>'ya basın (ilk seferde yönetim şifrenizi sorar).</li>
       <li>Birkaç saniye sonra <b>Facebook'ta paylaş</b> düğmesi açılır; Facebook penceresine günün metnini yapıştırıp paylaşın.</li>
+      <li>Her paylaşım kendi ayrı kapağıyla saklanır: yeni kapak hazırladığınızda önceki paylaşımlarınızın kapakları değişmez, silinmez. (999 paylaşımlık yer vardır; ancak 999. paylaşımdan sonra en eski kapağın yeri yeniden kullanılır.)</li>
     </ol>
     <b>Kendi fotoğraf ya da videonuzla kapak</b>
     <ol>
@@ -599,7 +600,7 @@ if (navigator.canShare) {
   }, "image/jpeg", 0.92);
 }
 
-// ---- Tıklanabilir paylaşım: sunucu kapağı günün Drive yuvasına yazar; portaldaki günün paylaşım sayfası (p/NNN.html) onu gösterir ----
+// ---- Tıklanabilir paylaşım: sunucu her kapağı sıradaki Drive yuvasına yazar (öncekiler yerinde kalır); portaldaki o yuvanın paylaşım sayfası (p/NNN.html) onu gösterir ----
 // Yönetim şifresi, yönetim panelinde "beni hatırla" ile kaydedildiyse oradan alınır (aynı site)
 function kayitliSifre() { try { return localStorage.getItem("tvplas_sifre") || ""; } catch (e) { return ""; } }
 let paylasimAdresi = "";
