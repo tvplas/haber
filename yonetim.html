@@ -82,7 +82,7 @@ button:disabled{opacity:.6;cursor:wait}
       <label>Fotoğraf <small>(isteğe bağlı)</small></label>
       <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>📷 Fotoğraf seçmek için dokunun</span></div>
       <label>Video <small>(isteğe bağlı – müzik klibi vb., en fazla 200 MB; fotoğraf seçilmezse videodan bir kare kapak olur)</small></label>
-      <div class="dosya"><input type="file" accept="video/*" id="hVideo"><span>🎬 Video seçmek için dokunun</span></div>
+      <div class="dosya"><input type="file" accept="video/*" data-video><span>🎬 Video seçmek için dokunun</span></div>
       <label for="hBolum">Bölüm <small>(haberin portalda çıkacağı menü)</small></label>
       <select id="hBolum">
         <option>Kıbrıs</option><option>Güney</option><option>Türkiye</option><option>Dünya</option>
@@ -108,8 +108,10 @@ button:disabled{opacity:.6;cursor:wait}
     <form id="reklam" class="kutu sekme gizli">
       <label for="rAd">Reklam adı <small>(sizin takibiniz için, ör. firma adı)</small></label>
       <input id="rAd" type="text" maxlength="100">
-      <label>Reklam görseli</label>
+      <label>Reklam görseli <small>(video eklerseniz isteğe bağlı – seçilmezse videodan bir kare afiş olur)</small></label>
       <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>🖼️ Afiş seçmek için dokunun</span></div>
+      <label>Reklam videosu <small>(isteğe bağlı – tanıtım filmi vb., en fazla 200 MB; portalda afişe tıklanınca oynar)</small></label>
+      <div class="dosya"><input type="file" accept="video/*" data-video><span>🎬 Video seçmek için dokunun</span></div>
       <label for="rLink">Tıklanınca gideceği adres <small>(isteğe bağlı)</small></label>
       <input id="rLink" type="url" placeholder="https://…">
       <label for="rNo">Reklam numarası <small>(1, 2, 3… – boş bırakılırsa sona eklenir)</small></label>
@@ -188,15 +190,15 @@ document.querySelectorAll("[data-onizleme]").forEach(inp => inp.onchange = () =>
   kutu.querySelector("span").textContent = f.name + " – değiştirmek için dokunun";
 });
 
-$("hVideo").onchange = () => {
-  const inp = $("hVideo"), kutu = inp.parentElement, f = inp.files[0];
+document.querySelectorAll("[data-video]").forEach(inp => inp.onchange = () => {
+  const kutu = inp.parentElement, f = inp.files[0];
   kutu.querySelector("video")?.remove();
   if (!f) return;
   const v = document.createElement("video");
   v.src = URL.createObjectURL(f); v.muted = true; v.preload = "metadata";
   kutu.prepend(v);
   kutu.querySelector("span").textContent = f.name + " (" + (f.size / 1048576).toFixed(1) + " MB) – değiştirmek için dokunun";
-};
+});
 
 function dosyaSifirla(form) {
   const inp = form.querySelector("[data-onizleme]");
@@ -204,11 +206,10 @@ function dosyaSifirla(form) {
   inp.parentElement.querySelector("img")?.remove();
   inp.parentElement.querySelector("span").textContent =
     form.id === "haber" ? "📷 Fotoğraf seçmek için dokunun" : "🖼️ Afiş seçmek için dokunun";
-  if (form.id === "haber") {
-    $("hVideo").value = "";
-    $("hVideo").parentElement.querySelector("video")?.remove();
-    $("hVideo").parentElement.querySelector("span").textContent = "🎬 Video seçmek için dokunun";
-  }
+  const vid = form.querySelector("[data-video]");
+  vid.value = "";
+  vid.parentElement.querySelector("video")?.remove();
+  vid.parentElement.querySelector("span").textContent = "🎬 Video seçmek için dokunun";
 }
 
 const base64 = parca => new Promise((ok, hata) => {
@@ -283,7 +284,7 @@ document.querySelectorAll(".sekmeler [data-s]").forEach(b => b.onclick = () => {
 async function gonder(form, veri) {
   const btn = form.querySelector("button.ana"), m = form.querySelector(".mesaj");
   const f = form.querySelector("[data-onizleme]").files[0];
-  const v = form.id === "haber" ? $("hVideo").files[0] : null;
+  const v = form.querySelector("[data-video]").files[0];
   btn.disabled = true;
   mesaj(m, f ? "Fotoğraf hazırlanıyor ve yükleniyor…" : "Kaydediliyor…", true);
   try {
@@ -313,8 +314,8 @@ $("haber").onsubmit = e => {
 
 $("reklam").onsubmit = e => {
   e.preventDefault();
-  if (!$("reklam").querySelector("[data-onizleme]").files[0]) {
-    return mesaj($("reklam").querySelector(".mesaj"), "Lütfen bir reklam görseli seçin.", false);
+  if (!$("reklam").querySelector("[data-onizleme]").files[0] && !$("reklam").querySelector("[data-video]").files[0]) {
+    return mesaj($("reklam").querySelector(".mesaj"), "Lütfen bir reklam görseli veya videosu seçin.", false);
   }
   gonder($("reklam"), {
     islem: "reklamEkle", ad: $("rAd").value.trim(), link: $("rLink").value.trim(), no: $("rNo").value,

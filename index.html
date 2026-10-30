@@ -45,7 +45,7 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .resim img{width:100%;height:100%;object-fit:cover;display:block}
 .resim.yok{aspect-ratio:auto;height:6px;background:var(--vurgu)}
 .resim.video{position:relative}
-.resim.video::after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.6);box-shadow:0 0 0 3px rgba(255,255,255,.85);color:#fff;font-size:26px;display:grid;place-items:center;padding-left:5px;box-sizing:border-box}
+.resim.video::after,.reklam.video::after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.6);box-shadow:0 0 0 3px rgba(255,255,255,.85);color:#fff;font-size:26px;display:grid;place-items:center;padding-left:5px;box-sizing:border-box}
 #detay iframe{width:100%;aspect-ratio:16/9;max-height:70vh;border:0;display:block;background:#000}
 #detay .video-yedek{display:block;padding:8px 20px 0;font-size:13px;color:var(--soluk)}
 .icerik{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
@@ -326,7 +326,7 @@ function detayAc(h) {
   d.querySelector("h2").textContent = h.b;
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
-  kaynak.textContent = "Habere git →";
+  kaynak.textContent = h.kaynakYazi || "Habere git →";
   kaynak.hidden = !h.l;
   if (h.l) kaynak.href = h.l;
   d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL);
@@ -443,8 +443,13 @@ function gazeteleriYukle() {
 }
 
 function reklamYap(r) {
-  const a = el("a", "reklam");
+  const a = el("a", "reklam" + (r.v ? " video" : ""));
   baglanti(a, r.l);
+  // Videolu reklam: afişe tıklanınca video portal içinde oynar, reklam verenin adresi pencerenin altında
+  if (r.v) {
+    a.removeAttribute("target"); a.href = "#";
+    a.onclick = e => { e.preventDefault(); detayAc({ b: r.ad || "Reklam", v: r.v, l: r.l, kaynakYazi: "Reklam verenin sitesine git →" }); };
+  }
   const img = el("img");
   img.src = r.g; img.alt = r.ad || "Reklam"; img.referrerPolicy = "no-referrer";
   img.onerror = () => a.remove();
