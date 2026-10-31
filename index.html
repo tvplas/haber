@@ -50,6 +50,7 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 #detay .video-yedek{display:block;padding:8px 20px 0;font-size:13px;color:var(--soluk)}
 .icerik{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
 .ust{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--soluk)}
+.ust .tik{font-weight:600;color:var(--vurgu)}
 .etiket{color:var(--vurgu);font-weight:600}
 .ceviri{border:1px solid var(--cizgi);border-radius:4px;padding:0 5px;cursor:help}
 .orijinal{color:var(--soluk)}
@@ -147,6 +148,7 @@ const bolumBul = t => {
 const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
 // Portal izleyicilerin isteğiyle günün gazeteleriyle açılır; haber bölümleri menüden seçilir
 let bolum = "Kıbrıs", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "";
+let tiklar = {};   // haber kimliği → tıklanma sayısı (sunucudan)
 const ara = document.getElementById("ara"), liste = document.getElementById("liste");
 
 function kac(t) {
@@ -171,6 +173,29 @@ const REKLAM_ARALIGI = 3;   // kaç haberde bir reklam afişi girsin
 function baglanti(a, url) {
   if (!url) return;
   a.href = url; a.target = "_blank"; a.rel = "noopener";
+}
+
+// ---- Tıklama sayacı: haber kimliği bağlantısından üretilir (sunucuda haberKimligi ile aynı) ----
+function kimlik(h) {
+  const s = String(h.gl || h.l || ("tv:" + h.b));
+  let x = 5381;
+  for (let i = 0; i < s.length; i++) x = (Math.imul(x, 33) + s.charCodeAt(i)) | 0;
+  return (x >>> 0).toString(36);
+}
+
+function tikYazi(n) { return "👁 " + n.toLocaleString("tr-TR") + " tıklama"; }
+
+// Aynı tarayıcıdan bir haber yalnızca bir kez sayılır
+function tiklandi(h, yazi) {
+  const id = kimlik(h);
+  let sayilan = [];
+  try { sayilan = JSON.parse(localStorage.getItem("tvplas_tik") || "[]"); } catch (e) { }
+  if (sayilan.includes(id)) return;
+  sayilan.push(id);
+  try { localStorage.setItem("tvplas_tik", JSON.stringify(sayilan.slice(-500))); } catch (e) { }
+  tiklar[id] = (tiklar[id] || 0) + 1;
+  yazi.textContent = tikYazi(tiklar[id]); yazi.hidden = false;
+  fetch(API + "?islem=tikla&id=" + id, { keepalive: true }).catch(() => { });
 }
 
 // Fotoğrafı olmayan (ya da fotoğrafı açılmayan) habere başlığının konusunu simgeleyen metafor illüstrasyon:
@@ -277,6 +302,8 @@ function kartYap(h) {
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
   ust.append(el("span", "etiket", h.tvplas ? "TVplas" : (h.alt || h.kat)), el("span", "", h.k), el("span", "", kac(h.t)));
+  const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
+  tik.hidden = !n; ust.append(tik);
   if (h.ob) {
     const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c);
     if (adres !== h.l) { const o = el("a", "orijinal", "orijinali"); baglanti(o, h.l); ust.append(o); }
@@ -295,6 +322,9 @@ function kartYap(h) {
   }
   ic.append(pay);
   kart.append(resim, ic);
+  // Habere giden her tıklama (fotoğraf, başlık, devamı, orijinali; Facebook paylaşımı hariç) sayılır
+  const say = e => { const a = e.target.closest("a, button"); if (a && !a.classList.contains("paylas")) tiklandi(h, tik); };
+  kart.addEventListener("click", say); kart.addEventListener("auxclick", say);
   return kart;
 }
 
@@ -527,6 +557,7 @@ async function yukle() {
     const r = await fetch(API + "?ziyaret=" + (sayilacakMi() ? "1" : "0"));
     const veri = await r.json();
     sayacGoster(veri.sayac);
+    tiklar = veri.tiklama || {};
     const ekler = veri.ekler || {};
     // Kendi haberlerimiz panelde seçilen bölümde (boşsa Kıbrıs; sabitler en üstte); diğerleri sunucudan tarihe göre dizili gelir
     const benim = (ekler.haberler || []).map(h => {
