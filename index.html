@@ -105,8 +105,8 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
   </div>
   <nav class="menu" aria-label="Bölümler">
-    <button data-k="Gazeteler" class="aktif">📰 GAZETELER</button>
-    <button data-k="Kıbrıs">KIBRIS</button>
+    <button data-k="Gazeteler">📰 GAZETELER</button>
+    <button data-k="Kıbrıs" class="aktif">KIBRIS</button>
     <button data-k="Güney">GÜNEY</button>
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
@@ -146,7 +146,7 @@ const bolumBul = t => {
 // Kelime başında aranır; kısa kelimeler kelime sonuyla sınırlı (ör. "opera" ≠ "operasyon", "rap" ≠ "rapor")
 const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
 // Portal izleyicilerin isteğiyle günün gazeteleriyle açılır; haber bölümleri menüden seçilir
-let bolum = "Gazeteler", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "";
+let bolum = "Kıbrıs", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "";
 const ara = document.getElementById("ara"), liste = document.getElementById("liste");
 
 function kac(t) {
