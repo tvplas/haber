@@ -42,6 +42,9 @@ a.dugme{text-decoration:none;display:inline-block}
 .dosya input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .onizler{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .onizler img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+.kendi .uyari{color:#f59e0b;font-size:13px;font-weight:600;margin-top:6px}
+.kendi .uyari:empty{display:none}
+.kendi .ipucu{display:block;margin-top:6px}
 .haberListe{max-height:340px;overflow-y:auto;margin-top:8px;display:grid;gap:6px}
 .haberListe button{display:flex;gap:10px;align-items:center;text-align:left;padding:6px;border-radius:9px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit;font-size:14px;line-height:1.3;cursor:pointer}
 .haberListe button.aktif{border-color:var(--vurgu);box-shadow:0 0 0 1px var(--vurgu)}
@@ -78,6 +81,8 @@ a.dugme{text-decoration:none;display:inline-block}
     <b>⭐ Kendi içeriğim <small>(isteğe bağlı – kendi fotoğraf ya da videolarınızla, kendi başlığınızla özel kapak)</small></b>
     <div class="dosya"><input type="file" id="kDosya" accept="image/*,video/*" multiple><span id="kDosyaYazi">📷 🎬 Fotoğraf ya da video seçin (en çok 4)</span></div>
     <div class="onizler" id="kOnizler"></div>
+    <div class="uyari" id="kUyari"></div>
+    <small class="ipucu">Cihazdan dosya seçmezseniz kapakta 📌 kutusunda seçtiğiniz haberin ya da fotoğrafın görseli kullanılır.</small>
     <div id="kVideoAyar" hidden>
       <label for="kKare">Kapakta videonun hangi anı görünsün?</label>
       <input type="range" id="kKare" min="0" max="100" value="30">
@@ -468,12 +473,30 @@ function videoKaresi(o) {
   });
 }
 
+// Cihazdan seçilen fotoğrafı okur: önce createImageBitmap (EXIF yönüyle), olmazsa <img> ile (bazı telefon
+// tarayıcıları ve HEIC gibi biçimler); çok büyük fotoğraflar telefon belleği için en çok 2400 piksele küçültülür
+async function resimOku(f, adres) {
+  let r;
+  try { r = await createImageBitmap(f, { imageOrientation: "from-image" }); } catch (e) {
+    r = await new Promise((coz, red) => { const i = new Image(); i.onload = () => coz(i); i.onerror = red; i.src = adres; });
+  }
+  const w = r.width || r.naturalWidth, h = r.height || r.naturalHeight;
+  if (!w || !h) throw new Error("boş görsel");
+  const o = Math.min(1, 2400 / Math.max(w, h));
+  if (o === 1) return r;
+  const c = document.createElement("canvas");
+  c.width = Math.round(w * o); c.height = Math.round(h * o);
+  c.getContext("2d").drawImage(r, 0, 0, c.width, c.height);
+  return c;
+}
+
 document.getElementById("kDosya").onchange = async e => {
   const dosyalar = [...e.target.files].slice(0, 4);
   if (!dosyalar.length) return;
   durum.textContent = "Seçtiğiniz dosyalar hazırlanıyor…";
   kendi.ogeler.forEach(o => o.adres && URL.revokeObjectURL(o.adres));
   kendi.ogeler = [];
+  const acilmayan = [];
   for (const f of dosyalar) {
     const o = { dosya: f, adres: URL.createObjectURL(f) };
     try {
@@ -482,11 +505,14 @@ document.getElementById("kDosya").onchange = async e => {
         await new Promise((coz, red) => { o.v.onloadedmetadata = coz; o.v.onerror = red; o.v.src = o.adres; });
         await videoKaresi(o);
       } else {
-        o.resim = await createImageBitmap(f);
+        o.resim = await resimOku(f, o.adres);
       }
       kendi.ogeler.push(o);
-    } catch (hata) { durum.textContent = f.name + " açılamadı (bu tarayıcı bu dosya türünü desteklemiyor olabilir)."; }
+    } catch (hata) { acilmayan.push(f.name || "fotoğraf"); }
   }
+  // Açılamayan dosya uyarısı kutuda kalır (alttaki "Kapak hazır" yazısı onu silmesin)
+  document.getElementById("kUyari").textContent = acilmayan.length
+    ? "⚠ Açılamadı: " + acilmayan.join(", ") + ". Bu fotoğrafı JPEG olarak kaydedip yeniden seçin ya da 📌 kutusundan Fotoğraflarım'dan seçin." : "";
   document.getElementById("kVideoAyar").hidden = !kendi.ogeler.some(o => o.v);
   const onizler = document.getElementById("kOnizler");
   onizler.replaceChildren(...kendi.ogeler.map(o => {
@@ -509,6 +535,7 @@ document.getElementById("kTemizle").onclick = () => {
   ["kBaslik", "kGiris", "kEtiket", "kDosya"].forEach(id => document.getElementById(id).value = "");
   try { localStorage.removeItem("tvplas_kendi"); } catch (e) { }
   document.getElementById("kOnizler").replaceChildren();
+  document.getElementById("kUyari").textContent = "";
   document.getElementById("kVideoAyar").hidden = true;
   document.getElementById("kDosyaYazi").textContent = "📷 🎬 Fotoğraf ya da video seçin (en çok 4)";
   tasarimSira = gunNo % OTOMATIK;
@@ -545,7 +572,9 @@ async function ciz() {
   [...tasarimKutu.children].forEach((b, i) => b.classList.toggle("aktif", i === tasarimSira));
   document.querySelectorAll("#boyutlar button").forEach(b => b.classList.toggle("aktif", b.dataset.b === boyut));
   durum.textContent = "Kapak hazırlanıyor… Fotoğraflar alınıyor; ilk açılışta 30–40 saniye sürebilir, sonraki değişiklikler hızlıdır.";
-  const resimler = t.kendi ? kendi.ogeler.map(o => o.resim).filter(Boolean) : await Promise.all(t.gorseller().map(gorselAl));
+  let resimler = t.kendi ? kendi.ogeler.map(o => o.resim).filter(Boolean) : await Promise.all(t.gorseller().map(gorselAl));
+  // Cihazdan dosya seçilmediyse "Benim Seçimim" 📌 kutusunda seçilen haberin/fotoğrafın görselini kullanır
+  if (t.kendi && !resimler.length && secilenHaber) resimler = [await gorselAl(secilenHaber.g)].filter(Boolean);
   if (no !== cizimNo) return;   // bu arada başka bir seçim yapıldı
   const W = boyut === "kare" ? 1080 : 1200, H = boyut === "kare" ? 1080 : 630;
   tuval.width = W; tuval.height = H;
@@ -664,7 +693,7 @@ const SECIM_BOLUMLERI = [
   ["TVplas", "⭐ TVplas haberlerim", "TVplas ÖZEL", h => h.tvplas && h.bolum !== "Fotoğraflar"],
   ["Fotoğraflar", "📷 Fotoğraflarım", "FOTOĞRAF", h => h.tvplas && h.bolum === "Fotoğraflar"]
 ];
-let tumHaberler = [], secimAnahtari = "Kıbrıs";
+let tumHaberler = [], secimAnahtari = "Kıbrıs", secilenHaber = null;   // secilenHaber: 📌 kutusunda dokunulan haber/fotoğraf
 const sBolum = document.getElementById("sBolum"), sAra = document.getElementById("sAra"), sListe = document.getElementById("sListe");
 const secimBolumu = () => SECIM_BOLUMLERI.find(x => x[0] === secimAnahtari) || SECIM_BOLUMLERI[0];
 const bolumHaberleri = k => tumHaberler.filter((SECIM_BOLUMLERI.find(x => x[0] === k) || SECIM_BOLUMLERI[0])[3]);
@@ -685,7 +714,9 @@ function secimListesi() {
       secimAnahtari = sBolum.value;
       haberler = bolumHaberleri(secimAnahtari);
       haberSira = Math.max(0, haberler.indexOf(h));
-      haberTasarimi();
+      secilenHaber = h;
+      // Kendi başlığıyla "Benim Seçimim" açıksa ve cihazdan dosya seçilmediyse o tasarımda kalır, fotoğraf ona girer
+      if (!(TASARIMLAR[tasarimSira].kendi && !kendi.ogeler.length)) haberTasarimi();
       ciz();
     };
     return b;
