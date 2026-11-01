@@ -34,6 +34,9 @@ h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 .menu::-webkit-scrollbar{display:none}
 .menu button{flex:none;padding:10px 16px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:.4px}
 .menu button.aktif{background:var(--vurgu);color:#fff;border-color:var(--vurgu)}
+.menu.ikinci{margin-top:0}
+.kart.foto .resim{aspect-ratio:4/3;cursor:zoom-in}
+.kart.foto h2{cursor:pointer}
 main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;grid-auto-flow:dense}
 .bolum-baslik{grid-column:1/-1;font-size:15px;font-weight:600;color:var(--soluk);margin:2px 0 -4px}
 .gazete-kart .sayfa{display:block;aspect-ratio:3/4;background:var(--cizgi);overflow:hidden;cursor:pointer}
@@ -115,6 +118,9 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Bilim-Sağlık-Ekonomi">BİLİM · SAĞLIK · EKONOMİ</button>
     <button data-k="Spor">SPOR</button>
   </nav>
+  <nav class="menu ikinci" aria-label="Diğer bölümler">
+    <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
+  </nav>
 </header>
 <div id="reklamUst"></div>
 <main id="liste"><div class="durum">Haberler yükleniyor…</div></main>
@@ -134,7 +140,8 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
 // "Güney": yalnızca Güney Kıbrıs'taki Rum basınının haberleri (sunucu ayırır; Kıbrıs menüsüne girmez)
-const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Sanat-Magazin", "Bilim-Sağlık-Ekonomi", "Spor"];
+// "Fotoğraflar": yönetim panelinden bu bölüme eklenen kendi fotoğraflarımız, galeri olarak gösterilir
+const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Sanat-Magazin", "Bilim-Sağlık-Ekonomi", "Spor", "Fotoğraflar"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
 const GRUPLAR = { "Sanat-Magazin": ["Müzik", "Kültür-Sanat", "Magazin"], "Bilim-Sağlık-Ekonomi": ["Bilim", "Sağlık", "Ekonomi"] };
 const ORTAK = "Sanat-Magazin";   // müzik haberlerinin çapraz eklendiği menü
@@ -487,6 +494,30 @@ function reklamYap(r) {
   return a;
 }
 
+// Fotoğraflar galerisinde kart: büyük fotoğraf, başlık ve tarih; dokununca fotoğraf açıklamasıyla büyür
+function fotoKartYap(h) {
+  const kart = el("article", "kart foto");
+  const resim = el("a", "resim" + (h.v ? " video" : ""));
+  resim.href = "#";
+  if (h.g) {
+    const img = el("img");
+    img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = h.b || "";
+    img.onerror = () => resim.replaceChildren(metaforYap(h));
+    resim.append(img);
+  } else {
+    resim.append(metaforYap(h));
+  }
+  const ic = el("div", "icerik"), ust = el("div", "ust");
+  const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
+  tik.hidden = !n;
+  ust.append(el("span", "", kac(h.t)), tik);
+  const h2 = el("h2", "", h.b);
+  ic.append(ust, h2);
+  [resim, h2].forEach(x => x.onclick = e => { e.preventDefault(); tiklandi(h, tik); detayAc(h); });
+  kart.append(resim, ic);
+  return kart;
+}
+
 // Seçili bölümün haberlerini çizer; arama yazılıysa tüm bölümlerde arar.
 // Reklamlar her bölümde numara sırasıyla REKLAM_ARALIGI haberde bir, birer kez girer (aramada reklam yok).
 // Kartları dizer; reklamlıysa REKLAM_ARALIGI kartta bir reklam afişi girer
@@ -518,6 +549,12 @@ function ciz() {
   // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
   // Dünya'da sunucunun öncelikli saydığı büyük gazeteler (h.on) diğer kaynaklardan önce gelir
   if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
+  if (!q && bolum === "Fotoğraflar") {
+    if (!secili.length) { liste.replaceChildren(el("div", "durum", "Henüz fotoğraf eklenmedi.")); return; }
+    const baslik = el("div", "bolum-baslik", "📷 Fotoğraflar (" + secili.length + ") · büyütmek için fotoğrafa dokunun");
+    liste.replaceChildren(baslik, ...diz(secili, fotoKartYap, true));
+    return;
+  }
   const kartlar = diz(secili, kartYap, !q);
   liste.replaceChildren(...(kartlar.length ? kartlar
     : [el("div", "durum", q ? "Aramaya uyan haber yok." : "Bu bölümde şu an haber yok.")]));
@@ -573,7 +610,7 @@ async function yukle() {
     });
     [...benim, ...tum].forEach(h => {
       h.ekBolum = [];
-      if (h.kat !== ORTAK && h.kat !== "Spor" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
+      if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
     });
     haberler = [...benim.filter(h => h.sabit),
       ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
