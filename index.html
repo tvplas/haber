@@ -47,6 +47,8 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
 .resim{display:block;aspect-ratio:16/9;background:var(--cizgi)}
 .resim img{width:100%;height:100%;object-fit:cover;display:block}
+.resim.portre{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 40%,#7c3aed,#2e1065)}
+.resim.portre img{position:absolute;inset:0;object-fit:contain}   /* kutu 16:9 kalır, fotoğraf kırpılmaz */
 .resim.yok{aspect-ratio:auto;height:6px;background:var(--vurgu)}
 .resim.video{position:relative}
 .resim.video::after,.reklam.video::after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.6);box-shadow:0 0 0 3px rgba(255,255,255,.85);color:#fff;font-size:26px;display:grid;place-items:center;padding-left:5px;box-sizing:border-box}
@@ -303,7 +305,9 @@ function turkceAdres(h) {
 
 function kartYap(h) {
   const kart = el("article", "kart" + (h.tvplas ? " tvplas" : ""));
-  const resim = el("a", "resim" + (h.v ? " video" : ""));
+  // Köşe yazısında görsel yazarın vesikalık fotoğrafıysa kırpılmadan, mor zemin üzerinde gösterilir
+  const portre = h.kat === "Yazarlar" && /_avatar|\/images\/yazarlar\/|\/author\//i.test(h.g || "");
+  const resim = el("a", "resim" + (h.v ? " video" : "") + (portre ? " portre" : ""));
   const adres = turkceAdres(h);
   baglanti(resim, adres);
   if (h.g) {
