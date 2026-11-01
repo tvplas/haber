@@ -35,6 +35,7 @@ h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 .menu button{flex:none;padding:10px 16px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:.4px}
 .menu button.aktif{background:var(--vurgu);color:#fff;border-color:var(--vurgu)}
 .menu.ikinci{margin-top:0}
+@media (min-width:700px){.menu{flex-wrap:wrap;overflow:visible}.menu button{padding:10px 12px;letter-spacing:.2px}}   /* geniş ekranda düğmeler gizlenmez, sığmazsa alt satıra geçer */
 .kart.foto .resim{aspect-ratio:4/3;cursor:zoom-in}
 .kart.foto h2{cursor:pointer}
 main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;grid-auto-flow:dense}
@@ -114,8 +115,12 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Güney">GÜNEY</button>
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
-    <button data-k="Sanat-Magazin">MÜZİK · KÜLTÜR-SANAT · MAGAZİN</button>
-    <button data-k="Bilim-Sağlık-Ekonomi">BİLİM · SAĞLIK · EKONOMİ</button>
+    <button data-k="Müzik">MÜZİK</button>
+    <button data-k="Kültür-Sanat">KÜLTÜR-SANAT</button>
+    <button data-k="Magazin">MAGAZİN</button>
+    <button data-k="Bilim">BİLİM</button>
+    <button data-k="Sağlık">SAĞLIK</button>
+    <button data-k="Ekonomi">EKONOMİ</button>
     <button data-k="Spor">SPOR</button>
   </nav>
   <nav class="menu ikinci" aria-label="Diğer bölümler">
@@ -141,16 +146,17 @@ const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFY
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
 // "Güney": yalnızca Güney Kıbrıs'taki Rum basınının haberleri (sunucu ayırır; Kıbrıs menüsüne girmez)
 // "Fotoğraflar": yönetim panelinden bu bölüme eklenen kendi fotoğraflarımız, galeri olarak gösterilir
-const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Sanat-Magazin", "Bilim-Sağlık-Ekonomi", "Spor", "Fotoğraflar"];
+const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
-const GRUPLAR = { "Sanat-Magazin": ["Müzik", "Kültür-Sanat", "Magazin"], "Bilim-Sağlık-Ekonomi": ["Bilim", "Sağlık", "Ekonomi"] };
-const ORTAK = "Sanat-Magazin";   // müzik haberlerinin çapraz eklendiği menü
+// (Şu an birleşik menü yok: Müzik, Kültür-Sanat, Magazin, Bilim, Sağlık ve Ekonomi ayrı menülerde)
+const GRUPLAR = {};
+const ORTAK = "Müzik";   // müzikle ilgili diğer haberlerin çapraz eklendiği menü
 const bolumBul = t => {
   const grup = Object.keys(GRUPLAR).find(g => GRUPLAR[g].includes(t));
   return grup ? [grup, t] : [BOLUMLER.includes(t) ? t : "Kıbrıs", null];
 };
 // Müzik Bing aramalarından gelir; başlığı bu kelimelere uymayanlar Magazin'e aktarılır.
-// Ayrıca müzikle ilgili diğer haberler Sanat-Magazin'de de görünür.
+// Ayrıca müzikle ilgili diğer haberler Müzik menüsünde de görünür.
 // Kelime başında aranır; kısa kelimeler kelime sonuyla sınırlı (ör. "opera" ≠ "operasyon", "rap" ≠ "rapor")
 const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
 // Portal izleyicilerin isteğiyle günün gazeteleriyle açılır; haber bölümleri menüden seçilir
