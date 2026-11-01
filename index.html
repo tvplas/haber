@@ -585,24 +585,25 @@ function ciz() {
   if (!q && bolum === "Yazarlar") secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
   if (!q && bolum === "Fotoğraflar") {
     if (!secili.length) { liste.replaceChildren(el("div", "durum", "Henüz fotoğraf eklenmedi.")); return; }
-    // On yıllara göre: Hepsi · 1900 · 1910 … 2020 (1950 = 1950–1959; 1900'den eskiler 1900'e girer).
-    // Altta her on yıl kendi başlığıyla, eskiden yeniye; yılı belirtilmemişler en sonda
-    const anahtar = h => { const y = +fotoYili(h); return y ? String(Math.max(1900, Math.floor(y / 10) * 10)) : "-"; };
-    const ONYILLAR = Array.from({ length: 13 }, (_, i) => String(1900 + i * 10));
+    // On yıllara göre: Hepsi · 1900 Öncesi · 1900 · 1910 … 2020 (1950 = 1950–1959; 1900'den eskiler "1900 Öncesi"nde).
+    // Altta her dönem kendi başlığıyla, eskiden yeniye; yılı belirtilmemişler en sonda
+    const anahtar = h => { const y = +fotoYili(h); return !y ? "-" : y < 1900 ? "<1900" : String(Math.floor(y / 10) * 10); };
+    const ONYILLAR = ["<1900", ...Array.from({ length: 13 }, (_, i) => String(1900 + i * 10))];
+    const donemAdi = y => y === "<1900" ? "1900 Öncesi" : y === "-" ? "Yılı belirtilmemiş" : y;
     const dolu = new Set(secili.map(anahtar));
     const gruplar = [...ONYILLAR, ...[...dolu].filter(y => y !== "-" && !ONYILLAR.includes(y)).sort(), "-"].filter(y => dolu.has(y));
     const dugmeler = el("div", "yillar");
     ["", ...ONYILLAR, ...(dolu.has("-") ? ["-"] : [])].forEach(y => {
-      const b = el("button", (y === seciliYil ? "aktif" : "") + (y && !dolu.has(y) ? " bos" : ""), y === "" ? "Hepsi" : y === "-" ? "Yılı belirtilmemiş" : y);
+      const b = el("button", (y === seciliYil ? "aktif" : "") + (y && !dolu.has(y) ? " bos" : ""), y === "" ? "Hepsi" : donemAdi(y));
       b.onclick = () => { seciliYil = y; ciz(); };
       dugmeler.append(b);
     });
     const baslik = el("div", "bolum-baslik", "📷 Fotoğraflar (" + secili.length + ") · on yıllara göre · büyütmek için fotoğrafa dokunun");
     const parcalar = [baslik, dugmeler];
-    if (seciliYil && !dolu.has(seciliYil)) parcalar.push(el("div", "durum", seciliYil + " – " + (+seciliYil + 9) + " dönemine ait fotoğraf henüz yok."));
+    if (seciliYil && !dolu.has(seciliYil)) parcalar.push(el("div", "durum", (seciliYil === "<1900" ? "1900 öncesine" : seciliYil + " – " + (+seciliYil + 9) + " dönemine") + " ait fotoğraf henüz yok."));
     gruplar.filter(y => !seciliYil || y === seciliYil).forEach(y => {
       const grup = secili.filter(h => anahtar(h) === y).sort((a, b) => (+fotoYili(a) || 0) - (+fotoYili(b) || 0));
-      const yb = el("div", "yil-baslik", y === "-" ? "Yılı belirtilmemiş" : y + " – " + (+y + 9));
+      const yb = el("div", "yil-baslik", y === "-" || y === "<1900" ? donemAdi(y) : y + " – " + (+y + 9));
       yb.append(el("small", "", grup.length + " fotoğraf"));
       parcalar.push(yb, ...diz(grup, fotoKartYap, false));
     });
