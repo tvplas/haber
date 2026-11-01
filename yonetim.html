@@ -96,6 +96,10 @@ button:disabled{opacity:.6;cursor:wait}
       </select>
       <label for="hYazar">Yazar adı <small>(köşe yazısı için – Bölüm'den "Yazarlar"ı seçin; fotoğraf olarak yazarın fotoğrafını ekleyin)</small></label>
       <input id="hYazar" type="text" maxlength="60" placeholder="ör. Ahmet Yılmaz">
+      <div id="hYilAlan" class="gizli">
+        <label for="hYil">Fotoğrafın yılı <small>(Fotoğraflar galerisi yıllara göre ayrılır; ör. 1950 – bilinmiyorsa boş bırakın)</small></label>
+        <input id="hYil" type="number" min="1800" max="2100" placeholder="ör. 1950">
+      </div>
       <label for="hLink">Habere link <small>(isteğe bağlı – boşsa metin portalda okunur)</small></label>
       <input id="hLink" type="url" placeholder="https://…">
       <div class="satir">
@@ -296,7 +300,7 @@ async function gonder(form, veri) {
     mesaj(m, "Kaydediliyor…", true);
     const c = await istek(veri);
     if (!c.tamam) throw new Error(c.hata || "Kaydedilemedi");
-    form.reset(); dosyaSifirla(form); tarihleriSifirla();
+    form.reset(); dosyaSifirla(form); tarihleriSifirla(); yilAlaniGoster();
     mesaj(m, "✅ Yayınlandı! Portalda hemen görünür (sayfayı yenileyin).", true);
   } catch (e) {
     mesaj(m, "Olmadı: " + e.message, false);
@@ -305,12 +309,17 @@ async function gonder(form, veri) {
   }
 }
 
+// "Fotoğrafın yılı" kutusu yalnızca Bölüm "Fotoğraflar" seçilince görünür
+function yilAlaniGoster() { $("hYilAlan").classList.toggle("gizli", $("hBolum").value !== "Fotoğraflar"); }
+$("hBolum").addEventListener("change", yilAlaniGoster);
+
 $("haber").onsubmit = e => {
   e.preventDefault();
   gonder($("haber"), {
     islem: "haberEkle", baslik: $("hBaslik").value.trim(), ozet: $("hOzet").value.trim(),
     link: $("hLink").value.trim(), bas: $("hBas").value, bit: $("hBit").value, sabit: $("hSabit").checked,
-    bolum: $("hBolum").value, yazar: $("hYazar").value.trim()
+    bolum: $("hBolum").value, yazar: $("hYazar").value.trim(),
+    yil: $("hBolum").value === "Fotoğraflar" ? $("hYil").value.trim() : ""
   });
 };
 

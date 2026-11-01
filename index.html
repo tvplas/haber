@@ -38,6 +38,11 @@ h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 @media (min-width:700px){.menu{flex-wrap:wrap;overflow:visible}.menu button{padding:10px 12px;letter-spacing:.2px}}   /* geniş ekranda düğmeler gizlenmez, sığmazsa alt satıra geçer */
 .kart.foto .resim{aspect-ratio:4/3;cursor:zoom-in}
 .kart.foto h2{cursor:pointer}
+.yillar{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
+.yillar button{padding:7px 14px;border-radius:18px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.yillar button.aktif{background:var(--vurgu);border-color:var(--vurgu);color:#fff}
+.yil-baslik{grid-column:1/-1;font-size:24px;font-weight:800;margin:12px 0 -6px;border-bottom:2px solid var(--vurgu);padding-bottom:4px}
+.yil-baslik small{font-size:14px;font-weight:600;color:var(--soluk);margin-left:8px}
 main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;grid-auto-flow:dense}
 .bolum-baslik{grid-column:1/-1;font-size:15px;font-weight:600;color:var(--soluk);margin:2px 0 -4px}
 .gazete-kart .sayfa{display:block;aspect-ratio:3/4;background:var(--cizgi);overflow:hidden;cursor:pointer}
@@ -516,7 +521,11 @@ function reklamYap(r) {
   return a;
 }
 
-// Fotoğraflar galerisinde kart: büyük fotoğraf, başlık ve tarih; dokununca fotoğraf açıklamasıyla büyür
+// Fotoğrafın yılı: panelde girilen yıl; yoksa başlıkta/açıklamada geçen ilk yıl (ör. "1950"); o da yoksa boş
+const fotoYili = h => (String(h.yil || "").match(/^\d{4}$/) || String(h.b + " " + (h.o || "")).match(/\b(1[89]\d\d|20\d\d)\b/) || [""])[0];
+let seciliYil = "";   // galeride seçili yıl düğmesi ("" = tümü, "-" = yılı belirtilmemiş)
+
+// Fotoğraflar galerisinde kart: büyük fotoğraf, başlık ve yıl; dokununca fotoğraf açıklamasıyla büyür
 function fotoKartYap(h) {
   const kart = el("article", "kart foto");
   const resim = el("a", "resim" + (h.v ? " video" : ""));
@@ -532,7 +541,7 @@ function fotoKartYap(h) {
   const ic = el("div", "icerik"), ust = el("div", "ust");
   const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
   tik.hidden = !n;
-  ust.append(el("span", "", kac(h.t)), tik);
+  ust.append(el("span", "", fotoYili(h) ? "📅 " + fotoYili(h) : kac(h.t)), tik);
   const h2 = el("h2", "", h.b);
   ic.append(ust, h2);
   [resim, h2].forEach(x => x.onclick = e => { e.preventDefault(); tiklandi(h, tik); detayAc(h); });
@@ -575,8 +584,25 @@ function ciz() {
   if (!q && bolum === "Yazarlar") secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
   if (!q && bolum === "Fotoğraflar") {
     if (!secili.length) { liste.replaceChildren(el("div", "durum", "Henüz fotoğraf eklenmedi.")); return; }
-    const baslik = el("div", "bolum-baslik", "📷 Fotoğraflar (" + secili.length + ") · büyütmek için fotoğrafa dokunun");
-    liste.replaceChildren(baslik, ...diz(secili, fotoKartYap, true));
+    // Yıllara göre: üstte yıl düğmeleri, altta her yıl kendi başlığıyla (eskiden yeniye; yılı belirtilmemişler en sonda)
+    const anahtar = h => fotoYili(h) || "-";
+    const yillar = [...new Set(secili.map(anahtar))].sort((a, b) => (a === "-") - (b === "-") || a.localeCompare(b));
+    if (!yillar.includes(seciliYil)) seciliYil = "";
+    const dugmeler = el("div", "yillar");
+    ["", ...yillar].forEach(y => {
+      const b = el("button", y === seciliYil ? "aktif" : "", y === "" ? "Tümü" : y === "-" ? "Yılı belirtilmemiş" : y);
+      b.onclick = () => { seciliYil = y; ciz(); };
+      dugmeler.append(b);
+    });
+    const baslik = el("div", "bolum-baslik", "📷 Fotoğraflar (" + secili.length + ") · yıllara göre · büyütmek için fotoğrafa dokunun");
+    const parcalar = [baslik, dugmeler];
+    yillar.filter(y => !seciliYil || y === seciliYil).forEach(y => {
+      const grup = secili.filter(h => anahtar(h) === y);
+      const yb = el("div", "yil-baslik", y === "-" ? "Yılı belirtilmemiş" : y);
+      yb.append(el("small", "", grup.length + " fotoğraf"));
+      parcalar.push(yb, ...diz(grup, fotoKartYap, false));
+    });
+    liste.replaceChildren(...parcalar);
     return;
   }
   const kartlar = diz(secili, kartYap, !q);
