@@ -444,7 +444,10 @@ function gazeteKartYap(g) {
   sayfa.append(img);
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
-  ust.append(el("span", "etiket", g.ad));
+  // Tıklama sayacı: kimlik o günkü birinci sayfanın kimliğinden (her gazete her gün yeniden sayılır)
+  const gh = { l: "gz:" + g.id }, n = tiklar[kimlik(gh)] || 0, tik = el("span", "tik", tikYazi(n));
+  tik.hidden = !n;
+  ust.append(el("span", "etiket", g.ad), tik);
   const h2 = el("h2", "", g.basliklar[0] || g.ad);
   ic.append(ust, h2);
   if (g.basliklar.length > 1) {
@@ -462,6 +465,7 @@ function gazeteKartYap(g) {
   } else {
     [sayfa, h2].forEach(x => x.onclick = () => gazeteAc(g));
   }
+  if (g.id) [sayfa, h2].forEach(x => x.addEventListener("click", () => tiklandi(gh, tik)));
   return kart;
 }
 
@@ -474,6 +478,7 @@ function gazeteAc(g) {
   img.style.cssText = "width:auto;max-width:100%;margin:0 auto";
   d.querySelector(".d-gorsel").replaceChildren(img);
   d.querySelector("h2").textContent = g.ad + (g.basliklar[0] ? ": " + g.basliklar[0] : "");
+  d.querySelector(".govde .ust span:last-child").textContent = "TVplas Portal";   // önceki köşe yazısının yazar adı kalmasın
   d.querySelector(".metin").textContent = g.basliklar.slice(1).map(b => "• " + b).join("\n");
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = "Gazete sayfaları: kibrisgazeteleri.com →";
