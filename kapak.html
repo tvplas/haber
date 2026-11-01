@@ -42,6 +42,11 @@ a.dugme{text-decoration:none;display:inline-block}
 .dosya input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .onizler{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .onizler img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+.haberListe{max-height:340px;overflow-y:auto;margin-top:8px;display:grid;gap:6px}
+.haberListe button{display:flex;gap:10px;align-items:center;text-align:left;padding:6px;border-radius:9px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);font:inherit;font-size:14px;line-height:1.3;cursor:pointer}
+.haberListe button.aktif{border-color:var(--vurgu);box-shadow:0 0 0 1px var(--vurgu)}
+.haberListe img{width:72px;height:54px;object-fit:cover;border-radius:6px;flex:none;background:var(--cizgi)}
+.haberListe .bos{color:var(--soluk);font-size:14px;padding:8px 2px}
 .kendi .eylem{margin:10px 0 0}
 </style>
 </head>
@@ -59,6 +64,15 @@ a.dugme{text-decoration:none;display:inline-block}
     <button id="baskaHaber">⟳ Başka haber</button>
     <button id="baskaRenk">🎨 Başka renk</button>
   </div></div>
+
+  <div class="kendi">
+    <b>📌 Haber ya da fotoğraf seç <small>(portaldaki herhangi bir bölümden kapağa koymak istediğiniz haberi ya da fotoğrafı seçin)</small></b>
+    <label for="sBolum">Bölüm</label>
+    <select id="sBolum"></select>
+    <label for="sAra">Başlıkta ara <small>(isteğe bağlı)</small></label>
+    <input type="text" id="sAra" placeholder="ör. Ercan, seçim, konser">
+    <div class="haberListe" id="sListe"><div class="bos">Haberler yükleniyor…</div></div>
+  </div>
 
   <div class="kendi">
     <b>⭐ Kendi içeriğim <small>(isteğe bağlı – kendi fotoğraf ya da videolarınızla, kendi başlığınızla özel kapak)</small></b>
@@ -117,6 +131,7 @@ a.dugme{text-decoration:none;display:inline-block}
     <ol>
       <li>Bu sayfayı her sabah açın: kapak o günün haberi ve gazeteleriyle kendiliğinden hazırlanır, tasarım ve renk her gün değişir.</li>
       <li>Beğenmezseniz tasarımı, haberi ya da rengi değiştirin.</li>
+      <li>Kapakta belirli bir haber ya da fotoğraf olsun istiyorsanız <b>📌 Haber ya da fotoğraf seç</b> kutusundan bölümü seçip listeden dokunun; <b>Başka haber</b> o bölümün haberleri arasında dolaşır.</li>
       <li><b>Kapağı indir</b>'e basın (telefonda <b>Paylaş</b> ile doğrudan Facebook'u da seçebilirsiniz).</li>
       <li><b>Metni kopyala</b>'ya basın; Facebook'ta yeni gönderiye görseli ekleyip metni yapıştırın.</li>
     </ol>
@@ -259,7 +274,7 @@ const TASARIMLAR = [
     rozet(tarihUzun.toLocaleUpperCase("tr"), W - 40, 40, 22, renk()[0], true);
     const kare = boyut === "kare", bant = 74;
     const y = H - bant - (kare ? 330 : 230);
-    rozet("KIBRIS'TA BUGÜN", 40, y - 66, 24, renk()[0]);
+    rozet(secimBolumu()[2], 40, y - 66, 24, renk()[0]);
     sigdir(haber().b, 40, y, W - 80, kare ? 66 : 54, 34, kare ? 4 : 3, "#fff");
     altBant(W, H, bant, "Kıbrıs'ın haberi tek adreste");
   } },
@@ -535,6 +550,7 @@ async function ciz() {
   const W = boyut === "kare" ? 1080 : 1200, H = boyut === "kare" ? 1080 : 630;
   tuval.width = W; tuval.height = H;
   t.ciz(W, H, resimler);
+  secimIsaretle();
   durum.textContent = "Kapak hazır: " + t.ad + " · " + (boyut === "kare" ? "1080×1080" : "1200×630");
   metniYaz();
 }
@@ -635,6 +651,63 @@ document.getElementById("adresKopyala").onclick = async () => {
   document.getElementById("tiklanirDurum").textContent = "Bağlantı kopyalandı: " + paylasimAdresi;
 };
 
+// ---- Haber ya da fotoğraf seçimi: portalın her bölümünden, kendi haber ve fotoğraflarımız dahil ----
+// [anahtar, listede görünen ad, Manşet tasarımındaki etiket, süzgeç]
+const SECIM_BOLUMLERI = [
+  ["Kıbrıs", "Kıbrıs", "KIBRIS'TA BUGÜN", h => !h.tvplas && !BOLUMLER.includes(h.tur)],
+  ["Güney", "Güney", "GÜNEY KIBRIS", h => h.tur === "Güney"],
+  ["Türkiye", "Türkiye", "TÜRKİYE", h => h.tur === "Türkiye"],
+  ["Dünya", "Dünya", "DÜNYA", h => h.tur === "Dünya"],
+  ["Sanat", "Müzik · Kültür-Sanat · Magazin", "MÜZİK · KÜLTÜR · MAGAZİN", h => ["Müzik", "Kültür-Sanat", "Magazin"].includes(h.tur)],
+  ["Bilim", "Bilim · Sağlık · Ekonomi", "BİLİM · SAĞLIK · EKONOMİ", h => ["Bilim", "Sağlık", "Ekonomi"].includes(h.tur)],
+  ["Spor", "Spor", "SPOR", h => h.tur === "Spor"],
+  ["TVplas", "⭐ TVplas haberlerim", "TVplas ÖZEL", h => h.tvplas && h.bolum !== "Fotoğraflar"],
+  ["Fotoğraflar", "📷 Fotoğraflarım", "FOTOĞRAF", h => h.tvplas && h.bolum === "Fotoğraflar"]
+];
+let tumHaberler = [], secimAnahtari = "Kıbrıs";
+const sBolum = document.getElementById("sBolum"), sAra = document.getElementById("sAra"), sListe = document.getElementById("sListe");
+const secimBolumu = () => SECIM_BOLUMLERI.find(x => x[0] === secimAnahtari) || SECIM_BOLUMLERI[0];
+const bolumHaberleri = k => tumHaberler.filter((SECIM_BOLUMLERI.find(x => x[0] === k) || SECIM_BOLUMLERI[0])[3]);
+// Haber kullanmayan tasarımdaysak (kendi içerik, reklam, gazeteler) seçilen haber Manşet tasarımıyla gösterilir
+function haberTasarimi() {
+  const t = TASARIMLAR[tasarimSira];
+  if (t.kendi || t.reklam || t.ad === "Gazeteler") tasarimSira = 0;
+}
+function secimListesi() {
+  const q = sAra.value.trim().toLocaleLowerCase("tr");
+  const liste = bolumHaberleri(sBolum.value).filter(h => !q || h.b.toLocaleLowerCase("tr").includes(q)).slice(0, 80);
+  sListe.replaceChildren(...(liste.length ? liste.map(h => {
+    const b = document.createElement("button"), img = document.createElement("img"), yazi = document.createElement("span");
+    img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
+    yazi.textContent = h.b;
+    b.type = "button"; b.append(img, yazi); b.haber = h;
+    b.onclick = () => {
+      secimAnahtari = sBolum.value;
+      haberler = bolumHaberleri(secimAnahtari);
+      haberSira = Math.max(0, haberler.indexOf(h));
+      haberTasarimi();
+      ciz();
+    };
+    return b;
+  }) : [Object.assign(document.createElement("div"), { className: "bos", textContent: q ? "Aramaya uyan haber yok." : "Bu bölümde fotoğraflı haber yok." })]));
+  secimIsaretle();
+}
+function secimIsaretle() {
+  const h = haberler.length ? haber() : null;
+  [...sListe.children].forEach(b => b.classList && b.classList.toggle("aktif", !!h && b.haber === h));
+}
+sBolum.onchange = () => {
+  sAra.value = "";
+  secimListesi();
+  // Bölüm değişince kapak o bölümün en yeni haberiyle hazırlanır; "Başka haber" o bölümde dolaşır
+  const yeni = bolumHaberleri(sBolum.value);
+  if (!yeni.length) return;
+  secimAnahtari = sBolum.value; haberler = yeni; haberSira = 0;
+  haberTasarimi();
+  ciz();
+};
+sAra.oninput = secimListesi;
+
 // ---- Veriler: fotoğraflı en yeni Kıbrıs haberleri ve günün gazeteleri ----
 Promise.all([
   fetch(API + "?ziyaret=0").then(r => r.json()),
@@ -643,6 +716,11 @@ Promise.all([
   reklamlar = ((v.ekler || {}).reklamlar || []).filter(r => r.g);
   reklamlariListele();
   haberler = (v.haberler || []).filter(h => h.g && !BOLUMLER.includes(h.tur)).slice(0, 30);
+  // Seçim kutusu için: tüm bölümlerin fotoğraflı haberleri ve kendi haber/fotoğraflarımız, en yeni önce
+  const benim = ((v.ekler || {}).haberler || []).filter(h => h.g).map(h => ({ ...h, tvplas: true }));
+  tumHaberler = [...benim, ...(v.haberler || []).filter(h => h.g)].sort((x, y) => (y.t || "").localeCompare(x.t || ""));
+  sBolum.replaceChildren(...SECIM_BOLUMLERI.map(([k, ad]) => new Option(ad + " (" + bolumHaberleri(k).length + ")", k)));
+  secimListesi();
   gazeteler = (gz.gazeteler || []).filter(g => g.g);
   if (!haberler.length) { durum.textContent = "Haberler şu an alınamadı, lütfen sayfayı yenileyin."; return; }
   if (!gazeteler.length && TASARIMLAR[tasarimSira].ad === "Gazeteler") tasarimSira = 0;
