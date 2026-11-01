@@ -41,6 +41,7 @@ h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 .yillar{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap}
 .yillar button{padding:7px 14px;border-radius:18px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
 .yillar button.aktif{background:var(--vurgu);border-color:var(--vurgu);color:#fff}
+.yillar button.bos:not(.aktif){opacity:.45}
 .yil-baslik{grid-column:1/-1;font-size:24px;font-weight:800;margin:12px 0 -6px;border-bottom:2px solid var(--vurgu);padding-bottom:4px}
 .yil-baslik small{font-size:14px;font-weight:600;color:var(--soluk);margin-left:8px}
 main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;grid-auto-flow:dense}
@@ -523,7 +524,7 @@ function reklamYap(r) {
 
 // Fotoğrafın yılı: panelde girilen yıl; yoksa başlıkta/açıklamada geçen ilk yıl (ör. "1950"); o da yoksa boş
 const fotoYili = h => (String(h.yil || "").match(/^\d{4}$/) || String(h.b + " " + (h.o || "")).match(/\b(1[89]\d\d|20\d\d)\b/) || [""])[0];
-let seciliYil = "";   // galeride seçili yıl düğmesi ("" = tümü, "-" = yılı belirtilmemiş)
+let seciliYil = "";   // galeride seçili on yıl düğmesi ("" = hepsi, "1950" = 1950–1959, "-" = yılı belirtilmemiş)
 
 // Fotoğraflar galerisinde kart: büyük fotoğraf, başlık ve yıl; dokununca fotoğraf açıklamasıyla büyür
 function fotoKartYap(h) {
@@ -584,21 +585,24 @@ function ciz() {
   if (!q && bolum === "Yazarlar") secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
   if (!q && bolum === "Fotoğraflar") {
     if (!secili.length) { liste.replaceChildren(el("div", "durum", "Henüz fotoğraf eklenmedi.")); return; }
-    // Yıllara göre: üstte yıl düğmeleri, altta her yıl kendi başlığıyla (eskiden yeniye; yılı belirtilmemişler en sonda)
-    const anahtar = h => fotoYili(h) || "-";
-    const yillar = [...new Set(secili.map(anahtar))].sort((a, b) => (a === "-") - (b === "-") || a.localeCompare(b));
-    if (!yillar.includes(seciliYil)) seciliYil = "";
+    // On yıllara göre: Hepsi · 1900 · 1910 … 2020 (1950 = 1950–1959; 1900'den eskiler 1900'e girer).
+    // Altta her on yıl kendi başlığıyla, eskiden yeniye; yılı belirtilmemişler en sonda
+    const anahtar = h => { const y = +fotoYili(h); return y ? String(Math.max(1900, Math.floor(y / 10) * 10)) : "-"; };
+    const ONYILLAR = Array.from({ length: 13 }, (_, i) => String(1900 + i * 10));
+    const dolu = new Set(secili.map(anahtar));
+    const gruplar = [...ONYILLAR, ...[...dolu].filter(y => y !== "-" && !ONYILLAR.includes(y)).sort(), "-"].filter(y => dolu.has(y));
     const dugmeler = el("div", "yillar");
-    ["", ...yillar].forEach(y => {
-      const b = el("button", y === seciliYil ? "aktif" : "", y === "" ? "Tümü" : y === "-" ? "Yılı belirtilmemiş" : y);
+    ["", ...ONYILLAR, ...(dolu.has("-") ? ["-"] : [])].forEach(y => {
+      const b = el("button", (y === seciliYil ? "aktif" : "") + (y && !dolu.has(y) ? " bos" : ""), y === "" ? "Hepsi" : y === "-" ? "Yılı belirtilmemiş" : y);
       b.onclick = () => { seciliYil = y; ciz(); };
       dugmeler.append(b);
     });
-    const baslik = el("div", "bolum-baslik", "📷 Fotoğraflar (" + secili.length + ") · yıllara göre · büyütmek için fotoğrafa dokunun");
+    const baslik = el("div", "bolum-baslik", "📷 Fotoğraflar (" + secili.length + ") · on yıllara göre · büyütmek için fotoğrafa dokunun");
     const parcalar = [baslik, dugmeler];
-    yillar.filter(y => !seciliYil || y === seciliYil).forEach(y => {
-      const grup = secili.filter(h => anahtar(h) === y);
-      const yb = el("div", "yil-baslik", y === "-" ? "Yılı belirtilmemiş" : y);
+    if (seciliYil && !dolu.has(seciliYil)) parcalar.push(el("div", "durum", seciliYil + " – " + (+seciliYil + 9) + " dönemine ait fotoğraf henüz yok."));
+    gruplar.filter(y => !seciliYil || y === seciliYil).forEach(y => {
+      const grup = secili.filter(h => anahtar(h) === y).sort((a, b) => (+fotoYili(a) || 0) - (+fotoYili(b) || 0));
+      const yb = el("div", "yil-baslik", y === "-" ? "Yılı belirtilmemiş" : y + " – " + (+y + 9));
       yb.append(el("small", "", grup.length + " fotoğraf"));
       parcalar.push(yb, ...diz(grup, fotoKartYap, false));
     });
