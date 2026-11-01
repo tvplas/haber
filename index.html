@@ -213,7 +213,8 @@ function tiklandi(h, yazi) {
   try { localStorage.setItem("tvplas_tik", JSON.stringify(sayilan.slice(-500))); } catch (e) { }
   tiklar[id] = (tiklar[id] || 0) + 1;
   yazi.textContent = tikYazi(tiklar[id]); yazi.hidden = false;
-  fetch(API + "?islem=tikla&id=" + id, { keepalive: true }).catch(() => { });
+  // Sayım isteği resim isteği olarak gider: her tarayıcıda (Facebook'un uygulama içi tarayıcısı dahil) güvenle gönderilir
+  new Image().src = API + "?islem=tikla&id=" + id + "&r=" + Date.now();
 }
 
 // Fotoğrafı olmayan (ya da fotoğrafı açılmayan) habere başlığının konusunu simgeleyen metafor illüstrasyon:
