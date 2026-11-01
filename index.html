@@ -55,6 +55,7 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .icerik{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
 .ust{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--soluk)}
 .ust .tik{font-weight:600;color:var(--vurgu)}
+.ust .yazar{font-weight:700;color:var(--yazi)}
 .etiket{color:var(--vurgu);font-weight:600}
 .ceviri{border:1px solid var(--cizgi);border-radius:4px;padding:0 5px;cursor:help}
 .orijinal{color:var(--soluk)}
@@ -125,6 +126,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
   </nav>
   <nav class="menu ikinci" aria-label="Diğer bölümler">
     <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
+    <button data-k="Yazarlar">✍️ YAZARLAR</button>
   </nav>
 </header>
 <div id="reklamUst"></div>
@@ -146,7 +148,8 @@ const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFY
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
 // "Güney": yalnızca Güney Kıbrıs'taki Rum basınının haberleri (sunucu ayırır; Kıbrıs menüsüne girmez)
 // "Fotoğraflar": yönetim panelinden bu bölüme eklenen kendi fotoğraflarımız, galeri olarak gösterilir
-const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar"];
+// "Yazarlar": panelden eklenen kendi köşe yazılarımız (önce) ve Kıbrıs gazetelerinin köşe yazıları (sunucu toplar)
+const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar", "Yazarlar"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
 // (Şu an birleşik menü yok: Müzik, Kültür-Sanat, Magazin, Bilim, Sağlık ve Ekonomi ayrı menülerde)
 const GRUPLAR = {};
@@ -271,11 +274,11 @@ const METAFORLAR = [
 ].map(([ikon, kelimeler]) => [ikon, new RegExp(KB + "(" + kelimeler + ")", "i")]);
 // Hiçbir kural uymazsa bölümün sembolü; renkler bölüme göre
 const BOLUM_SEMBOL = { "Kıbrıs": "map-pin", "Güney": "landmark", "Türkiye": "flag", "Dünya": "globe", "Etkinlikler": "calendar-days", "Müzik": "music",
-  "Kültür-Sanat": "palette", "Magazin": "star", "Bilim": "atom", "Ekonomi": "trending-up", "Sağlık": "heart-pulse", "Spor": "trophy" };
+  "Kültür-Sanat": "palette", "Magazin": "star", "Bilim": "atom", "Ekonomi": "trending-up", "Sağlık": "heart-pulse", "Spor": "trophy", "Yazarlar": "pen-line" };
 const BOLUM_RENK = { "Kıbrıs": ["#c8102e", "#5c0614"], "Güney": ["#0369a1", "#082f49"], "Türkiye": ["#e30a17", "#6e050b"], "Dünya": ["#1e40af", "#0a1a4a"],
   "Etkinlikler": ["#7c3aed", "#35106e"], "Müzik": ["#db2777", "#5f0d33"], "Kültür-Sanat": ["#9d174d", "#430920"],
   "Magazin": ["#ea580c", "#6b2605"], "Bilim": ["#0891b2", "#063847"], "Ekonomi": ["#047857", "#022a1f"],
-  "Sağlık": ["#0e7490", "#05303c"], "Spor": ["#c2410c", "#521b04"] };
+  "Sağlık": ["#0e7490", "#05303c"], "Spor": ["#c2410c", "#521b04"], "Yazarlar": ["#6d28d9", "#2e1065"] };
 
 function metaforYap(h) {
   // Önce başlık, başlıkta ipucu yoksa özet (Türkçe küçük harfe çevrilerek: "YAĞIŞ" → "yağış")
@@ -314,7 +317,9 @@ function kartYap(h) {
   }
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
-  ust.append(el("span", "etiket", h.tvplas ? "TVplas" : (h.alt || h.kat)), el("span", "", h.k), el("span", "", kac(h.t)));
+  ust.append(el("span", "etiket", h.tvplas ? "TVplas" : (h.alt || h.kat)));
+  if (h.yz && h.kat === "Yazarlar") ust.append(el("span", "yazar", "✍ " + h.yz));   // yalnızca köşe yazılarında
+  ust.append(el("span", "", h.k), el("span", "", kac(h.t)));
   const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
   tik.hidden = !n; ust.append(tik);
   if (h.ob) {
@@ -342,7 +347,7 @@ function kartYap(h) {
 }
 
 function aramaMetni(h) {
-  return (h.b + " " + (h.o || "") + " " + h.k + " " + (h.ob || "")).toLocaleLowerCase("tr");
+  return (h.b + " " + (h.o || "") + " " + h.k + " " + (h.ob || "") + " " + (h.yz || "")).toLocaleLowerCase("tr");
 }
 
 // Kendi haberimizin tam metnini fotoğrafıyla birlikte pencerede gösterir
@@ -367,6 +372,7 @@ function detayAc(h) {
     kutu.replaceChildren(metaforYap(h));
   }
   d.querySelector("h2").textContent = h.b;
+  d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz : "TVplas Portal";
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = h.kaynakYazi || "Habere git →";
@@ -555,6 +561,8 @@ function ciz() {
   // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
   // Dünya'da sunucunun öncelikli saydığı büyük gazeteler (h.on) diğer kaynaklardan önce gelir
   if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
+  // Yazarlar'da önce kendi yazarlarımızın yazıları, sonra gazetelerin köşe yazıları
+  if (!q && bolum === "Yazarlar") secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
   if (!q && bolum === "Fotoğraflar") {
     if (!secili.length) { liste.replaceChildren(el("div", "durum", "Henüz fotoğraf eklenmedi.")); return; }
     const baslik = el("div", "bolum-baslik", "📷 Fotoğraflar (" + secili.length + ") · büyütmek için fotoğrafa dokunun");
@@ -616,7 +624,7 @@ async function yukle() {
     });
     [...benim, ...tum].forEach(h => {
       h.ekBolum = [];
-      if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
+      if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && h.kat !== "Yazarlar" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
     });
     haberler = [...benim.filter(h => h.sabit),
       ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),

@@ -165,7 +165,7 @@ a.dugme{text-decoration:none;display:inline-block}
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 const PORTAL = "https://tvplas.github.io/haber/";
-const BOLUMLER = ["Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Güney"];
+const BOLUMLER = ["Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Güney", "Yazarlar"];
 // Her gün farklı renk teması: [canlı ton, koyu ton]
 const RENKLER = [["#c8102e", "#5c0614"], ["#0f766e", "#042f2e"], ["#1d4ed8", "#0b1a4a"], ["#c2410c", "#431407"],
   ["#7c3aed", "#2e1065"], ["#be185d", "#4a0420"], ["#0369a1", "#082f49"]];
@@ -694,8 +694,9 @@ const SECIM_BOLUMLERI = [
   ["Sağlık", "Sağlık", "SAĞLIK", h => h.tur === "Sağlık"],
   ["Ekonomi", "Ekonomi", "EKONOMİ", h => h.tur === "Ekonomi"],
   ["Spor", "Spor", "SPOR", h => h.tur === "Spor"],
-  ["TVplas", "⭐ TVplas haberlerim", "TVplas ÖZEL", h => h.tvplas && h.bolum !== "Fotoğraflar"],
-  ["Fotoğraflar", "📷 Fotoğraflarım", "FOTOĞRAF", h => h.tvplas && h.bolum === "Fotoğraflar"]
+  ["TVplas", "⭐ TVplas haberlerim", "TVplas ÖZEL", h => h.tvplas && h.bolum !== "Fotoğraflar" && h.bolum !== "Yazarlar"],
+  ["Fotoğraflar", "📷 Fotoğraflarım", "FOTOĞRAF", h => h.tvplas && h.bolum === "Fotoğraflar"],
+  ["Yazarlar", "✍️ Yazarlar", "KÖŞE YAZISI", h => h.tur === "Yazarlar" || h.tvplas && h.bolum === "Yazarlar"]
 ];
 let tumHaberler = [], secimAnahtari = "Kıbrıs", secilenHaber = null;   // secilenHaber: 📌 kutusunda dokunulan haber/fotoğraf
 const sBolum = document.getElementById("sBolum"), sAra = document.getElementById("sAra"), sListe = document.getElementById("sListe");
