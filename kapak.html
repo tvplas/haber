@@ -647,6 +647,22 @@ if (navigator.canShare) {
 
 // ---- Tıklanabilir paylaşım: sunucu her kapağı sıradaki Drive yuvasına yazar (öncekiler yerinde kalır); portaldaki o yuvanın paylaşım sayfası (p/NNN.html) onu gösterir ----
 // Yönetim şifresi, yönetim panelinde "beni hatırla" ile kaydedildiyse oradan alınır (aynı site)
+// Tıklanabilir paylaşımda kapaktaki haberin kimliği bağlantıya eklenir; portal kapağa tıklayanı o habere götürür.
+// Kimlik portaldakiyle aynı yolla üretilir (haber bağlantısından kısa sayı)
+function kimlik(h) {
+  const s = String(h.gl || h.l || ("tv:" + h.b));
+  let x = 5381;
+  for (let i = 0; i < s.length; i++) x = (Math.imul(x, 33) + s.charCodeAt(i)) | 0;
+  return (x >>> 0).toString(36);
+}
+function hedefKodu() {
+  const t = TASARIMLAR[tasarimSira];
+  if (t.reklam) { const r = secilenReklam(); return r && r.g ? "&r=" + kimlik({ l: "rk:" + r.g }) : ""; }
+  if (t.kendi) return secilenHaber ? "&h=" + kimlik(secilenHaber) : "";
+  if (t.ad === "Gazeteler") return "&b=Gazeteler";
+  return haberler.length ? "&h=" + kimlik(haber()) : "";
+}
+
 function kayitliSifre() { try { return localStorage.getItem("tvplas_sifre") || ""; } catch (e) { return ""; } }
 let paylasimAdresi = "";
 document.getElementById("tiklanirBtn").onclick = async () => {
@@ -664,7 +680,7 @@ document.getElementById("tiklanirBtn").onclick = async () => {
     }) }).then(r => r.json());
     if (!cevap.tamam) throw new Error(cevap.hata || "Kapak yüklenemedi");
     if (!kayitliSifre()) try { localStorage.setItem("tvplas_sifre", sifre); } catch (e) { }
-    paylasimAdresi = cevap.adres;
+    paylasimAdresi = cevap.adres + hedefKodu();
     document.getElementById("fbPaylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasimAdresi);
     eylem.hidden = false;
     d.textContent = "Hazır! Facebook'ta paylaşın; paylaşım penceresine günün metnini yapıştırabilirsiniz. Bağlantı: " + paylasimAdresi;

@@ -304,6 +304,42 @@ function turkceAdres(h) {
   return "oku.html?u=" + encodeURIComponent(h.l);
 }
 
+// Facebook'taki tıklanabilir kapaktan gelen ziyaretçi kapaktaki habere götürülür. Paylaşım sayfası (p/NNN.html?…&h=…)
+// ziyaretçiyi portala yönlendirir; kapaktaki haber o sayfanın adresinden (yönlendiren sayfa) okunur.
+// Yalnızca portaldaki haber/reklam kimlikleri kabul edilir (adres değil): portal başka sitelere yönlendirme aracı olamaz.
+function kapakHedefi() {
+  let q = location.search;
+  try {
+    const r = new URL(document.referrer);
+    if (!/[?&][hrb]=/.test(q) && r.origin === location.origin && /\/p\/\d+\.html$/.test(r.pathname)) q = r.search;
+  } catch (e) { }
+  const p = new URLSearchParams(q), kim = s => /^[0-9a-z]{1,8}$/.test(s || "") ? s : "";
+  const b = p.get("b");
+  return { h: kim(p.get("h")), r: kim(p.get("r")), b: b === "Gazeteler" || BOLUMLER.includes(b) ? b : "" };
+}
+
+function hedefAc(reklamlar) {
+  const { h, r, b } = kapakHedefi();
+  if (!h && !r && !b) return;
+  // Geri tuşuyla dönülünce ya da sayfa yenilenince yeniden yönlendirilmesin
+  const iz = "tvplas_hedef:" + (h || r || b) + ":" + document.referrer;
+  try { if (sessionStorage.getItem(iz)) return; sessionStorage.setItem(iz, "1"); } catch (e) { }
+  if (location.search) history.replaceState(null, "", location.pathname);
+  if (b) { document.querySelector(`.menu button[data-k="${b}"]`)?.click(); return; }
+  if (h) {
+    const x = haberler.find(y => kimlik(y) === h);
+    if (!x) return;   // haber listeden düşmüşse portal açık kalır
+    new Image().src = API + "?islem=tikla&id=" + h + "&r=" + Date.now();   // kapaktan gelen ziyaret de sayılır
+    document.querySelector(`.menu button[data-k="${x.kat}"]`)?.click();
+    if (x.tvplas && (!x.l || x.v)) detayAc(x); else location.href = turkceAdres(x);
+    return;
+  }
+  const rk = reklamlar.find(y => kimlik({ l: "rk:" + y.g }) === r);
+  if (!rk) return;
+  if (rk.v) detayAc({ b: rk.ad || "Reklam", v: rk.v, l: rk.l, kaynakYazi: "Reklam verenin sitesine git →" });
+  else if (rk.l) location.href = rk.l;
+}
+
 function kartYap(h) {
   const kart = el("article", "kart" + (h.tvplas ? " tvplas" : ""));
   // Köşe yazısında görsel yazarın vesikalık fotoğrafıysa kırpılmadan, mor zemin üzerinde gösterilir
@@ -653,6 +689,7 @@ async function yukle() {
     ciz();
     document.getElementById("zaman").textContent =
       haberler.length + " haber · son güncelleme " + kac(veri.guncelleme);
+    hedefAc(reklamlar);
   } catch (e) {
     liste.replaceChildren(el("div", "durum", "Haberler şu an yüklenemedi, lütfen sayfayı yenileyin."));
     document.getElementById("zaman").textContent = "";
