@@ -83,6 +83,7 @@ dialog#detay::backdrop{background:rgba(0,0,0,.65)}
 #detay .metin{white-space:pre-line;font-size:16px;line-height:1.65;color:var(--yazi);margin:0 0 10px}
 #detay .kaynakLink{color:var(--vurgu);font-weight:600;text-decoration:none}
 #detay .kapat{position:sticky;top:10px;float:right;margin:10px 10px -46px 0;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:18px;cursor:pointer;z-index:1}
+#detay .anaDon{position:sticky;top:10px;float:left;margin:10px 0 -46px 10px;height:36px;padding:0 14px;border-radius:18px;border:0;background:var(--vurgu);color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.35)}
 #reklamUst{max-width:1200px;margin:0 auto;padding:0 16px;display:grid;gap:12px}
 #reklamUst:not(:empty){margin-bottom:16px}
 .reklam{position:relative;display:block;border-radius:12px;overflow:hidden;border:1px solid var(--cizgi);background:var(--kart)}
@@ -135,6 +136,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 <main id="liste"><div class="durum">Haberler yükleniyor…</div></main>
 <dialog id="detay" aria-label="Haberin tamamı">
   <button class="kapat" aria-label="Kapat">✕</button>
+  <button class="anaDon">🏠 Ana sayfaya dön</button>
   <div class="d-gorsel"></div>
   <div class="govde">
     <div class="ust"><span class="etiket">TVplas</span><span>TVplas Portal</span></div>
@@ -331,13 +333,12 @@ function hedefAc(reklamlar) {
     if (!x) return;   // haber listeden düşmüşse portal açık kalır
     new Image().src = API + "?islem=tikla&id=" + h + "&r=" + Date.now();   // kapaktan gelen ziyaret de sayılır
     document.querySelector(`.menu button[data-k="${x.kat}"]`)?.click();
-    if (x.tvplas && (!x.l || x.v)) detayAc(x); else location.href = turkceAdres(x);
+    detayAc(x.tvplas ? x : { ...x, kaynakYazi: "Haberin tamamını oku →" });
     return;
   }
   const rk = reklamlar.find(y => kimlik({ l: "rk:" + y.g }) === r);
   if (!rk) return;
-  if (rk.v) detayAc({ b: rk.ad || "Reklam", v: rk.v, l: rk.l, kaynakYazi: "Reklam verenin sitesine git →" });
-  else if (rk.l) location.href = rk.l;
+  detayAc({ b: rk.ad || "Reklam", v: rk.v, g: rk.g, l: rk.l, kaynakYazi: "Reklam verenin sitesine git →" });
 }
 
 function kartYap(h) {
@@ -413,12 +414,14 @@ function detayAc(h) {
     kutu.replaceChildren(metaforYap(h));
   }
   d.querySelector("h2").textContent = h.b;
-  d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz : "TVplas Portal";
+  const disKaynak = !h.tvplas && h.k;
+  d.querySelector(".govde .ust .etiket").textContent = disKaynak ? (h.alt || h.kat || "Haber") : "TVplas";
+  d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz : disKaynak ? h.k : "TVplas Portal";
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = h.kaynakYazi || "Habere git →";
   kaynak.hidden = !h.l;
-  if (h.l) kaynak.href = h.l;
+  if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
   d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL);
   d.showModal();
   d.scrollTop = 0;
@@ -627,6 +630,8 @@ function ciz() {
 ara.oninput = ciz;
 const detay = document.getElementById("detay");
 detay.querySelector(".kapat").onclick = () => detay.close();
+// Haber penceresinden TVplas Portal ana sayfasına (en üste) dönülür
+detay.querySelector(".anaDon").onclick = () => { detay.close(); window.scrollTo({ top: 0, behavior: "smooth" }); };
 detay.addEventListener("close", () => detay.querySelector("iframe")?.remove());   // kapanınca video da durur
 detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
 document.querySelectorAll(".menu button").forEach(b => b.onclick = () => {
