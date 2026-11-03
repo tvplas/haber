@@ -68,6 +68,11 @@ p{margin:0 0 10px;color:var(--soluk);font-size:14px}
 .kart.tvplas{border:2px solid var(--vurgu)}
 .kart.tvplas .etiket{background:var(--vurgu);color:#fff;border-radius:4px;padding:0 6px}
 p.ozet{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.ceviri-dugmeler{display:flex;flex-direction:column;gap:8px;margin:2px 0 12px}
+.ceviri-dugmeler:empty{display:none}
+.ceviri-dugmeler a{display:block;text-align:center;padding:9px 12px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none}
+.ceviri-dugmeler .dg-ana{background:var(--vurgu);color:#fff}
+.ceviri-dugmeler .dg-ikinci{border:1px solid var(--cizgi);color:var(--yazi)}
 .devam{align-self:flex-start;background:none;border:0;padding:0;margin:0 0 10px;color:var(--vurgu);font-weight:600;font-size:13px;cursor:pointer}
 dialog#detay{max-width:720px;width:calc(100% - 32px);max-height:calc(100% - 48px);padding:0;border:1px solid var(--cizgi);border-radius:14px;background:var(--kart);color:var(--yazi)}
 dialog#detay::backdrop{background:rgba(0,0,0,.65)}
@@ -143,6 +148,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <h2></h2>
     <p class="metin"></p>
     <a class="kaynakLink" target="_blank" rel="noopener">Habere git →</a>
+    <div class="ceviri-dugmeler"></div>
     <a class="paylas" target="_blank" rel="noopener">Facebook'ta paylaş</a>
   </div>
 </dialog>
@@ -380,12 +386,36 @@ function kartYap(h) {
     devam.onclick = () => detayAc(h);
     ic.append(devam);
   }
+  if (h.ob) ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
   ic.append(pay);
   kart.append(resim, ic);
   // Habere giden her tıklama (fotoğraf, başlık, devamı, orijinali; Facebook paylaşımı hariç) sayılır
   const say = e => { const a = e.target.closest("a, button"); if (a && !a.classList.contains("paylas")) tiklandi(h, tik); };
   kart.addEventListener("click", say); kart.addEventListener("auxclick", say);
   return kart;
+}
+
+// Türkçe olmayan (çevrilmiş) haber için iki düğme: haberin tamamı kaynağında ve tamamının Google Çeviri ile Türkçesi.
+// Dil, okuma sayfasıyla (oku.html) aynı yolla seçilir. Google Haberler bağlantısında gerçek adres gizli olduğundan çeviri düğmesi yok
+function googleCeviri(u, ozgun) {
+  const x = new URL(u), h = x.hostname;
+  const dil = /[\u0370-\u03ff]/.test(ozgun) ? "el" : /[\u0400-\u04ff]/.test(ozgun) ? "auto"
+    : /lemonde\.fr|lefigaro\.fr/.test(h) ? "fr" : /faz\.net|sueddeutsche\.de/.test(h) ? "de"
+    : /elpais\.com/.test(h) ? "es" : /corriere\.it/.test(h) ? "it" : "en";
+  const alanAdi = x.hostname.replace(/-/g, "--").replace(/\./g, "-") + ".translate.goog";
+  x.searchParams.set("_x_tr_sl", dil); x.searchParams.set("_x_tr_tl", "tr"); x.searchParams.set("_x_tr_hl", "tr");
+  return "https://" + alanAdi + x.pathname + x.search + x.hash;
+}
+
+function ceviriDugmeleri(h, kutu) {
+  kutu.replaceChildren();
+  if (h.tvplas || !h.ob || !h.l) return kutu;
+  const a = el("a", "dg-ana", "Haberin tamamını kaynağında oku →");
+  baglanti(a, h.l); kutu.append(a);
+  if (!/news\.google\.|reddit\.com/.test(h.l)) {
+    try { const b = el("a", "dg-ikinci", "Tamamını Google Çeviri ile Türkçe dene"); baglanti(b, googleCeviri(h.l, h.ob)); kutu.append(b); } catch (e) { }
+  }
+  return kutu;
 }
 
 function aramaMetni(h) {
@@ -419,9 +449,10 @@ function detayAc(h) {
   d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz : disKaynak ? h.k : "TVplas Portal";
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
-  kaynak.textContent = h.kaynakYazi || "Habere git →";
-  kaynak.hidden = !h.l;
+  kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
+  kaynak.hidden = !h.l || (!h.tvplas && h.ob && turkceAdres(h) === h.l);   // Türkçe sayfası yoksa iki düğme yeter
   if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
+  ceviriDugmeleri(h, d.querySelector(".ceviri-dugmeler"));
   d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL);
   d.showModal();
   d.scrollTop = 0;
@@ -519,6 +550,7 @@ function gazeteAc(g) {
   d.querySelector("h2").textContent = g.ad + (g.basliklar[0] ? ": " + g.basliklar[0] : "");
   d.querySelector(".govde .ust span:last-child").textContent = "TVplas Portal";   // önceki köşe yazısının yazar adı kalmasın
   d.querySelector(".metin").textContent = g.basliklar.slice(1).map(b => "• " + b).join("\n");
+  d.querySelector(".ceviri-dugmeler").replaceChildren();
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = "Gazete sayfaları: kibrisgazeteleri.com →";
   kaynak.hidden = false;
