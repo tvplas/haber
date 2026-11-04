@@ -368,12 +368,17 @@ function hedefAc(reklamlar) {
     if (!x) return;   // haber listeden düşmüşse portal açık kalır
     new Image().src = API + "?islem=tikla&id=" + h + "&r=" + Date.now();   // kapaktan gelen ziyaret de sayılır
     document.querySelector(`.menu button[data-k="${x.kat}"]`)?.click();
-    detayAc(x.tvplas ? x : { ...x, kaynakYazi: "Haberin tamamını oku →" });
+    detayAc(ozetHaber(x));
     return;
   }
   const rk = reklamlar.find(y => kimlik({ l: "rk:" + y.g }) === r);
   if (!rk) return;
   detayAc({ b: rk.ad || "Reklam", v: rk.v, g: rk.g, l: rk.l, kaynakYazi: "Reklam verenin sitesine git →" });
+}
+
+// Dış kaynaklı haber portalda önce TVplas Haber tarzı özet penceresinde açılır; tamamı oradan kaynağında okunur
+function ozetHaber(h) {
+  return h.tvplas ? h : { ...h, kaynakYazi: "Haberin tamamını kaynağında oku →" };
 }
 
 function kartYap(h) {
@@ -412,6 +417,8 @@ function kartYap(h) {
   baglanti(a, adres); h2.append(a);
   // Linki olmayan ya da videolu kendi haberlerimizde başlık ve fotoğraf tam metni (videoyu) portalda açar
   if (h.tvplas && (!h.l || h.v || h.th)) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(h); }; });
+  // Dış haberde de başlık ve fotoğraf önce özet penceresini açar
+  if (!h.tvplas && h.l) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(ozetHaber(h)); }; });
   const pay = el("a", "paylas", "Facebook'ta paylaş");
   baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.th ? PORTAL : (h.l || PORTAL)));
   ic.append(ust, h2, el("p", "ozet", h.o));
@@ -419,9 +426,9 @@ function kartYap(h) {
     const devam = el("button", "devam", "Devamını oku →");
     devam.onclick = () => detayAc(h);
     ic.append(devam);
-  } else if (!h.tvplas && h.l && (h.o || "").trim()) {
-    const devam = el("a", "devam", "Devamını oku →");   // dış haber: kaynağında (ya da Türkçe çevirisinde) açılır
-    baglanti(devam, adres);
+  } else if (!h.tvplas && h.l) {
+    const devam = el("button", "devam", "Devamını oku →");   // dış haber: önce portalda özet penceresi
+    devam.onclick = () => detayAc(ozetHaber(h));
     ic.append(devam);
   }
   if (h.ob) ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
@@ -481,13 +488,15 @@ function detayAc(h) {
   } else {
     kutu.replaceChildren(metaforYap(h));
   }
-  const kunye = d.querySelector(".d-kunye");
-  kunye.textContent = h.gk && !h.v ? "📷 " + h.gk : "";
-  if (h.gs) kunye.href = h.gs; else kunye.removeAttribute("href");
-  d.querySelector("h2").textContent = h.b;
   const disKaynak = !h.tvplas && h.k;
-  d.querySelector(".govde .ust .etiket").textContent = disKaynak ? (h.alt || h.kat || "Haber") : "TVplas";
-  d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz : disKaynak ? h.k : "TVplas Portal";
+  const kunye = d.querySelector(".d-kunye");
+  kunye.textContent = h.v ? "" : h.gk ? "📷 " + h.gk : disKaynak && h.g ? "📷 Fotoğraf: " + h.k : "";
+  const kunyeAdres = h.gs || (disKaynak && h.g ? h.l : "");
+  if (kunyeAdres) kunye.href = kunyeAdres; else kunye.removeAttribute("href");
+  d.querySelector("h2").textContent = h.b;
+  d.querySelector(".govde .ust .etiket").textContent = "TVplas";
+  d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz
+    : disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : "TVplas Portal";
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
