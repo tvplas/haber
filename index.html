@@ -389,8 +389,8 @@ function kartYap(h) {
     // Kıbrıs haberleri gerçek fotoğrafla gösterilir: fotoğrafı açılmayan haber listeden çıkar (kendi haberlerimiz hariç)
     img.onerror = () => h.kat === "Kıbrıs" && !h.tvplas ? kart.remove() : resim.replaceChildren(metaforYap(h));
     resim.append(img);
-    // Serbest lisanslı (Wikimedia Commons) temsili fotoğrafta lisans gereği fotoğrafçı ve lisans yazılır
-    if (h.gk) { resim.classList.add("kunyeli"); resim.append(el("span", "kunye", "Temsili fotoğraf · " + h.gk)); }
+    // TVplas Haber: fotoğraf haberin kaynağına aittir; künyede kaynak adı yazılır ("Fotoğraf: Kaynak")
+    if (h.gk) { resim.classList.add("kunyeli"); resim.append(el("span", "kunye", h.gk)); }
   } else {
     resim.append(metaforYap(h));
   }
@@ -475,7 +475,7 @@ function detayAc(h) {
     kutu.replaceChildren(metaforYap(h));
   }
   const kunye = d.querySelector(".d-kunye");
-  kunye.textContent = h.gk && !h.v ? "📷 Temsili fotoğraf · " + h.gk : "";
+  kunye.textContent = h.gk && !h.v ? "📷 " + h.gk : "";
   if (h.gs) kunye.href = h.gs; else kunye.removeAttribute("href");
   d.querySelector("h2").textContent = h.b;
   const disKaynak = !h.tvplas && h.k;
@@ -784,7 +784,7 @@ async function yukle() {
       const [kat, alt] = bolumBul(tur);
       return { ...h, kat, alt };
     });
-    // TVplas Haber yazıları: Wikimedia Commons'tan temsili fotoğraf (künyesiyle); bulunamadıysa konuya uygun TVplas çizimi.
+    // TVplas Haber yazıları: haberin kaynağındaki kendi fotoğrafı (künyesiyle); kaynakta fotoğraf yoksa konuya uygun TVplas çizimi.
     // Kaynak adı ve bağlantısı pencerede
     const tvh = (veri.tvplasHaber || []).map(x => ({ b: x.b, o: x.o, t: x.t, l: x.l, gl: "tvh:" + x.id, k: "Kaynak: " + x.kaynak,
       g: x.g && x.g !== "-" ? x.g : "", gk: x.g && x.g !== "-" ? x.gk : "", gs: x.gs,
