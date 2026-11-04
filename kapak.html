@@ -263,6 +263,10 @@ function renkliZemin(x, y, w, h) {
   ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
 }
 const haber = (i = 0) => haberler[(haberSira + i) % haberler.length];
+// TVplas Haber metninin ilk paragrafı (yalnızca TVplas biçiminde yazılmış haberlerde)
+const ozetParagrafi = h => h && h.tvy ? String(h.o || "").split(/\n\s*\n/)[0].trim() : "";
+// Sunucunun TVplas Haber biçiminde yazdığı başlık (tb) ve metin (tm) kapakta da kullanılır
+const tvYazisi = h => h.tm ? { ...h, b: h.tb || h.b, o: h.tm, tvy: true } : h;
 // Günden güne farklı gazeteler
 const gununGazeteleri = () => [0, 1, 2, 3, 4].map(i => gazeteler[(gunNo * 5 + i * 11) % gazeteler.length]);
 
@@ -280,7 +284,10 @@ const TASARIMLAR = [
     const kare = boyut === "kare", bant = 74;
     const y = H - bant - (kare ? 330 : 230);
     rozet(secimBolumu()[2], 40, y - 66, 24, renk()[0]);
-    sigdir(haber().b, 40, y, W - 80, kare ? 66 : 54, 34, kare ? 4 : 3, "#fff");
+    // TVplas Haber biçiminde yazılmış haberde başlığın altına Türkçe özetin ilk paragrafı da yazılır
+    const oz = ozetParagrafi(haber());
+    const by = sigdir(haber().b, 40, y, W - 80, kare ? 66 : 54, 34, oz ? (kare ? 3 : 2) : (kare ? 4 : 3), "#fff");
+    if (oz) sigdir(oz, 40, y + by + 12, W - 80, kare ? 32 : 27, 22, 2, "rgba(255,255,255,.88)", 500);
     altBant(W, H, bant, "Kıbrıs'ın haberi tek adreste");
   } },
   { ad: "Gazeteler", gorseller: () => gununGazeteleri().map(x => x.g), ciz(W, H, resimler) {
@@ -602,14 +609,14 @@ function metniYaz() {
     return;
   }
   if (!haberler.length) return;
-  const b = haber().b, n = gazeteler.length;
+  const b = haber().b, n = gazeteler.length, ozp = ozetParagrafi(haber()), oz = ozp ? "\n\n" + ozp : "";
   const kaliplar = [
-    `📰 ${tarihUzun} | Kıbrıs'ın gündemi TVplas Portal'da!\n\nGünün öne çıkan haberi: ${b}\n\n✅ ${n} gazetenin birinci sayfası\n✅ Kıbrıs, Güney, Türkiye ve dünyadan haberler\n✅ Her 30 dakikada güncel\n\n👉 ${PORTAL}`,
+    `📰 ${tarihUzun} | Kıbrıs'ın gündemi TVplas Portal'da!\n\nGünün öne çıkan haberi: ${b}${oz}\n\n✅ ${n} gazetenin birinci sayfası\n✅ Kıbrıs, Güney, Türkiye ve dünyadan haberler\n✅ Her 30 dakikada güncel\n\n👉 ${PORTAL}`,
     `☕ Günaydın Kıbrıs! Bugün ${tarihUzun}.\n\nSabah kahvenizin yanına günün gazeteleri ve son dakika haberleri hazır. ${n} gazetenin manşeti tek sayfada!\n\n👉 ${PORTAL}`,
-    `🔴 GÜNDEM | ${tarihUzun}\n\n${b}\n\nAyrıntılar ve günün tüm gelişmeleri TVplas Portal'da 👇\n${PORTAL}`,
+    `🔴 GÜNDEM | ${tarihUzun}\n\n${b}${oz}\n\nAyrıntılar ve günün tüm gelişmeleri TVplas Portal'da 👇\n${PORTAL}`,
     `🗞️ Bugün gazeteler ne yazdı?\n\n${n} Kıbrıs gazetesinin birinci sayfası, Rum basınından Türkçe haberler ve dünyadan son gelişmeler tek adreste.\n\n👉 ${PORTAL}`,
-    `📲 Kıbrıs'ın haberi cebinizde!\n\n${tarihUzun} · Öne çıkan: ${b}\n\nUygulama indirmeden, tek dokunuşla 👉 ${PORTAL}`,
-    `🌍 Kıbrıs'tan ve dünyadan bugün neler oldu?\n\n${b}\n\nTüm haberler Türkçe, her 30 dakikada güncel. Takipte kalın!\n👉 ${PORTAL}`,
+    `📲 Kıbrıs'ın haberi cebinizde!\n\n${tarihUzun} · Öne çıkan: ${b}${oz}\n\nUygulama indirmeden, tek dokunuşla 👉 ${PORTAL}`,
+    `🌍 Kıbrıs'tan ve dünyadan bugün neler oldu?\n\n${b}${oz}\n\nTüm haberler Türkçe, her 30 dakikada güncel. Takipte kalın!\n👉 ${PORTAL}`,
     `✨ ${tarihUzun} — günün özeti hazır!\n\nGazete manşetleri, son dakika, spor, ekonomi, magazin… Hepsi TVplas Portal'da.\n\n👉 ${PORTAL}`
   ];
   document.getElementById("metin").value = kaliplar[metinSira % kaliplar.length] + etiketler;
@@ -699,7 +706,8 @@ document.getElementById("adresKopyala").onclick = async () => {
 // ---- Haber ya da fotoğraf seçimi: portalın her bölümünden, kendi haber ve fotoğraflarımız dahil ----
 // [anahtar, listede görünen ad, Manşet tasarımındaki etiket, süzgeç]
 const SECIM_BOLUMLERI = [
-  ["Kıbrıs", "Kıbrıs", "KIBRIS'TA BUGÜN", h => !h.tvplas && !BOLUMLER.includes(h.tur)],
+  ["Kıbrıs", "Kıbrıs", "KIBRIS'TA BUGÜN", h => !h.tvplas && !h.th && !BOLUMLER.includes(h.tur)],
+  ["TVplas Haber", "📰 TVplas Haber", "TVPLAS HABER", h => h.th],
   ["Güney", "Güney", "GÜNEY KIBRIS", h => h.tur === "Güney"],
   ["Türkiye", "Türkiye", "TÜRKİYE", h => h.tur === "Türkiye"],
   ["Dünya", "Dünya", "DÜNYA", h => h.tur === "Dünya"],
@@ -767,10 +775,13 @@ Promise.all([
 ]).then(([v, gz]) => {
   reklamlar = ((v.ekler || {}).reklamlar || []).filter(r => r.g);
   reklamlariListele();
-  haberler = (v.haberler || []).filter(h => h.g && !BOLUMLER.includes(h.tur)).slice(0, 30);
+  haberler = (v.haberler || []).map(tvYazisi).filter(h => h.g && !BOLUMLER.includes(h.tur)).slice(0, 30);
   // Seçim kutusu için: tüm bölümlerin fotoğraflı haberleri ve kendi haber/fotoğraflarımız, en yeni önce
   const benim = ((v.ekler || {}).haberler || []).filter(h => h.g).map(h => ({ ...h, tvplas: true }));
-  tumHaberler = [...benim, ...(v.haberler || []).filter(h => h.g)].sort((x, y) => (y.t || "").localeCompare(x.t || ""));
+  // TVplas Haber menüsünün yazıları (kimlik portaldakiyle aynı: kapağa tıklayan o yazıya gider)
+  const tvh = (v.tvplasHaber || []).filter(x => x.g && x.g !== "-").map(x => ({ b: x.b, o: x.o, t: x.t, l: x.l, gl: "tvh:" + x.id, g: x.g,
+    tur: "TVplas Haber", th: true, tvy: true }));
+  tumHaberler = [...benim, ...tvh, ...(v.haberler || []).map(tvYazisi).filter(h => h.g)].sort((x, y) => (y.t || "").localeCompare(x.t || ""));
   sBolum.replaceChildren(...SECIM_BOLUMLERI.map(([k, ad]) => new Option(ad + " (" + bolumHaberleri(k).length + ")", k)));
   secimListesi();
   gazeteler = (gz.gazeteler || []).filter(g => g.g);
