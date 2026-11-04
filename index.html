@@ -155,6 +155,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Spor">SPOR</button>
   </nav>
   <nav class="menu ikinci" aria-label="Diğer bölümler">
+    <button data-k="TVplas Haber">📰 TVPLAS HABER</button>
     <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
     <button data-k="Yazarlar">✍️ YAZARLAR</button>
   </nav>
@@ -181,7 +182,8 @@ const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFY
 // "Güney": yalnızca Güney Kıbrıs'taki Rum basınının haberleri (sunucu ayırır; Kıbrıs menüsüne girmez)
 // "Fotoğraflar": yönetim panelinden bu bölüme eklenen kendi fotoğraflarımız, galeri olarak gösterilir
 // "Yazarlar": panelden eklenen kendi köşe yazılarımız (önce) ve Kıbrıs gazetelerinin köşe yazıları (sunucu toplar)
-const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar", "Yazarlar"];
+// "TVplas Haber": Kıbrıs haberlerinin TVplas biçiminde (yapay zekâyla, olgular değiştirilmeden) yeniden yazılmış hâlleri; sunucu yazar
+const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar", "Yazarlar", "TVplas Haber"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
 // (Şu an birleşik menü yok: Müzik, Kültür-Sanat, Magazin, Bilim, Sağlık ve Ekonomi ayrı menülerde)
 const GRUPLAR = {};
@@ -307,11 +309,11 @@ const METAFORLAR = [
 ].map(([ikon, kelimeler]) => [ikon, new RegExp(KB + "(" + kelimeler + ")", "i")]);
 // Hiçbir kural uymazsa bölümün sembolü; renkler bölüme göre
 const BOLUM_SEMBOL = { "Kıbrıs": "map-pin", "Güney": "landmark", "Türkiye": "flag", "Dünya": "globe", "Etkinlikler": "calendar-days", "Müzik": "music",
-  "Kültür-Sanat": "palette", "Magazin": "star", "Bilim": "atom", "Ekonomi": "trending-up", "Sağlık": "heart-pulse", "Spor": "trophy", "Yazarlar": "pen-line" };
+  "Kültür-Sanat": "palette", "Magazin": "star", "Bilim": "atom", "Ekonomi": "trending-up", "Sağlık": "heart-pulse", "Spor": "trophy", "Yazarlar": "pen-line", "TVplas Haber": "newspaper" };
 const BOLUM_RENK = { "Kıbrıs": ["#c8102e", "#5c0614"], "Güney": ["#0369a1", "#082f49"], "Türkiye": ["#e30a17", "#6e050b"], "Dünya": ["#1e40af", "#0a1a4a"],
   "Etkinlikler": ["#7c3aed", "#35106e"], "Müzik": ["#db2777", "#5f0d33"], "Kültür-Sanat": ["#9d174d", "#430920"],
   "Magazin": ["#ea580c", "#6b2605"], "Bilim": ["#0891b2", "#063847"], "Ekonomi": ["#047857", "#022a1f"],
-  "Sağlık": ["#0e7490", "#05303c"], "Spor": ["#c2410c", "#521b04"], "Yazarlar": ["#6d28d9", "#2e1065"] };
+  "Sağlık": ["#0e7490", "#05303c"], "Spor": ["#c2410c", "#521b04"], "Yazarlar": ["#6d28d9", "#2e1065"], "TVplas Haber": ["#be123c", "#4c0519"] };
 
 function metaforYap(h) {
   // Önce başlık, başlıkta ipucu yoksa özet (Türkçe küçük harfe çevrilerek: "YAĞIŞ" → "yağış")
@@ -399,9 +401,9 @@ function kartYap(h) {
   const h2 = el("h2"), a = el("a", "", h.b);
   baglanti(a, adres); h2.append(a);
   // Linki olmayan ya da videolu kendi haberlerimizde başlık ve fotoğraf tam metni (videoyu) portalda açar
-  if (h.tvplas && (!h.l || h.v)) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(h); }; });
+  if (h.tvplas && (!h.l || h.v || h.th)) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(h); }; });
   const pay = el("a", "paylas", "Facebook'ta paylaş");
-  baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL));
+  baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.th ? PORTAL : (h.l || PORTAL)));
   ic.append(ust, h2, el("p", "ozet", h.o));
   if (h.tvplas && (h.o || "").length > 180) {
     const devam = el("button", "devam", "Devamını oku →");
@@ -772,13 +774,16 @@ async function yukle() {
       const [kat, alt] = bolumBul(tur);
       return { ...h, kat, alt };
     });
-    [...benim, ...tum].forEach(h => {
+    // TVplas Haber yazıları: görsel olarak konuya uygun TVplas çizimi (h.g yok), kaynak adı ve bağlantısı pencerede
+    const tvh = (veri.tvplasHaber || []).map(x => ({ b: x.b, o: x.o, t: x.t, l: x.l, gl: "tvh:" + x.id, k: "Kaynak: " + x.kaynak,
+      kaynakYazi: "Kaynak: " + x.kaynak + " →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }));
+    [...benim, ...tum, ...tvh].forEach(h => {
       h.ekBolum = [];
-      if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && h.kat !== "Yazarlar" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
+      if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && h.kat !== "Yazarlar" && h.kat !== "TVplas Haber" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
     });
     haberler = [...benim.filter(h => h.sabit),
       ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
-      ...tum.filter(h => h.kat !== "Kıbrıs")];
+      ...tum.filter(h => h.kat !== "Kıbrıs"), ...tvh];
 
     // Reklamlar sunucudan "Sıra no"ya göre dizili gelir. Numarası en küçük "Üst" reklam en üstte durur;
     // kalan her reklam numara sırasıyla haber aralarına birer kez girer (tekrar yok).

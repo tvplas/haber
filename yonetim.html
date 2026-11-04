@@ -71,6 +71,7 @@ button:disabled{opacity:.6;cursor:wait}
       <button data-s="haber" class="aktif">📰 Haber ekle</button>
       <button data-s="reklam">📣 Reklam ekle</button>
       <button data-s="liste">📋 Yayındakiler</button>
+      <button data-s="ai">🤖 TVplas Haber</button>
       <button class="cikis" id="cikis">Çıkış</button>
     </div>
 
@@ -138,6 +139,20 @@ button:disabled{opacity:.6;cursor:wait}
     <div id="liste" class="kutu sekme gizli liste">
       <button id="yenile">↻ Yenile</button>
       <div id="listeIcerik"></div>
+    </div>
+
+    <!-- TVplas Haber: Kıbrıs haberleri yapay zekâyla (Claude) TVplas biçiminde yeniden yazılır. Anahtar yalnızca sunucuda saklanır -->
+    <div id="ai" class="kutu sekme gizli">
+      <p>Portal her yarım saatte en yeni Kıbrıs haberlerinden en çok 5'ini, günde en çok 30'unu yapay zekâyla (Claude) TVplas Haber biçiminde yeniden yazar ve <b>📰 TVPLAS HABER</b> menüsünde yayınlar. Yazılar haberin konusunu ve bilgilerini değiştirmez; kaynağı ve bağlantısı her yazıda gösterilir. Yazıları e-tablonun <b>TVplas Haber</b> sayfasından düzeltebilir ya da silebilirsiniz.</p>
+      <div class="mesaj iyi" id="aiDurum">Durum yükleniyor…</div>
+      <label for="aiAnahtar">Claude API anahtarı <small>(console.anthropic.com → API Keys; sk-ant- ile başlar. Yalnızca sunucuda saklanır, bir daha gösterilmez)</small></label>
+      <input id="aiAnahtar" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…">
+      <button class="ana" id="aiKaydet">Anahtarı kaydet ve dene</button>
+      <div class="satir" style="margin-top:10px">
+        <button id="aiSimdi">✍ Şimdi yeni haber yaz</button>
+        <button id="aiSil">Anahtarı sil (yazımı durdur)</button>
+      </div>
+      <div class="mesaj" id="aiMesaj"></div>
     </div>
   </div>
 </div>
@@ -285,7 +300,36 @@ document.querySelectorAll(".sekmeler [data-s]").forEach(b => b.onclick = () => {
   document.querySelectorAll(".sekmeler [data-s]").forEach(x => x.classList.toggle("aktif", x === b));
   document.querySelectorAll(".sekme").forEach(s => s.classList.toggle("gizli", s.id !== b.dataset.s));
   if (b.dataset.s === "liste") listele();
+  if (b.dataset.s === "ai") aiDurumGoster();
 });
+
+// ---- TVplas Haber (yapay zekâ) sekmesi ----
+async function aiDurumGoster() {
+  try {
+    const c = await istek({ islem: "aiDurum" });
+    if (!c.tamam) throw new Error(c.hata || "Durum alınamadı");
+    mesaj($("aiDurum"), (c.anahtar ? "✅ Anahtar girildi, yazım açık" : "⏸ Anahtar girilmedi, yazım kapalı") +
+      " · son 7 günde " + c.yazilar + " TVplas Haber yazısı · günde en çok " + c.gunluk, !!c.anahtar);
+  } catch (e) { mesaj($("aiDurum"), "Olmadı: " + e.message, false); }
+}
+async function aiIslem(btn, veri, bekleme) {
+  btn.disabled = true;
+  mesaj($("aiMesaj"), bekleme, true);
+  try {
+    const c = await istek(veri);
+    if (!c.tamam) throw new Error(c.hata || "Olmadı");
+    mesaj($("aiMesaj"), c.mesaj || ("✅ " + c.yazilan + " yeni TVplas Haber yazısı eklendi."), true);
+    aiDurumGoster();
+  } catch (e) { mesaj($("aiMesaj"), "Olmadı: " + e.message, false); }
+  finally { btn.disabled = false; }
+}
+$("aiKaydet").onclick = () => {
+  const a = $("aiAnahtar").value.trim();
+  if (!a) { mesaj($("aiMesaj"), "Önce anahtarı yapıştırın.", false); return; }
+  aiIslem($("aiKaydet"), { islem: "aiAnahtar", anahtar: a }, "Anahtar kaydediliyor ve deneniyor…").then(() => { $("aiAnahtar").value = ""; });
+};
+$("aiSimdi").onclick = () => aiIslem($("aiSimdi"), { islem: "aiSimdi" }, "Haberler yazılıyor… (bir dakika kadar sürebilir)");
+$("aiSil").onclick = () => { if (confirm("Anahtar silinsin ve TVplas Haber yazımı dursun mu?")) aiIslem($("aiSil"), { islem: "aiAnahtar", anahtar: "" }, "Siliniyor…"); };
 
 async function gonder(form, veri) {
   const btn = form.querySelector("button.ana"), m = form.querySelector(".mesaj");
