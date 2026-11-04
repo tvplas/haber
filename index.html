@@ -25,6 +25,9 @@ h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 .ust-satir{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .kurlar{display:flex;align-items:center;margin:12px 0 0;border:1px solid var(--cizgi);border-radius:10px;background:var(--kart);overflow:hidden}
 .kurlar[hidden]{display:none}
+.kurlar+.kurlar{margin-top:6px}
+.kurlar.hava .kur-baslik{background:#0369a1}
+.kurlar.hava .kur-akis{animation-duration:40s}
 .kur-baslik{flex:none;padding:8px 12px;background:var(--vurgu);color:#fff;font-size:13px;font-weight:800;letter-spacing:.3px}
 .kur-pencere{flex:1;overflow:hidden;white-space:nowrap}
 .kur-akis{display:inline-flex;gap:34px;padding:8px 17px;animation:kurAk 28s linear infinite;will-change:transform}
@@ -128,6 +131,11 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
   <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
     <span class="kur-baslik">💱 DÖVİZ</span>
     <div class="kur-pencere"><div class="kur-akis" id="kurAkis"></div></div>
+  </div>
+  <!-- Kıbrıs'ta hava durumu (MET Norway, Norveç Meteoroloji Enstitüsü): sunucu yarım saatte bir alır -->
+  <div class="kurlar hava" id="hava" hidden aria-label="Kıbrıs'ta hava durumu">
+    <span class="kur-baslik">🌤 HAVA</span>
+    <div class="kur-pencere"><div class="kur-akis" id="havaAkis"></div></div>
   </div>
   <div class="arac">
     <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
@@ -707,6 +715,34 @@ function kurGoster(k) {
   document.getElementById("kurlar").hidden = false;
 }
 
+// Hava bandı: MET Norway sembol kodu (ör. clearsky_day, lightrainshowers_night) → simge ve Türkçe açıklama
+function havaSimgesi(kod) {
+  const k = String(kod || ""), gece = /_night/.test(k);
+  if (/thunder/.test(k)) return ["⛈️", "Gök gürültülü"];
+  if (/snow/.test(k)) return ["❄️", "Karlı"];
+  if (/sleet/.test(k)) return ["🌨️", "Karla karışık yağmur"];
+  if (/showers/.test(k)) return ["🌦️", "Sağanak"];
+  if (/rain/.test(k)) return ["🌧️", "Yağmurlu"];
+  if (/fog/.test(k)) return ["🌫️", "Sisli"];
+  if (/cloudy/.test(k) && !/partly/.test(k)) return ["☁️", "Bulutlu"];
+  if (/partlycloudy/.test(k)) return [gece ? "☁️" : "⛅", "Parçalı bulutlu"];
+  if (/fair/.test(k)) return [gece ? "🌙" : "🌤️", "Az bulutlu"];
+  if (/clearsky/.test(k)) return [gece ? "🌙" : "☀️", "Açık"];
+  return ["🌡️", ""];
+}
+
+function havaGoster(h) {
+  if (!h || !h.yerler || !h.yerler.length) return;
+  const kopya = () => h.yerler.map(y => {
+    const [simge, ad] = havaSimgesi(y.d), s = el("span", "kur", y.ad + " " + simge + " ");
+    s.append(el("b", "", Math.round(y.s) + "°C"));
+    if (ad) s.append(el("small", "", " " + ad));
+    return s;
+  });
+  document.getElementById("havaAkis").replaceChildren(...kopya(), ...kopya());
+  document.getElementById("hava").hidden = false;
+}
+
 function sayacGoster(s) {
   if (!s) return;
   try { localStorage.setItem("tvplas_ziyaret", bugunTarih()); } catch (e) { }
@@ -721,6 +757,7 @@ async function yukle() {
     const veri = await r.json();
     sayacGoster(veri.sayac);
     kurGoster(veri.kur);
+    havaGoster(veri.hava);
     tiklar = veri.tiklama || {};
     const ekler = veri.ekler || {};
     // Kendi haberlerimiz panelde seçilen bölümde (boşsa Kıbrıs; sabitler en üstte); diğerleri sunucudan tarihe göre dizili gelir
