@@ -23,6 +23,15 @@ header{padding:24px 16px 12px;max-width:1200px;margin:auto}
 h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
 .bilgi{color:var(--soluk);font-size:14px}
 .ust-satir{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.kurlar{display:flex;align-items:center;margin:12px 0 0;border:1px solid var(--cizgi);border-radius:10px;background:var(--kart);overflow:hidden}
+.kurlar[hidden]{display:none}
+.kur-baslik{flex:none;padding:8px 12px;background:var(--vurgu);color:#fff;font-size:13px;font-weight:800;letter-spacing:.3px}
+.kur-pencere{flex:1;overflow:hidden;white-space:nowrap}
+.kur-akis{display:inline-flex;gap:34px;padding:8px 17px;animation:kurAk 28s linear infinite;will-change:transform}
+.kurlar:hover .kur-akis,.kurlar:active .kur-akis{animation-play-state:paused}
+.kur{font-size:15px;font-weight:600}.kur b{font-weight:800}.kur small{color:var(--soluk);font-weight:500}
+@keyframes kurAk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.kur-akis{animation-duration:60s}}   /* hareket azaltılmışsa daha yavaş akar */
 .iletisim{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .wa{display:inline-flex;align-items:center;gap:8px;background:#128c7e;color:#fff;font-weight:700;font-size:15px;text-decoration:none;padding:8px 14px;border-radius:999px;white-space:nowrap}
 .wa:hover{background:#0f7a6e}
@@ -114,6 +123,11 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
       </a>
       <span class="sayac" id="sayac" hidden>👁 <b id="sayacToplam"></b> ziyaret · bugün <b id="sayacBugun"></b></span>
     </div>
+  </div>
+  <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
+  <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
+    <span class="kur-baslik">💱 DÖVİZ</span>
+    <div class="kur-pencere"><div class="kur-akis" id="kurAkis"></div></div>
   </div>
   <div class="arac">
     <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
@@ -682,6 +696,17 @@ function sayilacakMi() {
   try { return localStorage.getItem("tvplas_ziyaret") !== bugunTarih(); } catch (e) { return true; }
 }
 
+// Kurlar bandı: Sterlin, Euro, Dolar (TCMB döviz satış). Kesintisiz akması için içerik iki kez yazılır
+function kurGoster(k) {
+  if (!k || !k.USD || !k.EUR || !k.GBP) return;
+  const tl = n => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " TL";
+  const ogeler = [["💷 Sterlin", k.GBP], ["💶 Euro", k.EUR], ["💵 Dolar", k.USD]];
+  const kopya = () => [...ogeler.map(([ad, d]) => { const s = el("span", "kur", ad + " "); s.append(el("b", "", tl(d))); return s; }),
+    el("span", "kur", "").appendChild(el("small", "", "TCMB · " + (k.tarih || ""))).parentNode];
+  document.getElementById("kurAkis").replaceChildren(...kopya(), ...kopya());
+  document.getElementById("kurlar").hidden = false;
+}
+
 function sayacGoster(s) {
   if (!s) return;
   try { localStorage.setItem("tvplas_ziyaret", bugunTarih()); } catch (e) { }
@@ -695,6 +720,7 @@ async function yukle() {
     const r = await fetch(API + "?ziyaret=" + (sayilacakMi() ? "1" : "0"));
     const veri = await r.json();
     sayacGoster(veri.sayac);
+    kurGoster(veri.kur);
     tiklar = veri.tiklama || {};
     const ekler = veri.ekler || {};
     // Kendi haberlerimiz panelde seçilen bölümde (boşsa Kıbrıs; sabitler en üstte); diğerleri sunucudan tarihe göre dizili gelir
