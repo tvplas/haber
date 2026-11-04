@@ -89,7 +89,7 @@ p.ozet{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;over
 .ceviri-dugmeler a{display:block;text-align:center;padding:9px 12px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none}
 .ceviri-dugmeler .dg-ana{background:var(--vurgu);color:#fff}
 .ceviri-dugmeler .dg-ikinci{border:1px solid var(--cizgi);color:var(--yazi)}
-.devam{align-self:flex-start;background:none;border:0;padding:0;margin:0 0 10px;color:var(--vurgu);font-weight:600;font-size:13px;cursor:pointer}
+.devam{align-self:flex-start;background:none;border:0;padding:0;margin:0 0 10px;color:var(--vurgu);font-weight:600;font-size:13px;cursor:pointer;text-decoration:none}
 dialog#detay{max-width:720px;width:calc(100% - 32px);max-height:calc(100% - 48px);padding:0;border:1px solid var(--cizgi);border-radius:14px;background:var(--kart);color:var(--yazi)}
 dialog#detay::backdrop{background:rgba(0,0,0,.65)}
 #detay img{width:100%;max-height:70vh;object-fit:contain;display:block;background:#000}
@@ -377,7 +377,8 @@ function hedefAc(reklamlar) {
 }
 
 function kartYap(h) {
-  const kart = el("article", "kart" + (h.tvplas ? " tvplas" : ""));
+  // Tüm haberler TVplas Haber görünümünde: kırmızı çerçeve, TVplas rozeti, "Kaynak: X", fotoğraf künyesi, "Devamını oku"
+  const kart = el("article", "kart tvplas");
   // Köşe yazısında görsel yazarın vesikalık fotoğrafıysa kırpılmadan, mor zemin üzerinde gösterilir
   const portre = h.kat === "Yazarlar" && /_avatar|\/images\/yazarlar\/|\/author\//i.test(h.g || "");
   const resim = el("a", "resim" + (h.v ? " video" : "") + (portre ? " portre" : ""));
@@ -390,15 +391,17 @@ function kartYap(h) {
     img.onerror = () => h.kat === "Kıbrıs" && !h.tvplas ? kart.remove() : resim.replaceChildren(metaforYap(h));
     resim.append(img);
     // TVplas Haber: fotoğraf haberin kaynağına aittir; künyede kaynak adı yazılır ("Fotoğraf: Kaynak")
-    if (h.gk) { resim.classList.add("kunyeli"); resim.append(el("span", "kunye", h.gk)); }
+    // Dış kaynaklı haberlerde fotoğraf o kaynağındır ("Fotoğraf: Kaynak"); köşe yazarının vesikalığı ve videoda yazılmaz
+    const kunyeYazi = h.gk || (!h.tvplas && h.k && !portre && !h.v ? "Fotoğraf: " + h.k : "");
+    if (kunyeYazi) { resim.classList.add("kunyeli"); resim.append(el("span", "kunye", kunyeYazi)); }
   } else {
     resim.append(metaforYap(h));
   }
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
-  ust.append(el("span", "etiket", h.tvplas ? "TVplas" : (h.alt || h.kat)));
+  ust.append(el("span", "etiket", "TVplas"));
   if (h.yz && h.kat === "Yazarlar") ust.append(el("span", "yazar", "✍ " + h.yz));   // yalnızca köşe yazılarında
-  ust.append(el("span", "", h.k), el("span", "", kac(h.t)));
+  ust.append(el("span", "", h.tvplas || !h.k || /^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k), el("span", "", kac(h.t)));
   const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
   tik.hidden = !n; ust.append(tik);
   if (h.ob) {
@@ -415,6 +418,10 @@ function kartYap(h) {
   if (h.tvplas && (h.o || "").length > 180) {
     const devam = el("button", "devam", "Devamını oku →");
     devam.onclick = () => detayAc(h);
+    ic.append(devam);
+  } else if (!h.tvplas && h.l && (h.o || "").trim()) {
+    const devam = el("a", "devam", "Devamını oku →");   // dış haber: kaynağında (ya da Türkçe çevirisinde) açılır
+    baglanti(devam, adres);
     ic.append(devam);
   }
   if (h.ob) ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
