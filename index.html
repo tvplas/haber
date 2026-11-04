@@ -409,7 +409,7 @@ function kartYap(h) {
   ust.append(el("span", "", h.tvplas || !h.k || /^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k), el("span", "", kac(h.t)));
   const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
   tik.hidden = !n; ust.append(tik);
-  if (h.ob) {
+  if (h.ob && !h.tvy) {
     const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c);
     if (adres !== h.l) { const o = el("a", "orijinal", "orijinali"); baglanti(o, h.l); ust.append(o); }
   }
@@ -431,7 +431,7 @@ function kartYap(h) {
     devam.onclick = () => detayAc(ozetHaber(h));
     ic.append(devam);
   }
-  if (h.ob) ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
+  if (h.ob && !h.tvy) ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
   ic.append(pay);
   kart.append(resim, ic);
   // Habere giden her tıklama (fotoğraf, başlık, devamı, orijinali; Facebook paylaşımı hariç) sayılır
@@ -798,6 +798,8 @@ async function yukle() {
       let tur = h.tur;
       if (tur === "Müzik" && !MUZIK.test(h.b)) tur = "Magazin";
       const [kat, alt] = bolumBul(tur);
+      // TVplas Haber biçiminde yeniden yazılmış haber (sunucu: tumunuYaz): başlık ve metin TVplas yazısıdır
+      if (h.tm) return { ...h, b: h.tb || h.b, o: h.tm, kat, alt, tvy: true };
       return { ...h, kat, alt };
     });
     // TVplas Haber yazıları: haberin kaynağındaki kendi fotoğrafı (künyesiyle); kaynakta fotoğraf yoksa konuya uygun TVplas çizimi.
