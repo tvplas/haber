@@ -821,9 +821,7 @@ async function yukle() {
       if (tur === "Müzik" && !MUZIK.test(h.b)) tur = "Magazin";
       const [kat, alt] = bolumBul(tur);
       // TVplas Haber biçiminde yeniden yazılmış haber (sunucu: tumunuYaz): başlık ve metin TVplas yazısıdır
-      // Bültende videosu yapılan haber kartta video olarak oynar (vh), altında Türkçe metni görünür
-      const vid = vh[kimlik(h)];
-      if (h.tm) return { ...h, b: h.tb || h.b, o: h.tm, kat, alt, tvy: true, ...(vid ? { v: vid, vh: true } : {}) };
+      if (h.tm) return { ...h, b: h.tb || h.b, o: h.tm, kat, alt, tvy: true };
       return { ...h, kat, alt };
     });
     // TVplas Haber yazıları: haberin kaynağındaki kendi fotoğrafı (künyesiyle); kaynakta fotoğraf yoksa konuya uygun TVplas çizimi.
@@ -832,6 +830,15 @@ async function yukle() {
       g: x.g && x.g !== "-" ? x.g : "", gk: x.g && x.g !== "-" ? x.gk : "", gs: x.gs,
       ...(vh[x.id] ? { v: vh[x.id], vh: true } : {}),
       kaynakYazi: "Kaynak: " + x.kaynak + " →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }));
+    // Video haberler yalnızca bu menüdedir: bültene girip burada yazısı olmayan haberler de videosuyla eklenir
+    const tvhVar = new Set((veri.tvplasHaber || []).map(x => x.id));
+    const videoKarti = (id, b, o, t, l, k, g) => { tvhVar.add(id); tvh.push({ b, o, t, l, gl: "tvh:" + id, k: "Kaynak: " + k, g: g || "", gk: g ? "Fotoğraf: " + k : "", gs: l,
+      v: vh[id], vh: true, kaynakYazi: "Kaynak: " + k + " →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }); };
+    (veri.videoKart || []).forEach(x => { if (vh[x.id] && !tvhVar.has(x.id)) videoKarti(x.id, x.b, x.o, x.t, x.l, x.k, x.g); });
+    (veri.haberler || []).forEach(h => {
+      const id = kimlik(h);
+      if (vh[id] && !tvhVar.has(id) && h.tm) videoKarti(id, h.tb || h.b, h.tm, h.t, h.l, h.k, h.g);
+    });
     [...benim, ...tum, ...tvh].forEach(h => {
       h.ekBolum = [];
       if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && h.kat !== "Yazarlar" && h.kat !== "TVplas Haber" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
