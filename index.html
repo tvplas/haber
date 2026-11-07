@@ -49,7 +49,7 @@ dialog#canliPencere::backdrop{background:rgba(0,0,0,.8)}
 .canli-ust .canli-nokta{background:#e11d48}
 .canli-kapat{margin-left:auto;background:none;border:0;color:var(--yazi);font-size:20px;line-height:1;padding:6px 8px;cursor:pointer}
 .canli-oynatici{aspect-ratio:16/9;background:#000}
-.canli-oynatici iframe{display:block;width:100%;height:100%;border:0}
+.canli-oynatici iframe,.canli-oynatici video{display:block;width:100%;height:100%;border:0}
 .canli-alt{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}
 .canli-alt a{color:#fff;font-weight:700;font-size:14px;text-decoration:none;padding:9px 12px;border-radius:8px;white-space:nowrap}
 .canli-alt .yt{background:#c4302b}.canli-alt .fb{background:#1877f2}
@@ -249,21 +249,62 @@ function el(etiket, sinif, metin) {
 
 const PORTAL = "https://tvplas.github.io/haber/";
 // Canlı yayın menüsü dışına dokununca kapanır
-// Canlı yayın portalın içinde oynar: YouTube kanalda o an yayında olan yayını kendisi bulur
 const canliPencere = document.getElementById("canliPencere");
-document.getElementById("canli").onclick = () => {
+const canliKutu = canliPencere.querySelector(".canli-oynatici");
+let canliHls = null;
+function canliTemizle() { if (canliHls) { canliHls.destroy(); canliHls = null; } canliKutu.replaceChildren(); }
+// Yedek: bilgisayardaki yayın kapalıysa oynatıcı boş kalmasın diye YouTube'daki yayın açılır
+function canliYedek() {
+  canliTemizle();
   const f = document.createElement("iframe");
   f.src = "https://www.youtube.com/embed/live_stream?channel=UC8d8loqizR60Wm80IaduzaQ&autoplay=1&playsinline=1&rel=0";
   f.title = "TVplas canlı yayın";
   f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
   f.allowFullscreen = true;
   f.referrerPolicy = "strict-origin-when-cross-origin";   // YouTube bu bilgi olmadan oynatıcıyı açmıyor
-  canliPencere.querySelector(".canli-oynatici").replaceChildren(f);
+  canliKutu.replaceChildren(f);
+}
+function hlsYukle() {
+  if (window.Hls) return Promise.resolve();
+  return new Promise(tamam => {
+    const j = document.createElement("script");
+    j.src = "https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js";
+    j.integrity = "sha384-9v3HcdYrO3D+OPDTjZ40RXocgE4GtXVCd3/mCS62JsM93JXgI1afJVuwjFvsu6ni";
+    j.crossOrigin = "anonymous";
+    j.onload = j.onerror = () => tamam();
+    document.head.appendChild(j);
+  });
+}
+// Canlı yayın vMix'ten doğrudan gelir: adresi sunucudan öğrenir, tarayıcıdaki oynatıcıda açar
+async function canliAc() {
+  canliTemizle();
   canliPencere.showModal();
-};
+  let adres = "";
+  try { adres = (await (await fetch(API + "?islem=canli")).json()).adres || ""; } catch (e) {}
+  if (!canliPencere.open) return;
+  if (!adres) return canliYedek();
+  await hlsYukle();
+  if (!canliPencere.open) return;
+  const v = document.createElement("video");
+  v.controls = true; v.playsInline = true; v.autoplay = true;
+  canliKutu.replaceChildren(v);
+  const kaynak = adres + "/tvplas/index.m3u8";
+  if (window.Hls && Hls.isSupported()) {
+    canliHls = new Hls({ liveDurationInfinity: true });
+    canliHls.on(Hls.Events.ERROR, (o, d) => { if (d.fatal) canliYedek(); });
+    canliHls.loadSource(kaynak);
+    canliHls.attachMedia(v);
+  } else {
+    v.onerror = canliYedek;   // iPhone ve iPad oynatıcısı bu yayını kendisi açar
+    v.src = kaynak;
+  }
+  // Tarayıcı sesli başlatmaya izin vermezse sessiz başlar; ses oynatıcıdan açılır
+  v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+}
+document.getElementById("canli").onclick = canliAc;
 canliPencere.querySelector(".canli-kapat").onclick = () => canliPencere.close();
 canliPencere.addEventListener("click", e => { if (e.target === canliPencere) canliPencere.close(); });
-canliPencere.addEventListener("close", () => canliPencere.querySelector(".canli-oynatici").replaceChildren());
+canliPencere.addEventListener("close", canliTemizle);
 const REKLAM_ARALIGI = 3;   // kaç haberde bir reklam afişi girsin
 
 function baglanti(a, url) {
