@@ -302,8 +302,10 @@ async function canliAc() {
   v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
 }
 document.getElementById("canli").onclick = canliAc;
-canliPencere.querySelector(".canli-kapat").onclick = () => canliPencere.close();
-canliPencere.addEventListener("click", e => { if (e.target === canliPencere) canliPencere.close(); });
+// Kapanınca ses hemen kesilsin diye oynatıcı beklemeden kaldırılır
+const canliKapat = () => { canliPencere.close(); canliTemizle(); };
+canliPencere.querySelector(".canli-kapat").onclick = canliKapat;
+canliPencere.addEventListener("click", e => { if (e.target === canliPencere) canliKapat(); });
 canliPencere.addEventListener("close", canliTemizle);
 const REKLAM_ARALIGI = 3;   // kaç haberde bir reklam afişi girsin
 
