@@ -44,6 +44,10 @@ button.gonder:disabled{opacity:.6;cursor:wait}
 .wa p{margin:0;flex:1 1 260px}
 .wa a{flex:none;background:#15803d;color:#fff;font-weight:700;text-decoration:none;padding:10px 16px;border-radius:9px}
 input[type=email]{text-transform:lowercase}
+.sabit{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.sabit div{border:1px solid var(--cizgi);border-radius:9px;padding:10px 12px;background:var(--alan)}
+.sabit span{display:block;font-size:13px;font-weight:600;color:var(--soluk)}
+.sabit b{font-size:17px}
 .tuzak{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 </style>
 </head>
@@ -92,12 +96,11 @@ input[type=email]{text-transform:lowercase}
   <li><b>Eser bilgisi:</b> Yayında eserin adı ve seslendirenin adı ekranda gösterilir.</li>
   <li><b>Geri alma:</b> İzin, yazılı bildirimle her zaman geri alınabilir; eser en geç 7 gün içinde yayından çıkarılır.</li>
 </ul>
-<div class="iki">
-  <div><label for="sure">İzin süresi *</label>
-    <select id="sure" name="sure" required><option value="Süresiz">Süresiz</option><option value="1 yıl">1 yıl</option><option value="2 yıl">2 yıl</option><option value="3 yıl">3 yıl</option><option value="5 yıl">5 yıl</option></select></div>
-  <div><label for="ucret">Ücret *</label>
-    <select id="ucret" name="ucret" required><option value="Ücretsiz">Ücretsiz</option><option value="Ücret ayrıca görüşülecek">Ücret ayrıca görüşülecek</option></select></div>
+<div class="sabit">
+  <div><span>İzin süresi</span><b>Süresiz</b></div>
+  <div><span>Ücret</span><b>Ücretsiz</b></div>
 </div>
+<input type="hidden" id="sure" value="Süresiz"><input type="hidden" id="ucret" value="Ücretsiz">
 <label for="not">Eklemek istedikleriniz <small>(isteğe bağlı)</small></label>
 <textarea id="not" name="not" rows="3" maxlength="1000"></textarea>
 </section>
