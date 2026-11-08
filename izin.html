@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yayın İzin Formu – TVplas Portal</title>
+<meta name="description" content="Müzisyen ve eser sahiplerinin eserlerinin TVplas yayınlarında yer almasına izin verdiği online form.">
+<meta property="og:title" content="TVplas – Yayın İzin Formu">
+<meta property="og:description" content="Eserlerinizin TVplas yayınlarında yer alması için izin formu.">
+<meta property="og:image" content="https://tvplas.github.io/haber/kapak.jpg">
+<style>
+:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#c8102e;--cizgi:#e4e7ec;--alan:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--kart:#1b2029;--yazi:#e8eaee;--soluk:#98a2b3;--vurgu:#ff5a6e;--cizgi:#2a313d;--alan:#12151b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+main{max-width:760px;margin:auto;padding:20px 16px 48px}
+a{color:var(--vurgu)}
+.geri{display:inline-block;margin-bottom:14px;font-weight:600;text-decoration:none}
+h1{margin:0 0 4px;font-size:28px;letter-spacing:-.3px}h1 span{color:var(--vurgu)}
+.alt{color:var(--soluk);margin:0 0 20px}
+section{background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:18px;margin-bottom:16px}
+h2{margin:0 0 12px;font-size:18px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+label small{font-weight:400;color:var(--soluk)}
+input[type=text],input[type=email],input[type=tel],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--cizgi);border-radius:9px;background:var(--alan);color:var(--yazi);font:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--vurgu);outline-offset:1px}
+.iki{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:560px){.iki{grid-template-columns:1fr}}
+.secim{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:6px}
+.secim label,.onay label{display:flex;align-items:flex-start;gap:8px;font-weight:400;margin:0;font-size:15px}
+.secim input,.onay input{margin-top:4px;width:18px;height:18px;flex:none;accent-color:var(--vurgu)}
+.eser{border:1px dashed var(--cizgi);border-radius:10px;padding:4px 12px 12px;margin-bottom:10px;position:relative}
+.eser .no{position:absolute;top:8px;right:12px;font-size:13px;color:var(--soluk)}
+.eser .sil{position:absolute;top:4px;right:40px;background:none;border:0;color:var(--vurgu);font:inherit;font-size:13px;cursor:pointer}
+button.ekle{background:none;border:1px solid var(--vurgu);color:var(--vurgu);border-radius:9px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+.kosullar{margin:0;padding-left:20px}.kosullar li{margin-bottom:6px}
+.onay label{margin-bottom:10px}
+button.gonder{width:100%;padding:14px;border:0;border-radius:11px;background:var(--vurgu);color:#fff;font:inherit;font-size:18px;font-weight:700;cursor:pointer}
+button.gonder:disabled{opacity:.6;cursor:wait}
+.durum{margin-top:12px;padding:12px 14px;border-radius:10px;font-weight:600}
+.durum.iyi{background:#dcfce7;color:#166534}.durum.kotu{background:#fee2e2;color:#991b1b}
+.not{font-size:13px;color:var(--soluk)}
+.wa{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding:14px;border-radius:10px;background:rgba(21,128,96,.12);border:1px solid rgba(21,128,96,.5)}
+.wa p{margin:0;flex:1 1 260px}
+.wa a{flex:none;background:#15803d;color:#fff;font-weight:700;text-decoration:none;padding:10px 16px;border-radius:9px}
+.tuzak{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+</style>
+</head>
+<body>
+<main>
+<a class="geri" href="./">← TVplas Portal'a dön</a>
+<h1><span>TVplas</span> Yayın İzin Formu</h1>
+<p class="alt">Müzisyen, söz yazarı, besteci ve yapımcılarımız bu formla eserlerinin TVplas yayınlarında, televizyon kanallarında ve internette yer almasına izin verebilir. Form birkaç dakika sürer.</p>
+
+<form id="form" novalidate>
+<section>
+<h2>1. İzni veren (hak sahibi)</h2>
+<label for="ad">Adı soyadı ya da şirket adı *</label>
+<input id="ad" name="ad" type="text" required maxlength="120" autocomplete="name">
+<div class="iki">
+  <div><label for="tel">Telefon *</label><input id="tel" name="tel" type="tel" required maxlength="30" autocomplete="tel"></div>
+  <div><label for="eposta">E-posta *</label><input id="eposta" name="eposta" type="email" required maxlength="120" autocomplete="email"></div>
+</div>
+<label for="adres">Adres <small>(isteğe bağlı)</small></label>
+<input id="adres" name="adres" type="text" maxlength="200" autocomplete="street-address">
+<label>Eserlerdeki rolünüz * <small>(birden fazla seçebilirsiniz)</small></label>
+<div class="secim" id="roller">
+  <label><input type="checkbox" value="Seslendiren sanatçı">Seslendiren sanatçı</label>
+  <label><input type="checkbox" value="Söz yazarı">Söz yazarı</label>
+  <label><input type="checkbox" value="Besteci">Besteci</label>
+  <label><input type="checkbox" value="Yapımcı">Yapımcı</label>
+  <label><input type="checkbox" value="Hak sahibi adına yetkili temsilci">Hak sahibi adına yetkili temsilci</label>
+</div>
+</section>
+
+<section>
+<h2>2. İzin verilen eserler</h2>
+<div id="eserler"></div>
+<button type="button" class="ekle" id="eserEkle">+ Başka eser ekle</button>
+<div class="wa">
+  <p>📲 <b>Eserinizi video ya da bağlantı (link) olarak WhatsApp hattımıza gönderin:</b> 0533 863 6839</p>
+  <a href="https://wa.me/905338636839?text=Merhaba%2C%20TVplas%20yay%C4%B1n%20izin%20formunu%20doldurdum.%20Eserimi%20g%C3%B6nderiyorum%3A" target="_blank" rel="noopener">WhatsApp'tan gönder</a>
+</div>
+</section>
+
+<section>
+<h2>3. İzin koşulları</h2>
+<ul class="kosullar">
+  <li><b>Yayın yerleri:</b> TVplas canlı yayını; <b>televizyon kanalları</b> (TVplas'ın yayın yaptığı ya da TVplas yapımlarının yayınlandığı karasal, uydu, kablo ve internet televizyonları); TVplas Portal (tvplas.github.io/haber), TVplas YouTube kanalı (Dervis Guryel) ve TVplas Facebook sayfası üzerinden yapılan yayınlar ve bu yayınların kayıtları.</li>
+  <li><b>Kapsam:</b> Eserler, kesintisiz müzik yayınında, programlarda ve tanıtımlarda yayınlanabilir. Eser değiştirilmez; yalnızca kanal logosu, kayan yazı ve eser bilgisi eklenebilir.</li>
+  <li><b>Eser bilgisi:</b> Yayında eserin adı ve seslendirenin adı ekranda gösterilir.</li>
+  <li><b>Geri alma:</b> İzin, yazılı bildirimle her zaman geri alınabilir; eser en geç 7 gün içinde yayından çıkarılır.</li>
+</ul>
+<div class="iki">
+  <div><label for="sure">İzin süresi *</label>
+    <select id="sure" name="sure" required><option value="Süresiz">Süresiz</option><option value="1 yıl">1 yıl</option><option value="2 yıl">2 yıl</option><option value="3 yıl">3 yıl</option><option value="5 yıl">5 yıl</option></select></div>
+  <div><label for="ucret">Ücret *</label>
+    <select id="ucret" name="ucret" required><option value="Ücretsiz">Ücretsiz</option><option value="Ücret ayrıca görüşülecek">Ücret ayrıca görüşülecek</option></select></div>
+</div>
+<label for="not">Eklemek istedikleriniz <small>(isteğe bağlı)</small></label>
+<textarea id="not" name="not" rows="3" maxlength="1000"></textarea>
+</section>
+
+<section>
+<h2>4. Beyan ve onay</h2>
+<div class="onay">
+  <label><input type="checkbox" id="o1" required><span>Yukarıdaki eserlerin sahibi ya da sahibi adına izin vermeye yetkili olduğumu beyan ederim. Eserler üzerinde başka hak sahipleri varsa onların da onayının alındığını kabul ederim.</span></label>
+  <label><input type="checkbox" id="o2" required><span>Eserlerimin yukarıdaki koşullarla TVplas yayınlarında, televizyon kanallarında ve internet yayınlarında yer almasına izin veriyorum.</span></label>
+  <label><input type="checkbox" id="o3"><span>Eserlerim YouTube (Content ID) ya da Facebook (Rights Manager) sistemlerinde kayıtlıysa, TVplas kanallarını dağıtım şirketime <b>"izin verilenler" listesine</b> ekletmeyi ve TVplas yayınlarına telif bildirimi göndermemeyi kabul ediyorum.</span></label>
+  <label><input type="checkbox" id="o4" required><span>Bu formdaki bilgilerimin yalnızca yayın izni amacıyla TVplas tarafından saklanmasını ve kullanılmasını kabul ediyorum.</span></label>
+</div>
+<label for="imza">Elektronik imza: adınızı ve soyadınızı tekrar yazın *</label>
+<input id="imza" name="imza" type="text" required maxlength="120">
+<p class="not">Formu gönderdiğiniz tarih ve saat imza tarihi olarak kaydedilir. Formun bir kopyası TVplas'a e-postayla iletilir.</p>
+<div class="tuzak" aria-hidden="true"><label for="web">Web sitesi</label><input id="web" name="web" type="text" tabindex="-1" autocomplete="off"></div>
+<button class="gonder" type="submit" id="gonder">İzni gönder</button>
+<div id="durum" class="durum" hidden role="status"></div>
+</section>
+</form>
+<p class="not">Sorularınız için: TVplas Portal – WhatsApp <a href="https://wa.me/905338636839">0533 863 68 39</a></p>
+</main>
+
+<template id="eserSablon">
+<div class="eser">
+  <span class="no"></span><button type="button" class="sil">Kaldır</button>
+  <div class="iki">
+    <div><label>Eserin / klibin adı *</label><input type="text" data-k="adi" maxlength="150" required></div>
+    <div><label>Seslendiren</label><input type="text" data-k="seslendiren" maxlength="120"></div>
+    <div><label>Söz</label><input type="text" data-k="soz" maxlength="120"></div>
+    <div><label>Müzik</label><input type="text" data-k="muzik" maxlength="120"></div>
+  </div>
+  <label>Yapımcı / dağıtım şirketi <small>(biliyorsanız)</small></label><input type="text" data-k="yapimci" maxlength="150">
+</div>
+</template>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
+const eserler = document.getElementById("eserler"), sablon = document.getElementById("eserSablon");
+function numarala() {
+  [...eserler.children].forEach((e, i) => {
+    e.querySelector(".no").textContent = (i + 1) + ". eser";
+    e.querySelector(".sil").hidden = eserler.children.length === 1;
+  });
+}
+function eserEkle() {
+  const e = sablon.content.firstElementChild.cloneNode(true);
+  e.querySelector(".sil").onclick = () => { e.remove(); numarala(); };
+  eserler.appendChild(e);
+  numarala();
+}
+document.getElementById("eserEkle").onclick = () => { if (eserler.children.length < 30) eserEkle(); };
+eserEkle();
+
+const form = document.getElementById("form"), durum = document.getElementById("durum"), gonder = document.getElementById("gonder");
+function goster(metin, iyi) { durum.textContent = metin; durum.className = "durum " + (iyi ? "iyi" : "kotu"); durum.hidden = false; }
+const deger = id => document.getElementById(id).value.trim();
+
+form.onsubmit = async ev => {
+  ev.preventDefault();
+  const roller = [...document.querySelectorAll("#roller input:checked")].map(x => x.value);
+  const liste = [...eserler.children].map(e => {
+    const o = {};
+    e.querySelectorAll("[data-k]").forEach(i => o[i.dataset.k] = i.value.trim());
+    return o;
+  }).filter(o => o.adi);
+  if (!deger("ad") || !deger("tel") || !/^\S+@\S+\.\S+$/.test(deger("eposta"))) return goster("Lütfen ad, telefon ve geçerli bir e-posta adresi yazın.");
+  if (!roller.length) return goster("Lütfen eserlerdeki rolünüzü seçin.");
+  if (!liste.length) return goster("Lütfen en az bir eserin adını yazın.");
+  if (!["o1", "o2", "o4"].every(id => document.getElementById(id).checked)) return goster("Lütfen 4. bölümdeki zorunlu onay kutularını işaretleyin.");
+  if (!deger("imza")) return goster("Lütfen elektronik imza olarak adınızı ve soyadınızı yazın.");
+  gonder.disabled = true; gonder.textContent = "Gönderiliyor…";
+  try {
+    const cevap = await (await fetch(API, { method: "POST", body: JSON.stringify({
+      islem: "yayinIzni", ad: deger("ad"), tel: deger("tel"), eposta: deger("eposta"), adres: deger("adres"),
+      roller, eserler: liste, sure: deger("sure"), ucret: deger("ucret"), not: deger("not"),
+      whitelist: document.getElementById("o3").checked, imza: deger("imza"), web: deger("web")
+    }) })).json();
+    if (!cevap.tamam) throw new Error(cevap.hata || "");
+    form.querySelectorAll("input,select,textarea,button").forEach(x => x.disabled = true);
+    gonder.textContent = "Gönderildi ✓";
+    goster("Teşekkür ederiz! İzniniz TVplas'a ulaştı. Kayıt numaranız: " + cevap.no + ". Eserinizi video ya da bağlantı olarak WhatsApp hattımıza (0533 863 6839) göndermeyi unutmayın.", true);
+  } catch (e) {
+    gonder.disabled = false; gonder.textContent = "İzni gönder";
+    goster("Form gönderilemedi" + (e.message ? " (" + e.message + ")" : "") + ". Lütfen biraz sonra tekrar deneyin ya da WhatsApp'tan bize yazın.");
+  }
+};
+</script>
+</body>
+</html>
