@@ -112,7 +112,7 @@ input[type=email]{text-transform:lowercase}
 </div>
 <label for="imza">Elektronik imza: adınızı ve soyadınızı tekrar yazın *</label>
 <input id="imza" name="imza" type="text" required maxlength="120">
-<p class="not">Formu gönderdiğiniz tarih ve saat imza tarihi olarak kaydedilir. Formun bir kopyası TVplas'a e-postayla iletilir.</p>
+<p class="not">Formu gönderdiğiniz tarih ve saat imza tarihi olarak kaydedilir. Formun bir kopyası TVplas'a ve yazdığınız e-posta adresine gönderilir.</p>
 <div class="tuzak" aria-hidden="true"><label for="web">Web sitesi</label><input id="web" name="web" type="text" tabindex="-1" autocomplete="off"></div>
 <button class="gonder" type="submit" id="gonder">İzni gönder</button>
 <div id="durum" class="durum" hidden role="status"></div>
@@ -189,7 +189,7 @@ form.onsubmit = async ev => {
     if (!cevap.tamam) throw new Error(cevap.hata || "");
     form.querySelectorAll("input,select,textarea,button").forEach(x => x.disabled = true);
     gonder.textContent = "Gönderildi ✓";
-    goster("Teşekkür ederiz! İzniniz TVplas'a ulaştı. Kayıt numaranız: " + cevap.no + ". Eserinizi video ya da bağlantı olarak WhatsApp hattımıza (0533 863 6839) göndermeyi unutmayın.", true);
+    goster("Teşekkür ederiz! İzniniz TVplas'a ulaştı. Kayıt numaranız: " + cevap.no + "." + (cevap.kopya ? " Başvurunuzun bir kopyası e-posta adresinize gönderildi." : "") + " Eserinizi video ya da bağlantı olarak WhatsApp hattımıza (0533 863 6839) göndermeyi unutmayın.", true);
   } catch (e) {
     gonder.disabled = false; gonder.textContent = "İzni gönder";
     goster("Form gönderilemedi" + (e.message ? " (" + e.message + ")" : "") + ". Lütfen biraz sonra tekrar deneyin ya da WhatsApp'tan bize yazın.");
