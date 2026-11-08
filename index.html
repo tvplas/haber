@@ -49,6 +49,12 @@ dialog#canliPencere::backdrop{background:rgba(0,0,0,.8)}
 .canli-ust .canli-nokta{background:#e11d48}
 .canli-kapat{margin-left:auto;background:none;border:0;color:var(--yazi);font-size:20px;line-height:1;padding:6px 8px;cursor:pointer}
 .canli-oynatici{aspect-ratio:16/9;background:#000}
+.canli-cerceve{position:relative}
+.canli-rozet{position:absolute;top:12px;left:12px;display:flex;gap:6px;pointer-events:none;font-family:inherit;font-size:13px;font-weight:700;line-height:1}
+.canli-rozet span{padding:5px 8px;border-radius:4px;color:#fff}
+.canli-rozet .etiket{background:#e11d48;letter-spacing:.5px}
+.canli-rozet .sayi{background:rgba(0,0,0,.6)}
+.canli-rozet .sayi[hidden]{display:none}
 .canli-oynatici iframe,.canli-oynatici video{display:block;width:100%;height:100%;border:0}
 .canli-alt{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}
 .canli-alt a{color:#fff;font-weight:700;font-size:14px;text-decoration:none;padding:9px 12px;border-radius:8px;white-space:nowrap}
@@ -185,7 +191,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 <main id="liste"><div class="durum">Haberler yükleniyor…</div></main>
 <dialog id="canliPencere" aria-label="TVplas canlı yayın">
   <div class="canli-ust"><span class="canli-nokta"></span>TVplas Canlı Yayın<button class="canli-kapat" type="button" aria-label="Kapat">✕</button></div>
-  <div class="canli-oynatici"></div>
+  <div class="canli-cerceve"><div class="canli-oynatici"></div><div class="canli-rozet"><span class="etiket">CANLI</span><span class="sayi" hidden></span></div></div>
   <div class="canli-alt">
     <a class="yt" href="https://www.youtube.com/@DervisGuryel/live" target="_blank" rel="noopener">▶ YouTube'da izle</a>
     <a class="fb" href="https://www.facebook.com/profile.php?id=61583139579976" target="_blank" rel="noopener">▶ Facebook'ta izle</a>
@@ -252,7 +258,20 @@ const PORTAL = "https://tvplas.github.io/haber/";
 const canliPencere = document.getElementById("canliPencere");
 const canliKutu = canliPencere.querySelector(".canli-oynatici");
 let canliHls = null;
+// İzleyici sayısı: açık olan her pencere 30 saniyede bir sunucuya "buradayım" der, sunucu son bir dakikadakileri sayar
+const izleyiciNo = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, "0")).join("");
+const canliSayi = canliPencere.querySelector(".canli-rozet .sayi");
+let canliSayac = null;
+function izleyiciGoster(n) {
+  if (typeof n !== "number" || n < 1) return;
+  canliSayi.textContent = "👁 " + n.toLocaleString("tr-TR");
+  canliSayi.hidden = false;
+}
+async function canliBilgi() {
+  try { const j = await (await fetch(API + "?islem=canli&izleyici=" + izleyiciNo)).json(); izleyiciGoster(j.izleyici); return j; } catch (e) { return {}; }
+}
 function canliTemizle() { if (canliHls) { canliHls.destroy(); canliHls = null; } canliKutu.replaceChildren(); }
+function canliSayacDur() { clearInterval(canliSayac); canliSayac = null; canliSayi.hidden = true; }
 // Yedek: bilgisayardaki yayın kapalıysa oynatıcı boş kalmasın diye YouTube'daki yayın açılır
 function canliYedek() {
   canliTemizle();
@@ -277,11 +296,11 @@ function hlsYukle() {
 }
 // Canlı yayın vMix'ten doğrudan gelir: adresi sunucudan öğrenir, tarayıcıdaki oynatıcıda açar
 async function canliAc() {
-  canliTemizle();
+  canliTemizle(); canliSayacDur();
   canliPencere.showModal();
-  let adres = "";
-  try { adres = (await (await fetch(API + "?islem=canli")).json()).adres || ""; } catch (e) {}
+  const adres = (await canliBilgi()).adres || "";
   if (!canliPencere.open) return;
+  canliSayac = setInterval(canliBilgi, 30000);
   if (!adres) return canliYedek();
   await hlsYukle();
   if (!canliPencere.open) return;
@@ -303,10 +322,10 @@ async function canliAc() {
 }
 document.getElementById("canli").onclick = canliAc;
 // Kapanınca ses hemen kesilsin diye oynatıcı beklemeden kaldırılır
-const canliKapat = () => { canliPencere.close(); canliTemizle(); };
+const canliKapat = () => { canliPencere.close(); canliTemizle(); canliSayacDur(); };
 canliPencere.querySelector(".canli-kapat").onclick = canliKapat;
 canliPencere.addEventListener("click", e => { if (e.target === canliPencere) canliKapat(); });
-canliPencere.addEventListener("close", canliTemizle);
+canliPencere.addEventListener("close", () => { canliTemizle(); canliSayacDur(); });
 const REKLAM_ARALIGI = 3;   // kaç haberde bir reklam afişi girsin
 
 function baglanti(a, url) {
