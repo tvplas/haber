@@ -150,8 +150,12 @@ dialog#detay::backdrop{background:rgba(0,0,0,.65)}
 .kart.reklam-kart .reklam{border:0;border-radius:0}
 .kart.reklam-kart .reklam img{max-height:340px;object-fit:contain;background:var(--kart)}
 footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
-.izin-link{display:inline-block;margin:0 0 14px;padding:10px 18px;border-radius:10px;background:var(--vurgu);color:#fff;font-size:15px;font-weight:700;text-decoration:none}
-.izin-link:hover{filter:brightness(1.1)}
+.izin-bant{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 0;padding:12px 16px;border-radius:12px;background:linear-gradient(100deg,#6d28d9,#2563eb);color:#fff;text-decoration:none;box-shadow:0 4px 14px rgba(79,70,229,.25)}
+.izin-bant .ikon{font-size:26px;line-height:1}
+.izin-bant .yazi{flex:1 1 240px;font-size:15px;line-height:1.35}
+.izin-bant .yazi b{display:block;font-size:17px}
+.izin-bant .dugme{flex:none;background:#fff;color:#4c1d95;font-weight:800;font-size:14px;padding:9px 16px;border-radius:9px;white-space:nowrap}
+.izin-bant:hover .dugme{background:#ede9fe}
 </style>
 </head>
 <body>
@@ -170,6 +174,11 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
       <span class="sayac" id="sayac" hidden>👁 <b id="sayacToplam"></b> ziyaret · bugün <b id="sayacBugun"></b></span>
     </div>
   </div>
+  <a class="izin-bant" href="izin.html">
+    <span class="ikon" aria-hidden="true">🎤</span>
+    <span class="yazi"><b>Sanatçılarımıza duyuru</b>Eserlerinizin TVplas yayınlarında ve televizyon kanallarında yer alması için yayın izin formunu doldurun.</span>
+    <span class="dugme">Yayın İzin Formu →</span>
+  </a>
   <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
   <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
     <span class="kur-baslik">💱 DÖVİZ</span>
@@ -226,7 +235,7 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <a class="paylas" target="_blank" rel="noopener">Facebook'ta paylaş</a>
   </div>
 </dialog>
-<footer><a class="izin-link" href="izin.html">🎵 Sanatçılar için yayın izin formu</a><br>Haberler kaynak sitelerine aittir; başlıklara tıklayarak haberin tamamını kaynağında okuyabilirsiniz. Yabancı dildeki haberler otomatik olarak Türkçeye çevrilmiştir.</footer>
+<footer>Haberler kaynak sitelerine aittir; başlıklara tıklayarak haberin tamamını kaynağında okuyabilirsiniz. Yabancı dildeki haberler otomatik olarak Türkçeye çevrilmiştir.</footer>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
