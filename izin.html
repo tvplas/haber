@@ -43,6 +43,7 @@ button.gonder:disabled{opacity:.6;cursor:wait}
 .wa{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding:14px;border-radius:10px;background:rgba(21,128,96,.12);border:1px solid rgba(21,128,96,.5)}
 .wa p{margin:0;flex:1 1 260px}
 .wa a{flex:none;background:#15803d;color:#fff;font-weight:700;text-decoration:none;padding:10px 16px;border-radius:9px}
+input[type=email]{text-transform:lowercase}
 .tuzak{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 </style>
 </head>
@@ -152,6 +153,16 @@ document.getElementById("eserEkle").onclick = () => { if (eserler.children.lengt
 eserEkle();
 
 const form = document.getElementById("form"), durum = document.getElementById("durum"), gonder = document.getElementById("gonder");
+// Yazım kuralı: e-posta yalnızca küçük harf, diğer bütün yazı alanları yalnızca büyük harf (Türkçe: i → İ, ı → I)
+form.addEventListener("input", ev => {
+  const k = ev.target;
+  if (!(k instanceof HTMLInputElement || k instanceof HTMLTextAreaElement) || k.type === "checkbox") return;
+  const yeni = k.type === "email" ? k.value.toLowerCase().replace(/\s/g, "") : k.value.toLocaleUpperCase("tr-TR");
+  if (yeni === k.value) return;
+  const yer = k.selectionStart, fark = yeni.length - k.value.length;
+  k.value = yeni;
+  try { k.setSelectionRange(yer + fark, yer + fark); } catch (e) {}
+});
 function goster(metin, iyi) { durum.textContent = metin; durum.className = "durum " + (iyi ? "iyi" : "kotu"); durum.hidden = false; }
 const deger = id => document.getElementById(id).value.trim();
 
