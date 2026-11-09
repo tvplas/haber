@@ -293,7 +293,7 @@ dialog#detay{border-radius:20px}
   </div>
   <nav class="menu" aria-label="Bölümler">
     <button data-k="Gazeteler">📰 GAZETELER</button>
-    <button data-k="Kıbrıs" class="aktif">KIBRIS</button>
+    <button data-k="Kıbrıs">KIBRIS</button>
     <button data-k="Güney">GÜNEY</button>
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
@@ -306,7 +306,7 @@ dialog#detay{border-radius:20px}
     <button data-k="Spor">SPOR</button>
   </nav>
   <nav class="menu ikinci" aria-label="Diğer bölümler">
-    <button data-k="TVplas Haber">📰 TVPLAS HABER</button>
+    <button data-k="TVplas Haber" class="aktif">📰 TVPLAS HABER</button>
     <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
     <button data-k="Yazarlar">✍️ YAZARLAR</button>
   </nav>
@@ -348,8 +348,8 @@ const bolumBul = t => {
 // Ayrıca müzikle ilgili diğer haberler Müzik menüsünde de görünür.
 // Kelime başında aranır; kısa kelimeler kelime sonuyla sınırlı (ör. "opera" ≠ "operasyon", "rap" ≠ "rapor")
 const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
-// Portal izleyicilerin isteğiyle günün gazeteleriyle açılır; haber bölümleri menüden seçilir
-let bolum = "Kıbrıs", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "";
+// Portal TVplas Haber menüsüyle açılır (2026-11-10 kullanıcı isteği); diğer bölümler menüden seçilir
+let bolum = "TVplas Haber", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "";
 let tiklar = {};   // haber kimliği → tıklanma sayısı (sunucudan)
 const ara = document.getElementById("ara"), liste = document.getElementById("liste");
 
