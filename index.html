@@ -914,6 +914,28 @@ function sayacGoster(s) {
   document.getElementById("sayac").hidden = false;
 }
 
+// Aynı ya da benzer haber portalda tek kez görünür (2026-11-09 kullanıcı). Kelimelerin ilk 4 harfi karşılaştırılır (kapısı/kapıları);
+// çok haberde geçen sözcükler (Cumhurbaşkanı, Kıbrıs...) az, nadir olanlar (kişi, yer adı) çok sayılır.
+// Benzerlerden TVplas yazısı olanı, o da yoksa en yenisi kalır.
+function kokler(s) { return new Set((String(s || "").toLocaleLowerCase("tr").match(/\p{L}{4,}/gu) || []).map(k => k.slice(0, 4))); }
+function tekle(liste) {
+  liste.forEach(h => { h._kb = kokler(h.b); h._km = h.tvy ? kokler(h.b + " " + String(h.o || "").slice(0, 300)) : null; });
+  const df = new Map();
+  liste.forEach(h => new Set([...h._kb, ...(h._km || [])]).forEach(k => df.set(k, (df.get(k) || 0) + 1)));
+  const w = k => Math.log(liste.length / (df.get(k) || 1));
+  const benzer = (a, b) => {
+    let ortak = 0, tum = 0, nadir = false;
+    new Set([...a, ...b]).forEach(k => { const x = w(k); tum += x; if (a.has(k) && b.has(k)) { ortak += x; if ((df.get(k) || 1) <= 6) nadir = true; } });
+    return nadir ? ortak / Math.max(1e-9, tum) : 0;
+  };
+  const kalan = [], atilan = new Set();
+  [...liste].sort((x, y) => (!!y.tvy - !!x.tvy) || (y.t || "").localeCompare(x.t || "")).forEach(h => {
+    if (kalan.some(x => benzer(h._kb, x._kb) >= 0.3 || (h._km && x._km && benzer(h._km, x._km) >= 0.2))) atilan.add(h);
+    else kalan.push(h);
+  });
+  for (let i = liste.length - 1; i >= 0; i--) if (atilan.has(liste[i])) liste.splice(i, 1);
+}
+
 async function yukle() {
   try {
     const r = await fetch(API + "?ziyaret=" + (sayilacakMi() ? "1" : "0"));
@@ -938,6 +960,7 @@ async function yukle() {
       if (h.tm) return { ...h, b: h.tb || h.b, o: h.tm, kat, alt, tvy: true };
       return { ...h, kat, alt };
     });
+    tekle(tum);
     // TVplas Haber yazıları: haberin kaynağındaki kendi fotoğrafı (künyesiyle); kaynakta fotoğraf yoksa konuya uygun TVplas çizimi.
     // Kaynak adı ve bağlantısı pencerede
     const tvh = (veri.tvplasHaber || []).map(x => ({ b: x.b, o: x.o, t: x.t, l: x.l, gl: "tvh:" + x.id, k: "Kaynak: " + x.kaynak,
