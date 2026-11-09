@@ -2,249 +2,406 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TVplas Müzik – Kıbrıs'ın 7/24 müzik kanalı</title>
-<meta name="description" content="TVplas Müzik: Kıbrıs Türk sanatçıların müzik videoları 7/24 canlı yayında. Canlı yayın, müzik gündemi, yeni klipler ve şarkı arşivi tek sayfada.">
-<meta name="theme-color" content="#0b0714">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TVplas Müzik Portal – Canlı yayın ve Kıbrıs'tan güncel haberler</title>
+<meta name="description" content="TVplas canlı yayını ve Kıbrıs, Türkiye ve dünyadan en güncel haberler tek sayfada. Haberler her 30 dakikada bir yenilenir.">
+<meta name="theme-color" content="#120a24">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="TVplas">
-<meta property="og:title" content="TVplas Müzik – 7/24 canlı müzik yayını">
-<meta property="og:description" content="Kıbrıs Türk sanatçıların müzik videoları 7/24 canlı yayında. Hemen izleyin, şarkı isteyin.">
+<meta property="og:title" content="TVplas Müzik Portal – Canlı yayın ve güncel haberler">
+<meta property="og:description" content="TVplas canlı yayını ve Kıbrıs, Türkiye ve dünyadan en güncel haberler tek sayfada.">
 <meta property="og:url" content="https://tvplas.github.io/haber/muzik.html">
-<meta property="og:image" content="https://tvplas.github.io/haber/kapak.jpg">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<meta property="og:image" content="https://tvplas.github.io/haber/kapak.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>
-:root{
-  --bg:#0b0714;--bg2:#140c24;--kart:rgba(255,255,255,.06);--kart2:rgba(255,255,255,.1);--cizgi:rgba(255,255,255,.12);
-  --yazi:#f5f3ff;--soluk:#b3a9c9;--pembe:#ff2d87;--mor:#8b5cf6;--turuncu:#ff8a3d;--yesil:#22c55e;
-  --grad:linear-gradient(110deg,#ff2d87,#8b5cf6 55%,#3b82f6);
-}
+:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#c8102e;--cizgi:#e4e7ec}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--kart:#1b2029;--yazi:#e8eaee;--soluk:#98a2b3;--vurgu:#ff5a6e;--cizgi:#2a313d}}
 *{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:15px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif}
+header{padding:24px 16px 12px;max-width:1200px;margin:auto}
+h1{margin:0;font-size:30px;letter-spacing:-.5px}h1 span{color:var(--vurgu)}
+.bilgi{color:var(--soluk);font-size:14px}
+.ust-satir{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.kurlar{display:flex;align-items:center;margin:12px 0 0;border:1px solid var(--cizgi);border-radius:10px;background:var(--kart);overflow:hidden}
+.kurlar[hidden]{display:none}
+.kurlar+.kurlar{margin-top:6px}
+.kurlar.hava .kur-baslik{background:#0369a1}
+.kurlar.hava .kur-akis{animation-duration:40s}
+.kur-baslik{flex:none;padding:8px 12px;background:var(--vurgu);color:#fff;font-size:13px;font-weight:800;letter-spacing:.3px}
+.kur-pencere{flex:1;overflow:hidden;white-space:nowrap}
+.kur-akis{display:inline-flex;gap:34px;padding:8px 17px;animation:kurAk 28s linear infinite;will-change:transform}
+.kurlar:hover .kur-akis,.kurlar:active .kur-akis{animation-play-state:paused}
+.kur{font-size:15px;font-weight:600}.kur b{font-weight:800}.kur small{color:var(--soluk);font-weight:500}
+@keyframes kurAk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.kur-akis{animation-duration:60s}}   /* hareket azaltılmışsa daha yavaş akar */
+.iletisim{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.wa{display:inline-flex;align-items:center;gap:8px;background:#128c7e;color:#fff;font-weight:700;font-size:15px;text-decoration:none;padding:8px 14px;border-radius:999px;white-space:nowrap}
+.wa:hover{background:#0f7a6e}
+.canli{display:inline-flex;align-items:center;gap:8px;background:#e11d48;color:#fff;font-weight:700;font-size:15px;font-family:inherit;padding:8px 16px;border:0;border-radius:999px;white-space:nowrap;cursor:pointer}
+.canli:hover{background:#be123c}
+.canli-nokta{width:10px;height:10px;border-radius:50%;background:#fff;animation:canliNabiz 1.4s ease-in-out infinite}
+@keyframes canliNabiz{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.canli-nokta{animation:none}}
+dialog#canliPencere{max-width:min(960px,calc((100vh - 150px)*16/9));width:calc(100% - 32px);max-height:calc(100% - 32px);padding:0;border:1px solid var(--cizgi);border-radius:14px;background:var(--kart);color:var(--yazi);overflow:auto}
+dialog#canliPencere::backdrop{background:rgba(0,0,0,.8)}
+.canli-ust{display:flex;align-items:center;gap:10px;padding:10px 14px;font-weight:700;font-size:16px}
+.canli-ust .canli-nokta{background:#e11d48}
+.canli-kapat{margin-left:auto;background:none;border:0;color:var(--yazi);font-size:20px;line-height:1;padding:6px 8px;cursor:pointer}
+.canli-oynatici{aspect-ratio:16/9;background:#000}
+.canli-cerceve{position:relative}
+.canli-rozet{position:absolute;top:12px;left:12px;display:flex;gap:6px;pointer-events:none;font-family:inherit;font-size:13px;font-weight:700;line-height:1}
+.canli-rozet span{padding:5px 8px;border-radius:4px;color:#fff}
+.canli-rozet .etiket{background:#e11d48;letter-spacing:.5px}
+.canli-rozet .sayi{background:rgba(0,0,0,.6)}
+.canli-rozet .sayi[hidden]{display:none}
+.canli-alt .tam{background:#334155;border:0;color:#fff;font:inherit;font-weight:700;font-size:14px;padding:9px 12px;border-radius:8px;cursor:pointer;margin-left:auto;order:3}
+.canli-cerceve:fullscreen{background:#000;display:flex;align-items:center}
+.canli-cerceve:fullscreen .canli-oynatici{width:100%;max-height:100%}
+/* Telefon yan tutulunca oynatıcı bütün ekranı kaplar; yalnızca kapat düğmesi kalır */
+@media (orientation:landscape) and (max-height:500px){
+  dialog#canliPencere{width:100vw;max-width:100vw;height:100vh;height:100dvh;max-height:none;margin:0;border:0;border-radius:0;background:#000;overflow:hidden}
+  .canli-ust{position:absolute;top:0;right:0;z-index:2;padding:6px;font-size:0}
+  .canli-ust .canli-nokta{display:none}
+  .canli-kapat{font-size:20px;color:#fff;background:rgba(0,0,0,.55);border-radius:50%;width:36px;height:36px;padding:0}
+  .canli-alt{display:none}
+  .canli-cerceve{height:100%}
+  .canli-oynatici{aspect-ratio:auto;height:100%}
+  .canli-oynatici video{object-fit:contain}
+}
+.canli-oynatici iframe,.canli-oynatici video{display:block;width:100%;height:100%;border:0}
+.canli-alt{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px}
+.canli-alt a{color:#fff;font-weight:700;font-size:14px;text-decoration:none;padding:9px 12px;border-radius:8px;white-space:nowrap}
+.canli-alt .yt{background:#c4302b}.canli-alt .fb{background:#1877f2}
+.canli-alt a:hover{filter:brightness(1.12)}
+.sayac{font-size:13px;color:var(--soluk)}.sayac b{color:var(--yazi)}
+@media (max-width:600px){.iletisim{align-items:flex-start}}
+.arac{margin:14px 0 0}
+#ara{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font-size:15px}
+.menu{display:flex;gap:6px;margin:12px 0 4px;overflow-x:auto;scrollbar-width:none}
+.menu::-webkit-scrollbar{display:none}
+.menu button{flex:none;padding:10px 16px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);cursor:pointer;font-size:14px;font-weight:700;letter-spacing:.4px}
+.menu button.aktif{background:var(--vurgu);color:#fff;border-color:var(--vurgu)}
+.menu.ikinci{margin-top:0}
+@media (min-width:700px){.menu{flex-wrap:wrap;overflow:visible}.menu button{padding:10px 12px;letter-spacing:.2px}}   /* geniş ekranda düğmeler gizlenmez, sığmazsa alt satıra geçer */
+.kart.foto .resim{aspect-ratio:4/3;cursor:zoom-in}
+.kart.foto h2{cursor:pointer}
+main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;grid-auto-flow:dense}
+.bolum-baslik{grid-column:1/-1;font-size:15px;font-weight:600;color:var(--soluk);margin:2px 0 -4px}
+.gazete-kart .sayfa{display:block;aspect-ratio:3/4;background:var(--cizgi);overflow:hidden;cursor:pointer}
+.gazete-kart .sayfa img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.gazete-kart h2{cursor:pointer}
+.gazete-kart ul{margin:0 0 10px;padding-left:18px;color:var(--soluk);font-size:14px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.resim{display:block;aspect-ratio:16/9;background:var(--cizgi)}
+.resim img{width:100%;height:100%;object-fit:cover;display:block}
+.resim.portre{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 40%,#7c3aed,#2e1065)}
+.resim.portre img{position:absolute;inset:0;object-fit:contain}   /* kutu 16:9 kalır, fotoğraf kırpılmaz */
+.resim.yok{aspect-ratio:auto;height:6px;background:var(--vurgu)}
+.resim.kunyeli{position:relative;overflow:hidden}
+.resim .kunye{position:absolute;left:6px;right:6px;bottom:5px;font-size:10px;line-height:1.4;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+#detay .d-kunye{display:block;padding:6px 20px 0;font-size:12px;color:var(--soluk);text-decoration:none}
+#detay .d-kunye:empty{display:none}
+.resim.video{position:relative}
+.resim.video::after,.reklam.video::after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.6);box-shadow:0 0 0 3px rgba(255,255,255,.85);color:#fff;font-size:26px;display:grid;place-items:center;padding-left:5px;box-sizing:border-box}
+#detay iframe{width:100%;aspect-ratio:16/9;max-height:70vh;border:0;display:block;background:#000}
+#detay .video-yedek{display:block;padding:8px 20px 0;font-size:13px;color:var(--soluk)}
+.icerik{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
+.ust{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--soluk)}
+.ust .tik{font-weight:600;color:var(--vurgu)}
+.ust .yazar{font-weight:700;color:var(--yazi)}
+.etiket{color:var(--vurgu);font-weight:600}
+.ceviri{border:1px solid var(--cizgi);border-radius:4px;padding:0 5px;cursor:help}
+.orijinal{color:var(--soluk)}
+h2{font-size:17px;margin:6px 0;line-height:1.35}h2 a{color:inherit;text-decoration:none}h2 a:hover{text-decoration:underline}
+p{margin:0 0 10px;color:var(--soluk);font-size:14px}
+.paylas{margin-top:auto;align-self:flex-start;font-size:13px;color:#1877f2;text-decoration:none;font-weight:600}
+.durum{grid-column:1/-1;text-align:center;color:var(--soluk);padding:60px 0}
+.kart.tvplas{border:2px solid var(--vurgu)}
+.kart.tvplas .etiket{background:var(--vurgu);color:#fff;border-radius:4px;padding:0 6px}
+p.ozet{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.ceviri-dugmeler{display:flex;flex-direction:column;gap:8px;margin:2px 0 12px}
+.ceviri-dugmeler:empty{display:none}
+.ceviri-dugmeler a{display:block;text-align:center;padding:9px 12px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none}
+.ceviri-dugmeler .dg-ana{background:var(--vurgu);color:#fff}
+.ceviri-dugmeler .dg-ikinci{border:1px solid var(--cizgi);color:var(--yazi)}
+.devam{align-self:flex-start;background:none;border:0;padding:0;margin:0 0 10px;color:var(--vurgu);font-weight:600;font-size:13px;cursor:pointer;text-decoration:none}
+dialog#detay{max-width:720px;width:calc(100% - 32px);max-height:calc(100% - 48px);padding:0;border:1px solid var(--cizgi);border-radius:14px;background:var(--kart);color:var(--yazi)}
+dialog#detay::backdrop{background:rgba(0,0,0,.65)}
+#detay img{width:100%;max-height:70vh;object-fit:contain;display:block;background:#000}
+#detay .d-gorsel .metafor{aspect-ratio:16/9;max-height:50vh}
+.metafor{position:relative;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at 28% 22%,rgba(255,255,255,.2),transparent 55%),linear-gradient(135deg,var(--r1),var(--r2))}
+.metafor .m-desen{position:absolute;inset:-30%;transform:rotate(-14deg);background:#fff;opacity:.09;-webkit-mask:var(--ikon) 0 0/58px 58px repeat;mask:var(--ikon) 0 0/58px 58px repeat}
+.metafor .m-halka{position:absolute;left:50%;top:50%;width:46%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:rgba(255,255,255,.12);box-shadow:0 0 0 14px rgba(255,255,255,.05)}
+.metafor .m-ikon{position:absolute;left:50%;top:50%;width:30%;aspect-ratio:1;transform:translate(-50%,-50%);background:#fff;-webkit-mask:var(--ikon) center/contain no-repeat;mask:var(--ikon) center/contain no-repeat}
+.metafor .m-etiket{position:absolute;right:8px;bottom:6px;font-size:10px;letter-spacing:.3px;color:rgba(255,255,255,.75)}
+#detay .govde{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px}
+#detay h2{font-size:22px;margin:4px 0 8px}
+#detay .metin{white-space:pre-line;font-size:16px;line-height:1.65;color:var(--yazi);margin:0 0 10px}
+#detay .kaynakLink{color:var(--vurgu);font-weight:600;text-decoration:none}
+#detay .kapat{position:sticky;top:10px;float:right;margin:10px 10px -46px 0;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:18px;cursor:pointer;z-index:1}
+#detay .anaDon{position:sticky;top:10px;float:left;margin:10px 0 -46px 10px;height:36px;padding:0 14px;border-radius:18px;border:0;background:var(--vurgu);color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+#reklamUst{max-width:1200px;margin:0 auto;padding:0 16px;display:grid;gap:12px}
+#reklamUst:not(:empty){margin-bottom:16px}
+.reklam{position:relative;display:block;border-radius:12px;overflow:hidden;border:1px solid var(--cizgi);background:var(--kart)}
+.reklam img{width:100%;height:auto;display:block}
+.reklam .rk-etiket{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:1px 7px;border-radius:4px}
+.kart.reklam-kart{justify-content:center;grid-column:1/-1}
+.kart.reklam-kart .reklam{border:0;border-radius:0}
+.kart.reklam-kart .reklam img{max-height:340px;object-fit:contain;background:var(--kart)}
+footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
+.izin-bant{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 0;padding:12px 16px;border-radius:12px;background:linear-gradient(100deg,#6d28d9,#2563eb);color:#fff;text-decoration:none;box-shadow:0 4px 14px rgba(79,70,229,.25)}
+.izin-bant .ikon{font-size:26px;line-height:1}
+.izin-bant .yazi{flex:1 1 240px;font-size:15px;line-height:1.35}
+.izin-bant .yazi b{display:block;font-size:17px}
+.izin-bant .dugme{flex:none;background:#fff;color:#4c1d95;font-weight:800;font-size:14px;padding:9px 16px;border-radius:9px;white-space:nowrap}
+.izin-bant:hover .dugme{background:#ede9fe}
+
+/* ================= TVplas Müzik Portal görünümü ================= */
+:root{--bg:#f5f3fa;--kart:#fff;--yazi:#1b1530;--soluk:#6b6382;--vurgu:#e0115f;--cizgi:#e8e3f2;--grad:linear-gradient(110deg,#ff2d87,#8b5cf6 55%,#3b82f6)}
+@media (prefers-color-scheme:dark){:root{--bg:#0e0a18;--kart:#181226;--yazi:#f1edfa;--soluk:#a79fbd;--vurgu:#ff4d94;--cizgi:#2a2140}}
 [hidden]{display:none!important}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--yazi);font:16px/1.5 Outfit,"Segoe UI",system-ui,sans-serif;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:-20% -10% auto;height:90vh;z-index:-1;pointer-events:none;
-  background:radial-gradient(40% 50% at 20% 20%,rgba(255,45,135,.28),transparent 70%),radial-gradient(45% 55% at 85% 10%,rgba(139,92,246,.32),transparent 70%),radial-gradient(40% 40% at 60% 70%,rgba(59,130,246,.18),transparent 70%)}
-a{color:inherit}
-.kap{max-width:1240px;margin:auto;padding:0 16px}
-/* Üst menü */
-.ust{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(11,7,20,.72);border-bottom:1px solid var(--cizgi)}
-.ust .kap{display:flex;align-items:center;gap:18px;height:64px}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:900;font-size:22px;letter-spacing:-.5px;white-space:nowrap}
-.logo b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.eq{display:inline-flex;align-items:flex-end;gap:3px;height:22px}
-.eq i{width:4px;border-radius:2px;background:var(--grad);animation:eq 1s ease-in-out infinite}
-.eq i:nth-child(1){height:40%;animation-delay:-.2s}.eq i:nth-child(2){height:90%;animation-delay:-.5s}.eq i:nth-child(3){height:60%;animation-delay:-.8s}.eq i:nth-child(4){height:75%;animation-delay:-.35s}
+body{font-family:Outfit,"Segoe UI",system-ui,-apple-system,sans-serif;font-size:15.5px}
+/* Üst vitrin: koyu, renkli ışıklı zemin; başlık ve canlı yayın burada */
+.vitrin{position:relative;color:#f5f3ff;background:#0d0818;padding-bottom:26px;overflow:hidden;isolation:isolate}
+.vitrin::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(45% 70% at 10% 0%,rgba(255,45,135,.38),transparent 70%),radial-gradient(50% 80% at 95% 5%,rgba(139,92,246,.42),transparent 70%),radial-gradient(40% 60% at 55% 110%,rgba(59,130,246,.3),transparent 70%)}
+.vitrin header{padding:18px 16px 14px}
+.vitrin h1{display:flex;align-items:center;gap:10px;font-size:30px;font-weight:900;letter-spacing:-.8px;color:#fff}
+.vitrin h1 .marka{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.vitrin .bilgi{color:#c9bfe0}
+.vitrin .sayac{color:#c9bfe0}.vitrin .sayac b{color:#fff}
+.eq{display:inline-flex;align-items:flex-end;gap:3px;height:24px}
+.eq i{width:4px;border-radius:2px;background:var(--grad);transform-origin:bottom;animation:eq 1s ease-in-out infinite}
+.eq i:nth-child(1){height:45%;animation-delay:-.2s}.eq i:nth-child(2){height:95%;animation-delay:-.5s}.eq i:nth-child(3){height:65%;animation-delay:-.8s}.eq i:nth-child(4){height:80%;animation-delay:-.35s}
 @keyframes eq{50%{transform:scaleY(.35)}}
-.eq i{transform-origin:bottom}
-.ust nav{display:flex;gap:4px;margin-left:auto}
-.ust nav a{text-decoration:none;color:var(--soluk);font-weight:600;font-size:15px;padding:8px 12px;border-radius:999px}
-.ust nav a:hover{color:var(--yazi);background:var(--kart)}
-.haber-dugme{text-decoration:none;font-weight:700;font-size:14px;padding:9px 14px;border-radius:999px;border:1px solid var(--cizgi);white-space:nowrap}
-.haber-dugme:hover{background:var(--kart2)}
-@media (max-width:820px){.ust nav{display:none}.haber-dugme{margin-left:auto}}
-@media (max-width:420px){.haber-dugme{font-size:12px;padding:8px 10px}.logo{font-size:19px}}
-
-/* Canlı yayın */
-.sahne{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;padding-top:22px}
+.canli{background:var(--grad);box-shadow:0 6px 20px rgba(255,45,135,.35)}
+.canli:hover{background:var(--grad);filter:brightness(1.1)}
+/* Canlı yayın sahnesi */
+.sahne{max-width:1200px;margin:auto;padding:0 16px;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
 @media (max-width:980px){.sahne{grid-template-columns:1fr}}
-.oynatici{position:relative;border-radius:22px;overflow:hidden;background:#000;aspect-ratio:16/9;box-shadow:0 30px 80px -20px rgba(255,45,135,.35),0 0 0 1px var(--cizgi)}
-.oynatici video,.oynatici iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
-.oynatici:fullscreen{border-radius:0;aspect-ratio:auto}
-.rozetler{position:absolute;top:14px;left:14px;display:flex;gap:8px;z-index:3;pointer-events:none}
-.rozet{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;font-weight:800;font-size:13px;letter-spacing:.6px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px)}
-.rozet.canli{background:#e11d48}
-.nokta{width:9px;height:9px;border-radius:50%;background:#fff;animation:nabiz 1.3s ease-in-out infinite}
-@keyframes nabiz{50%{opacity:.25}}
-.rozet[hidden]{display:none}
-.ses-ac{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.55));border:0;color:#fff;cursor:pointer;font:inherit}
-.ses-ac span{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;background:var(--grad);font-weight:800;font-size:18px;box-shadow:0 10px 30px rgba(255,45,135,.45)}
-.ses-ac[hidden]{display:none}
-.yukleniyor{position:absolute;inset:0;display:grid;place-items:center;color:var(--soluk);font-weight:600}
-.oynatici-alt{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
-.oynatici-alt h1{margin:0;font-size:clamp(20px,3vw,28px);font-weight:900;letter-spacing:-.5px;flex:1 1 260px;line-height:1.2}
-.oynatici-alt h1 small{display:block;font-size:14px;font-weight:600;color:var(--soluk);letter-spacing:0}
-.btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;font:inherit;font-weight:700;font-size:15px;text-decoration:none;padding:11px 16px;border-radius:12px;background:var(--kart2);color:var(--yazi);white-space:nowrap}
-.btn:hover{filter:brightness(1.2)}
-.btn.wa{background:#128c7e}
-.btn.ana{background:var(--grad)}
-/* Yayın akışı */
-.akis{background:var(--kart);border:1px solid var(--cizgi);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px}
-.akis h2{margin:0;font-size:18px;display:flex;align-items:center;gap:8px}
-.simdi{border-radius:16px;padding:14px 16px;background:var(--grad);position:relative;overflow:hidden}
-.simdi small{font-weight:700;letter-spacing:1px;font-size:12px;opacity:.85}
-.simdi b{display:block;font-size:22px;font-weight:900;line-height:1.2}
-.simdi span{font-size:14px;opacity:.9}
-.sira{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.sira li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--kart)}
-.sira .saat{font-weight:800;font-variant-numeric:tabular-nums;min-width:48px}
-.sira .ad{flex:1;font-weight:600;font-size:15px}
-.sira .kalan{font-size:13px;color:var(--soluk);white-space:nowrap}
-.ikon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px;flex:none}
-.i-haber{background:rgba(59,130,246,.25)}.i-reklam{background:rgba(255,138,61,.25)}.i-muzik{background:rgba(255,45,135,.25)}
-.akis .not{font-size:13px;color:var(--soluk);margin:0}
-
-/* İstatistik şeridi */
-.serit{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:26px 0 8px}
-@media (max-width:700px){.serit{grid-template-columns:repeat(2,1fr)}}
-.serit div{background:var(--kart);border:1px solid var(--cizgi);border-radius:18px;padding:14px 16px}
-.serit b{display:block;font-size:28px;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.1}
-.serit span{color:var(--soluk);font-size:14px;font-weight:600}
-
-/* Bölümler */
-section{padding:30px 0 6px;scroll-margin-top:70px}
-.baslik{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
-.baslik h2{margin:0;font-size:clamp(22px,3vw,30px);font-weight:900;letter-spacing:-.6px}
-.baslik p{margin:2px 0 0;color:var(--soluk);font-size:15px}
-.kaydir{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,230px);gap:14px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;scrollbar-width:thin}
-.klip{scroll-snap-align:start;border-radius:18px;overflow:hidden;background:var(--kart);border:1px solid var(--cizgi)}
-.kapak{aspect-ratio:1;position:relative;display:grid;place-items:center;font-weight:900;font-size:54px;letter-spacing:-2px;color:rgba(255,255,255,.92);overflow:hidden}
-.kapak::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.25),transparent 50%)}
-.kapak .disk{position:absolute;width:150%;aspect-ratio:1;border-radius:50%;right:-95%;bottom:-95%;background:repeating-radial-gradient(circle,rgba(0,0,0,.25) 0 2px,transparent 2px 6px);opacity:.5}
-.yeni-etiket{position:absolute;top:10px;left:10px;z-index:1;background:#fff;color:#0b0714;font-size:11px;font-weight:900;letter-spacing:1px;padding:3px 8px;border-radius:999px}
-.klip .bilgi{padding:10px 12px 12px}
-.klip .bilgi b{display:block;font-size:15px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.klip .bilgi span{font-size:13px;color:var(--soluk);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* Haberler */
-.haberler{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
-.haber{display:flex;flex-direction:column;text-decoration:none;border-radius:18px;overflow:hidden;background:var(--kart);border:1px solid var(--cizgi);transition:transform .2s,border-color .2s}
-.haber:hover{transform:translateY(-3px);border-color:rgba(255,45,135,.5)}
-.haber .gorsel{aspect-ratio:16/9;background:var(--bg2) center/cover no-repeat}
-.haber .gorsel.bos{background:var(--grad);display:grid;place-items:center;font-size:42px}
-.haber .ic{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.haber .ust-bilgi{font-size:12px;color:var(--soluk);display:flex;gap:8px;flex-wrap:wrap}
-.haber .ust-bilgi b{color:var(--pembe)}
-.haber h3{margin:0;font-size:17px;line-height:1.35}
-.haber p{margin:0;color:var(--soluk);font-size:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.bos-durum{color:var(--soluk);padding:30px;text-align:center;background:var(--kart);border-radius:18px;grid-column:1/-1}
-/* Arşiv */
-.arsiv-arac{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-#ara{flex:1 1 260px;padding:13px 16px;border-radius:14px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font:inherit;font-size:16px}
-#ara::placeholder{color:var(--soluk)}
-.harfler{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
-.harfler::-webkit-scrollbar{display:none}
-.harfler button{flex:none;min-width:38px;padding:8px 10px;border-radius:10px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font:inherit;font-weight:700;cursor:pointer}
-.harfler button.aktif{background:var(--grad);border-color:transparent}
-.sarkilar{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:8px}
-.sarki{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:14px;background:var(--kart);border:1px solid transparent}
-.sarki:hover{border-color:var(--cizgi)}
-.sarki .mini{width:44px;height:44px;border-radius:10px;flex:none;display:grid;place-items:center;font-weight:900;font-size:16px}
-.sarki .yazi{min-width:0;flex:1}
-.sarki b{display:block;font-size:15px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sarki span{font-size:13px;color:var(--soluk);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sarki .iste{flex:none;text-decoration:none;font-size:12px;font-weight:800;padding:6px 10px;border-radius:999px;background:rgba(18,140,126,.25);color:#7ff0dc}
-.sarki .iste:hover{background:#128c7e;color:#fff}
-.daha{display:block;margin:14px auto 0;padding:11px 20px;border-radius:12px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);font:inherit;font-weight:700;cursor:pointer}
-.daha[hidden]{display:none}
-/* Sanatçı çağrısı */
-.cagri{margin:34px 0 10px;border-radius:24px;padding:26px;background:var(--grad);display:flex;gap:18px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden}
-.cagri::after{content:"♪ ♫ ♪";position:absolute;right:-10px;bottom:-30px;font-size:140px;opacity:.12;font-weight:900;pointer-events:none}
-.cagri div{flex:1 1 300px;position:relative;z-index:1}
-.cagri h2{margin:0 0 4px;font-size:clamp(22px,3vw,30px);font-weight:900;line-height:1.15}
-.cagri p{margin:0;font-size:16px;opacity:.95}
-.cagri .btn{background:#fff;color:#4c1d95;position:relative;z-index:1}
-footer{color:var(--soluk);font-size:14px;text-align:center;padding:30px 16px 40px}
-footer a{color:var(--yazi);font-weight:700}
-@media (prefers-reduced-motion:reduce){.eq i,.nokta{animation:none}.haber{transition:none}html{scroll-behavior:auto}}
+.sahne .canli-cerceve{position:relative;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 30px 70px -25px rgba(255,45,135,.55),0 0 0 1px rgba(255,255,255,.1)}
+.sahne .canli-oynatici{position:relative;aspect-ratio:16/9;background:#000}
+.sahne .canli-oynatici video,.sahne .canli-oynatici iframe{position:absolute;inset:0;width:100%;height:100%}
+.canli-yukleniyor{position:absolute;inset:0;display:grid;place-items:center;color:#c9bfe0;font-weight:600}
+.canli-rozet{z-index:3}
+.canli-rozet span{border-radius:999px;padding:6px 10px}
+.canli-rozet .etiket{display:inline-flex;align-items:center;gap:6px}
+.canli-rozet .canli-nokta{width:8px;height:8px;background:#fff}
+.ses-ac{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.5));border:0;color:#fff;cursor:pointer;font:inherit}
+.ses-ac span{display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border-radius:999px;background:var(--grad);font-weight:800;font-size:17px;box-shadow:0 10px 30px rgba(255,45,135,.45)}
+.sahne .tam{position:absolute;right:12px;top:12px;z-index:5;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:18px;cursor:pointer}
+.sahne .canli-cerceve:fullscreen{border-radius:0;display:flex;align-items:center}
+.sahne .canli-cerceve:fullscreen .canli-oynatici{width:100%;max-height:100%}
+.sahne-yan{display:flex;flex-direction:column;gap:12px}
+.akis{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(8px)}
+.akis-baslik{font-weight:800;font-size:16px}
+.simdi{border-radius:14px;padding:12px 14px;background:var(--grad)}
+.simdi small{display:block;font-weight:700;letter-spacing:1px;font-size:11px;opacity:.85}
+.simdi b{display:block;font-size:20px;font-weight:900;line-height:1.2}
+.simdi span{font-size:13px;opacity:.9}
+.sira{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sira li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06)}
+.sira .saat{font-weight:800;font-variant-numeric:tabular-nums}
+.sira .ad{flex:1;font-weight:600;font-size:14px}
+.sira .kalan{font-size:12px;color:#c9bfe0;white-space:nowrap}
+.sira .ikon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:14px}
+.i-haber{background:rgba(59,130,246,.3)}.i-reklam{background:rgba(255,138,61,.3)}
+.sahne-yan .izin-bant{margin:0;border-radius:20px}
+.sahne-yan .izin-bant .yazi{font-size:14px}.sahne-yan .izin-bant .yazi b{font-size:16px}
+@media (max-width:980px){.sahne-yan{display:grid;grid-template-columns:1fr 1fr}}
+/* Telefonda haberler aşağıda kaybolmasın: yayın akışı yalnızca "şu an yayında" satırıyla kısa kalır */
+@media (max-width:640px){.sahne-yan{grid-template-columns:1fr}.vitrin h1{font-size:25px}.akis{padding:0;background:none;border:0;backdrop-filter:none}.akis-baslik,.sira{display:none}
+  .simdi{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:10px 14px}.simdi b{font-size:17px}.simdi span{display:none}
+  .sahne-yan .izin-bant{padding:10px 14px}.sahne-yan .izin-bant .ikon{display:none}.vitrin{padding-bottom:18px}}
+/* Vitrin altı: döviz, hava, arama, menüler */
+.ust-alt{max-width:1200px;margin:auto;padding:16px 16px 12px}
+.ust-alt .kurlar:first-child{margin-top:0}
+.kurlar{border-radius:14px}
+.kur-baslik{background:var(--grad)}
+.kurlar.hava .kur-baslik{background:linear-gradient(110deg,#0ea5e9,#6366f1)}
+#ara{border-radius:14px;padding:12px 16px;font:inherit}
+.menu button{border-radius:999px;font-family:inherit;font-weight:700}
+.menu button.aktif{background:var(--grad);border-color:transparent;box-shadow:0 4px 14px rgba(255,45,135,.3)}
+/* Haber kartları */
+.kart{border-radius:18px;transition:transform .2s,box-shadow .2s;box-shadow:0 1px 2px rgba(20,10,40,.04)}
+.kart:hover{transform:translateY(-3px);box-shadow:0 14px 30px -12px rgba(80,30,140,.25)}
+.kart.reklam-kart:hover{transform:none}
+.kart.tvplas{border:2px solid transparent;background:linear-gradient(var(--kart),var(--kart)) padding-box,var(--grad) border-box}
+.kart.tvplas .etiket{background:var(--grad)}
+h2{font-weight:700}
+dialog#detay{border-radius:20px}
+#detay .anaDon{background:var(--grad)}
+@media (prefers-reduced-motion:reduce){.eq i{animation:none}.kart{transition:none}}
 </style>
 </head>
 <body>
-<header class="ust">
-  <div class="kap">
-    <a class="logo" href="#canli" aria-label="TVplas Müzik"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span><b>TVplas</b> Müzik</span></a>
-    <nav aria-label="Bölümler">
-      <a href="#canli">Canlı</a><a href="#yeni">Yeni Klipler</a><a href="#gundem">Müzik Gündemi</a><a href="#arsiv">Şarkı Arşivi</a>
-    </nav>
-    <a class="haber-dugme" href="./">📰 Haber Portalı</a>
+<div class="vitrin">
+<header>
+  <div class="ust-satir">
+    <div>
+      <h1><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="marka">TVplas</span> Müzik Portal</h1>
+      <div class="bilgi">Canlı yayın · Kıbrıs, Türkiye ve dünyadan güncel haberler · <span id="zaman">yükleniyor…</span></div>
+    </div>
+    <div class="iletisim">
+      <button class="canli" id="canli" type="button"><span class="canli-nokta"></span>CANLI YAYIN</button>
+      <a class="wa" href="https://wa.me/905338636839" target="_blank" rel="noopener" aria-label="WhatsApp ile yazın: 0533 863 6839">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>
+        WhatsApp: 0533 863 6839
+      </a>
+      <span class="sayac" id="sayac" hidden>👁 <b id="sayacToplam"></b> ziyaret · bugün <b id="sayacBugun"></b></span>
+    </div>
   </div>
 </header>
-
-<main class="kap">
-  <div class="sahne" id="canli">
-    <div>
-      <div class="oynatici" id="oynatici">
-        <div class="yukleniyor" id="yukleniyor">Canlı yayın açılıyor…</div>
-        <div class="rozetler"><span class="rozet canli"><span class="nokta"></span>CANLI</span><span class="rozet" id="izleyici" hidden></span></div>
-        <button class="ses-ac" id="sesAc" type="button" hidden><span>🔊 Sesi açmak için dokunun</span></button>
-      </div>
-      <div class="oynatici-alt">
-        <h1>Kıbrıs'ın 7/24 müzik kanalı<small>Müzik videoları, yarım saatte bir haber bülteni · Kesintisiz canlı yayın</small></h1>
-        <button class="btn" id="tamEkran" type="button">⛶ Tam ekran</button>
-        <a class="btn wa" href="https://wa.me/905338636839?text=Merhaba%20TVplas%2C%20%C5%9Fark%C4%B1%20iste%C4%9Fim%3A%20" target="_blank" rel="noopener">💬 Şarkı iste</a>
-      </div>
-    </div>
-    <aside class="akis" aria-label="Yayın akışı">
-      <h2>📺 Yayın Akışı</h2>
+<!-- Canlı yayın açılış sayfasında: sayfa açılınca sessiz başlar (tarayıcılar sesli başlatmaya izin vermez), dokununca ses açılır -->
+<section class="sahne" id="canliBolum" aria-label="TVplas canlı yayın">
+  <div class="canli-cerceve" id="canliCerceve">
+    <div class="canli-oynatici"><div class="canli-yukleniyor">Canlı yayın açılıyor…</div></div>
+    <div class="canli-rozet"><span class="etiket"><span class="canli-nokta"></span>CANLI</span><span class="sayi" hidden></span></div>
+    <button class="ses-ac" id="sesAc" type="button" hidden><span>🔊 Sesi açmak için dokunun</span></button>
+    <button class="tam" id="tamEkran" type="button" aria-label="Tam ekran">⛶</button>
+  </div>
+  <aside class="sahne-yan">
+    <div class="akis">
+      <div class="akis-baslik">📺 Yayın Akışı</div>
       <div class="simdi" id="simdi"><small>ŞU AN YAYINDA</small><b>Müzik Videoları</b><span></span></div>
       <ul class="sira" id="sira"></ul>
-      <p class="not">Haber bültenleri her saat :00 ve :30'da, reklam ve tanıtımlar :15 ve :45'te.</p>
-    </aside>
+    </div>
+    <a class="izin-bant" href="izin.html">
+      <span class="ikon" aria-hidden="true">🎤</span>
+      <span class="yazi"><b>Sanatçılarımıza duyuru</b>Eserlerinizin TVplas yayınlarında yer alması için yayın izin formunu doldurun.</span>
+      <span class="dugme">Yayın İzin Formu →</span>
+    </a>
+  </aside>
+</section>
+</div>
+<div class="ust-alt">
+  <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
+  <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
+    <span class="kur-baslik">💱 DÖVİZ</span>
+    <div class="kur-pencere"><div class="kur-akis" id="kurAkis"></div></div>
   </div>
-
-  <div class="serit" aria-label="Kısa bilgiler">
-    <div><b id="sSarki">–</b><span>müzik videosu</span></div>
-    <div><b id="sSanatci">–</b><span>sanatçı</span></div>
-    <div><b>7/24</b><span>kesintisiz yayın</span></div>
-    <div><b>48</b><span>haber bülteni / gün</span></div>
+  <!-- Kıbrıs'ta hava durumu (MET Norway, Norveç Meteoroloji Enstitüsü): sunucu yarım saatte bir alır -->
+  <div class="kurlar hava" id="hava" hidden aria-label="Kıbrıs'ta hava durumu">
+    <span class="kur-baslik">🌤 HAVA</span>
+    <div class="kur-pencere"><div class="kur-akis" id="havaAkis"></div></div>
   </div>
-
-  <section id="yeni">
-    <div class="baslik"><div><h2>🔥 Yeni Klipler</h2><p>Yayın listemize son eklenen müzik videoları</p></div></div>
-    <div class="kaydir" id="yeniListe"></div>
-  </section>
-
-  <section id="gundem">
-    <div class="baslik"><div><h2>🎤 Müzik Gündemi</h2><p>Konserler, yeni albümler ve sanat dünyasından son haberler</p></div></div>
-    <div class="haberler" id="haberler"><div class="bos-durum">Haberler yükleniyor…</div></div>
-  </section>
-
-  <section id="arsiv">
-    <div class="baslik"><div><h2>🎵 Şarkı Arşivi</h2><p>Yayınımızdaki tüm müzik videoları · <span data-guncel="09.11.2026"></span></p></div></div>
-    <div class="arsiv-arac"><input id="ara" type="search" placeholder="Sanatçı ya da şarkı ara…" aria-label="Sanatçı ya da şarkı ara"></div>
-    <div class="harfler" id="harfler" role="toolbar" aria-label="Baş harfe göre"></div>
-    <div class="sarkilar" id="sarkilar"></div>
-    <button class="daha" id="daha" type="button" hidden>Daha fazla göster</button>
-  </section>
-
-  <div class="cagri">
-    <div><h2>Sanatçı mısınız? 🎤</h2><p>Eserlerinizin TVplas yayınlarında ve televizyon kanallarında yer alması için yayın izin formunu doldurun.</p></div>
-    <a class="btn" href="izin.html">Yayın İzin Formu →</a>
+  <div class="arac">
+    <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
   </div>
-</main>
-
-<footer>© TVplas · <a href="./">TVplas Haber Portalı</a> · WhatsApp: <a href="https://wa.me/905338636839" target="_blank" rel="noopener">0533 863 6839</a><br>Müzik haberleri kaynak sitelerine aittir; habere tıklayarak kaynağında okuyabilirsiniz.</footer>
-
+  <nav class="menu" aria-label="Bölümler">
+    <button data-k="Gazeteler">📰 GAZETELER</button>
+    <button data-k="Kıbrıs" class="aktif">KIBRIS</button>
+    <button data-k="Güney">GÜNEY</button>
+    <button data-k="Türkiye">TÜRKİYE</button>
+    <button data-k="Dünya">DÜNYA</button>
+    <button data-k="Müzik">MÜZİK</button>
+    <button data-k="Kültür-Sanat">KÜLTÜR-SANAT</button>
+    <button data-k="Magazin">MAGAZİN</button>
+    <button data-k="Bilim">BİLİM</button>
+    <button data-k="Sağlık">SAĞLIK</button>
+    <button data-k="Ekonomi">EKONOMİ</button>
+    <button data-k="Spor">SPOR</button>
+  </nav>
+  <nav class="menu ikinci" aria-label="Diğer bölümler">
+    <button data-k="TVplas Haber">📰 TVPLAS HABER</button>
+    <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
+    <button data-k="Yazarlar">✍️ YAZARLAR</button>
+  </nav>
+</div>
+<div id="reklamUst"></div>
+<main id="liste"><div class="durum">Haberler yükleniyor…</div></main>
+<dialog id="detay" aria-label="Haberin tamamı">
+  <button class="kapat" aria-label="Kapat">✕</button>
+  <button class="anaDon">🏠 Ana sayfaya dön</button>
+  <div class="d-gorsel"></div>
+  <a class="d-kunye" target="_blank" rel="noopener"></a>
+  <div class="govde">
+    <div class="ust"><span class="etiket">TVplas</span><span>TVplas Portal</span></div>
+    <h2></h2>
+    <p class="metin"></p>
+    <a class="kaynakLink" target="_blank" rel="noopener">Habere git →</a>
+    <div class="ceviri-dugmeler"></div>
+    <a class="paylas" target="_blank" rel="noopener">Facebook'ta paylaş</a>
+  </div>
+</dialog>
+<footer>Haberler kaynak sitelerine aittir; başlıklara tıklayarak haberin tamamını kaynağında okuyabilirsiniz. Yabancı dildeki haberler otomatik olarak Türkçeye çevrilmiştir.</footer>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
-const WA = "https://wa.me/905338636839?text=";
-// Şarkı arşivi: tvplas-video\muzik_sayfa.py müzik klasöründen yazar (s: sanatçı, e: eser, y: eklenme zamanı)
-const SARKILAR = /*SARKILAR*/[{"s":"AKLIMDASIN","e":"GUROL OZKAYA","y":1765440591},{"s":"ALPAY KOBRA","e":"KIPRISLI DERLER BIZE","y":1654799718},{"s":"ARIF EDIZER","e":"YALAN","y":1670883897},{"s":"ARIF EDIZER","e":"AMMADI LIMANI","y":1670880193},{"s":"ARIF EDIZER","e":"ANLAMAZSIN BENI EYLUL","y":1663349082},{"s":"ARIF EDIZER","e":"ARIF OLAN ANLAR","y":1778045705},{"s":"ARIF EDIZER","e":"BEN BAFLIYIM GUZELIM","y":1654798644},{"s":"ARIF EDIZER","e":"DUNYA BIR KURT OLMUS KUZU PESINDE","y":1670862523},{"s":"ARIF EDIZER","e":"EY GUZEL ADA","y":1655033235},{"s":"ARIF EDIZER","e":"GECEYE ESIR OLDUM","y":1741276556},{"s":"ARIF EDIZER","e":"GELMEZ OLAYDIM","y":1657125361},{"s":"ARIF EDIZER","e":"KIBRIS TURKUSU","y":1681393611},{"s":"ARIF EDIZER","e":"MEMLEKET ISATERIM","y":1662318482},{"s":"ARIF EDIZER","e":"OY KADINIM","y":1670880593},{"s":"ARIF EDIZER","e":"PARA PARA PARA","y":1670881309},{"s":"ARIF EDIZER","e":"SOLMUS RESIMLER","y":1670882242},{"s":"ARIF EDIZER","e":"SON KAPI","y":1670882579},{"s":"ARIF EDIZER","e":"TUT KI CILDIRDIM","y":1670883438},{"s":"ARIF EDIZER","e":"USTA","y":1660937547},{"s":"ARIF EDIZER","e":"UZUN - GECEYE ESIR OLDUM","y":1741948156},{"s":"ARIF EDIZER","e":"YOLA DUS","y":1670879905},{"s":"ARIF EDIZER","e":"ZAMANSIZ YAGMUR 2","y":1670884246},{"s":"AYDIN SERCAN","e":"ADALAR DENIZINDE","y":1717693646},{"s":"AYLA YAVUZ","e":"SEVDAMSIN SEN GONYELIM","y":1721379611},{"s":"BEKLERSEN","e":"ORIJINAL","y":1736544698},{"s":"BIN YILDIZLI OTEL","e":"HALIL AKANSEL","y":1715152429},{"s":"BURUCU VE ARIF EDIZER","e":"TEK VE HUR 2","y":1670925808},{"s":"CEMAL ARSLANGAZI","e":"BABA","y":1670927979},{"s":"CEMAL ARSLANGAZI","e":"BANA SEVGINI VER 2","y":1670928443},{"s":"CEMAL ARSLANGAZI","e":"INSANLAR","y":1667145580},{"s":"CEMAL ARSLANGAZI","e":"SEVDA CICEGI","y":1740144669},{"s":"CEMALIM","e":"BESIM SAHIL","y":1791968392},{"s":"DENIZ EMINOGLU","e":"EVDE YOKTUN","y":1742841171},{"s":"DENIZ EMINOGLU","e":"GECELER","y":1769090733},{"s":"DENIZ EMINOGLU","e":"GUNES SESSIZ DOGAR","y":1772479033},{"s":"DENIZ EMINOGLU","e":"YASEMIN KOKUSU","y":1787819485},{"s":"DENIZ EMINOGLU","e":"YOLLAR UZADI","y":1780524350},{"s":"ENDER DENKTAS VANGOL","e":"GONUL SENI","y":1700432080},{"s":"ENVER ERMETAL","e":"KIBRISIMIN KIZLARI","y":1783772568},{"s":"ERHAN ALIHAN","e":"AH BE GULUM","y":1680293936},{"s":"ERHAN ALIHAN","e":"AKLIMDASIN","y":1731152276},{"s":"ERHAN ALIHAN","e":"BIR HAL OLDU 2","y":1670940964},{"s":"ERHAN ALIHAN","e":"BIR INAT UGRUNA","y":1670941304},{"s":"ERHAN ALIHAN","e":"BIR SONU OLMALI 2","y":1670942034},{"s":"ERHAN ALIHAN","e":"DONECEJ MISIN","y":1764789455},{"s":"ERHAN ALIHAN","e":"NASILSIN BIR TANEM","y":1670942317},{"s":"ERHAN ALIHAN","e":"OLDURUR BENI 2","y":1670942715},{"s":"ERHAN ALIHAN","e":"UZULUP AGLAMA","y":1670943107},{"s":"ERHAN ALIHAN","e":"YARIM YASARIM","y":1781645720},{"s":"ERHAN ALIHAN","e":"YASTIGINDA KOKUN KALDI","y":1654797761},{"s":"ERHAN ALIHAN","e":"YORULDUM","y":1749648402},{"s":"ERHAN ALİHAN","e":"GIDERSEN BURALARDAN","y":1792609330},{"s":"ERKAN DAGLI","e":"ANNE","y":1670943559},{"s":"FAHRI KILIS","e":"AY DOGUSLUM 2","y":1670945559},{"s":"FAHRI KILIS","e":"CELLAT PAZARI 2","y":1670945938},{"s":"FAHRI KILIS","e":"KABURGAMDAKI ELMA 2","y":1670946300},{"s":"FAHRI KILIS","e":"NEREDEYDIN","y":1674764519},{"s":"FAHRI KILIS","e":"UCURUM 2","y":1670946657},{"s":"FIKRET KAN","e":"KERKUK ZINDANI","y":1682541107},{"s":"FIRAT TAMER","e":"KIBRIS KEBAPCILAR MARSI","y":1711977555},{"s":"GAZI-SET","e":"GARAVANIN PORTAKALI","y":1670946937},{"s":"GORSEV TEPE","e":"BESPARMAK DAGI SIRA 2","y":1670948564},{"s":"GRUP ARGASTI","e":"OYNA GUZELIM OYNA","y":1792042216},{"s":"GRUP OTANTIK","e":"DUDDURU LEYLA","y":1707818625},{"s":"GRUP OTANTIK","e":"EY GUZL ADA","y":1706263819},{"s":"GRUP SOS","e":"MAGUSA LIMANI 2","y":1670950848},{"s":"GULER SOYBIR","e":"BAKISIN","y":1784727517},{"s":"GULER SOYBIR","e":"BEN SANA GUNHIMI BILE VERMEM","y":1670858304},{"s":"GULPERI","e":"OMUR KISA HAYAT ACIMASIZ","y":1707477790},{"s":"GURYELLER","e":"DUNYA SON BULSA DA - TANITIM - SON - TV","y":1784985320},{"s":"GURYELLER","e":"DUNYA SON BULSA DA GREEK","y":1774277677},{"s":"GURYELLER","e":"UC GUN UC GECE 3","y":1670966142},{"s":"HALIL AKANSEL","e":"BIN YILDIZLI OTEL","y":1715330338},{"s":"HALIL AKANSEL","e":"INDIM DEREDE DURDUM","y":1689242532},{"s":"HASAN DALGAKIRANLAR","e":"AGLA GOZLERIM AGLA","y":1783770657},{"s":"HASAN DALGAKIRANLAR","e":"MAGUSAYA ATIN BENI","y":1783771341},{"s":"HASAN ULUAL","e":"GUZEL KIBRISIM 3","y":1670953464},{"s":"HASAN ULUEL","e":"ANILARIM","y":1670952040},{"s":"HASAN ULUEL","e":"DENIZ GOZLUM 2","y":1670952432},{"s":"HASAN ULUEL","e":"HATIRAM 2","y":1670953995},{"s":"","e":"HERKES HAKLI HERKES BEY","y":1794247999},{"s":"HULYA TURGAT SAKINER","e":"SEN DE CAL GUL EGLEN","y":1783062071},{"s":"HULYA TURGAT SAKINER","e":"YASEMINLER","y":1787820723},{"s":"HULYA VE TURGAY SAKINER","e":"ELLER YAZAR","y":1670956207},{"s":"HULYA VE TURGAY SAKINER","e":"SANA GELECEGIM","y":1670870506},{"s":"HULYA VE TURGAY SAKINER","e":"SENDEN SONRA 2","y":1670957068},{"s":"HUSAVERDI SESIGUZEL","e":"OF OY","y":1670861417},{"s":"IBRAHIM SAYIN","e":"GITME 2","y":1670947766},{"s":"IBRAHIM SAYIN","e":"SU DERE YONCA","y":1670872024},{"s":"ILKE SUSUZLU","e":"BABAM","y":1793899786},{"s":"ISIK GOZLUM","e":"NALAN BURAK","y":1751540632},{"s":"ISLAK ISLAK","e":"AKUSTIK TAYFA","y":1743354085},{"s":"KADER ATES","e":"ZALIM","y":1670873294},{"s":"KIBRIS ICIN CAL","e":"FESLIKAN","y":1670958749},{"s":"KIBRIS ICIN CAL","e":"KIB RISIM","y":1670867619},{"s":"KIBRIS ICIN CAL","e":"MEMLEKETIM","y":1670959197},{"s":"KIBRIS ICIN CAL","e":"CARSI CARSI GEZERIM","y":1701465722},{"s":"KIBRIS TURKUSU","e":"GRUP ARGASTI","y":1792057005},{"s":"KIS GECESINDE","e":"HAMZA IRKAD","y":1770242953},{"s":"KUBILAY ASIK","e":"BENI OLDURDU","y":1777494892},{"s":"KULLERIM","e":"KURUKTAY AKBAY","y":1759307051},{"s":"KURULTAY AKBAY","e":"BEN ASIK","y":1772479666},{"s":"KURULTAY AKBAY","e":"MOR","y":1782383332},{"s":"KURULTAY AKBAY","e":"OMUR","y":1763630699},{"s":"KURULTAY AKBAY","e":"SEHRI KALA","y":1670871361},{"s":"LALE ATAMTURK","e":"SEN BENIM MELEGIMDIN","y":1773231994},{"s":"LALE ATAMTURK","e":"SENDEN ONCE","y":1784816982},{"s":"LBO","e":"BONDIGO","y":1670876303},{"s":"LBO","e":"ERKEK KARSILAMA 1","y":1670876507},{"s":"LBO","e":"ERKEK KARSILAMA 2","y":1670876754},{"s":"LBO","e":"ERKEK KARSILAMA 3-4","y":1670959974},{"s":"LBO","e":"ERKEK KARSILAMA 3","y":1670876993},{"s":"LBO","e":"ERKEK KARSILAMA 4","y":1670877399},{"s":"LBO","e":"ERKEK KARSILAMA","y":1670875070},{"s":"LEMAN BOYLUM","e":"AH BE HAYAT","y":1714124416},{"s":"LISANI","e":"PISMAN DEGILIM","y":1704834066},{"s":"","e":"MATSA MATSA PARA","y":1794246395},{"s":"MEHMET CAVIT","e":"CANIM GAVOLLEM KIBRISIM 3","y":1670961442},{"s":"MEHMET CAVIT","e":"CANIM GAVOLLEM KIBRISIM","y":1670960543},{"s":"MEHMET ULUEL","e":"KIBRISIM","y":1670868126},{"s":"MUSTAFA ALKAPON","e":"OK NEM KALDI","y":1794045617},{"s":"MUSTAFA ALKAPON","e":"REZIL OLDUK RUSVA OLDUK","y":1670962837},{"s":"MUSTAFA GURKAN","e":"DONME GERI. 2","y":1670930208},{"s":"MUSTAFA GURSOY","e":"BU HAYAT HEPIMIZIN","y":1670860900},{"s":"MUSTAFA TOZAKI","e":"MUTLAKA TV","y":1771424576},{"s":"NAZIM CED","e":"DUNYA SON BULSA DA","y":1670963923},{"s":"NILHAN SOYSAL","e":"HASRETIN KALDI","y":1785380012},{"s":"OLMAZ","e":"EROL HIZLI","y":1713466886},{"s":"ORCAN FIRAT","e":"HAYAT KISA","y":1717101621},{"s":"OSMAN BULUM","e":"ZAMANSIZ GIDIS","y":1744919789},{"s":"OSMAN BULUN","e":"BENIM ASKIM","y":1771424214},{"s":"OSMAN SOYKAN GULER SOYBIR","e":"KALBIM SANA TUTUNDU","y":1774963865},{"s":"OZDEN ISIKSER","e":"SUZUL DE GEL","y":1793900644},{"s":"RETRO CALGICILARI","e":"NE GUZEL KUSUN SESI","y":1730401062},{"s":"RETRO CALGICILARI","e":"SENIN GOYNUNDA","y":1747818897},{"s":"SADIK ZABIT","e":"CANIMSIN CANIM","y":1670964509},{"s":"SADIK ZABIT","e":"EKSILMISLER","y":1662624306},{"s":"SADIK ZABIT","e":"KIRILDI KALBIM SANA","y":1670964931},{"s":"SEFTALICIK","e":"HASAN BALSES","y":1768502332},{"s":"SIBEL VE MUSTAFA TOZAKI","e":"VATANIM","y":1670965606},{"s":"SOYHAN BILGEER","e":"KADINIM","y":1670867266},{"s":"SUHEYLA OKCU","e":"NAR AGACI","y":1712594682},{"s":"SUZAN HAZAR","e":"SAMANYOLU","y":1708031849},{"s":"TURAN","e":"BU ADA BIZIM","y":1707254784},{"s":"TURGAY SAKINER","e":"YASEMINLER","y":1787819801},{"s":"TURNALAR","e":"YILMAZ SEREBET","y":1736433638},{"s":"UFUK YILMAZ","e":"UGURLAMA","y":1790889353},{"s":"ULUS YESILADA","e":"LEYMOSUNDA CUMBEZLER","y":1785380422},{"s":"YENI YIL","e":"KURULTAY AKBAY","y":1766568516},{"s":"ZIYA SENCER","e":"TAKVIMLER","y":1670968060}]/*SON*/;
+// Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
+// "Güney": yalnızca Güney Kıbrıs'taki Rum basınının haberleri (sunucu ayırır; Kıbrıs menüsüne girmez)
+// "Fotoğraflar": yönetim panelinden bu bölüme eklenen kendi fotoğraflarımız, galeri olarak gösterilir
+// "Yazarlar": panelden eklenen kendi köşe yazılarımız (önce) ve Kıbrıs gazetelerinin köşe yazıları (sunucu toplar)
+// "TVplas Haber": Kıbrıs haberlerinin TVplas biçiminde (yapay zekâyla, olgular değiştirilmeden) yeniden yazılmış hâlleri; sunucu yazar
+const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar", "Yazarlar", "TVplas Haber"];
+// Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
+// (Şu an birleşik menü yok: Müzik, Kültür-Sanat, Magazin, Bilim, Sağlık ve Ekonomi ayrı menülerde)
+const GRUPLAR = {};
+const ORTAK = "Müzik";   // müzikle ilgili diğer haberlerin çapraz eklendiği menü
+const bolumBul = t => {
+  const grup = Object.keys(GRUPLAR).find(g => GRUPLAR[g].includes(t));
+  return grup ? [grup, t] : [BOLUMLER.includes(t) ? t : "Kıbrıs", null];
+};
+// Müzik Bing aramalarından gelir; başlığı bu kelimelere uymayanlar Magazin'e aktarılır.
+// Ayrıca müzikle ilgili diğer haberler Müzik menüsünde de görünür.
+// Kelime başında aranır; kısa kelimeler kelime sonuyla sınırlı (ör. "opera" ≠ "operasyon", "rap" ≠ "rapor")
+const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
+// Portal izleyicilerin isteğiyle günün gazeteleriyle açılır; haber bölümleri menüden seçilir
+let bolum = "Kıbrıs", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "";
+let tiklar = {};   // haber kimliği → tıklanma sayısı (sunucudan)
+const ara = document.getElementById("ara"), liste = document.getElementById("liste");
 
-const $ = id => document.getElementById(id);
-function el(etiket, sinif, metin) { const e = document.createElement(etiket); if (sinif) e.className = sinif; if (metin != null) e.textContent = metin; return e; }
-
-// ---------- Canlı yayın: sayfa açılınca sessiz başlar (tarayıcılar sesli başlatmaya izin vermez), dokununca ses açılır ----------
-const oynatici = $("oynatici"), sesAc = $("sesAc");
-const izleyiciNo = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, "0")).join("");
-let hls = null, video = null;
-async function canliBilgi() {
-  try {
-    const j = await (await fetch(API + "?islem=canli&izleyici=" + izleyiciNo)).json();
-    if (typeof j.izleyici === "number" && j.izleyici > 0) { $("izleyici").textContent = "👁 " + j.izleyici.toLocaleString("tr-TR") + " izleyici"; $("izleyici").hidden = false; }
-    return j;
-  } catch (e) { return {}; }
+function kac(t) {
+  if (!t) return "";
+  const dk = Math.round((Date.now() - new Date(t)) / 60000);
+  if (dk < 1) return "az önce";
+  if (dk < 60) return dk + " dk önce";
+  if (dk < 1440) return Math.floor(dk / 60) + " saat önce";
+  return new Date(t).toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
-function temizle() { if (hls) { hls.destroy(); hls = null; } oynatici.querySelectorAll("video,iframe").forEach(x => x.remove()); video = null; }
-function youtubeYedek() {
-  temizle(); sesAc.hidden = true;
+
+function el(etiket, sinif, metin) {
+  const e = document.createElement(etiket);
+  if (sinif) e.className = sinif;
+  if (metin != null) e.textContent = metin;
+  return e;
+}
+
+const PORTAL = "https://tvplas.github.io/haber/";
+// Canlı yayın açılış sayfasının üstünde, sayfayla birlikte açılır
+const canliPencere = document.getElementById("canliBolum");
+const canliKutu = canliPencere.querySelector(".canli-oynatici");
+const sesAc = document.getElementById("sesAc");
+let canliHls = null;
+// İzleyici sayısı: açık olan her pencere 30 saniyede bir sunucuya "buradayım" der, sunucu son bir dakikadakileri sayar
+const izleyiciNo = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, "0")).join("");
+const canliSayi = canliPencere.querySelector(".canli-rozet .sayi");
+let canliSayac = null;
+function izleyiciGoster(n) {
+  if (typeof n !== "number" || n < 1) return;
+  canliSayi.textContent = "👁 " + n.toLocaleString("tr-TR");
+  canliSayi.hidden = false;
+}
+async function canliBilgi() {
+  try { const j = await (await fetch(API + "?islem=canli&izleyici=" + izleyiciNo)).json(); izleyiciGoster(j.izleyici); return j; } catch (e) { return {}; }
+}
+function canliTemizle() { if (canliHls) { canliHls.destroy(); canliHls = null; } canliKutu.replaceChildren(); }
+function canliSayacDur() { clearInterval(canliSayac); canliSayac = null; canliSayi.hidden = true; }
+// Yedek: bilgisayardaki yayın kapalıysa oynatıcı boş kalmasın diye YouTube'daki yayın açılır
+function canliYedek() {
+  canliTemizle();
   const f = document.createElement("iframe");
-  f.src = "https://www.youtube.com/embed/live_stream?channel=UC8d8loqizR60Wm80IaduzaQ&autoplay=1&mute=1&playsinline=1&rel=0";
-  f.title = "TVplas canlı yayın"; f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true;
-  f.referrerPolicy = "strict-origin-when-cross-origin";
-  oynatici.prepend(f); $("yukleniyor").hidden = true;
+  f.src = "https://www.youtube.com/embed/live_stream?channel=UC8d8loqizR60Wm80IaduzaQ&autoplay=1&playsinline=1&rel=0";
+  f.title = "TVplas canlı yayın";
+  f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+  f.allowFullscreen = true;
+  f.referrerPolicy = "strict-origin-when-cross-origin";   // YouTube bu bilgi olmadan oynatıcıyı açmıyor
+  f.src += "&mute=1";   // sayfa açılınca kendiliğinden başlayabilmesi için sessiz
+  canliKutu.replaceChildren(f);
+  sesAc.hidden = true;
 }
 function hlsYukle() {
   if (window.Hls) return Promise.resolve();
@@ -252,161 +409,723 @@ function hlsYukle() {
     const j = document.createElement("script");
     j.src = "https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js";
     j.integrity = "sha384-9v3HcdYrO3D+OPDTjZ40RXocgE4GtXVCd3/mCS62JsM93JXgI1afJVuwjFvsu6ni";
-    j.crossOrigin = "anonymous"; j.onload = j.onerror = () => tamam();
+    j.crossOrigin = "anonymous";
+    j.onload = j.onerror = () => tamam();
     document.head.appendChild(j);
   });
 }
+// Canlı yayın vMix'ten doğrudan gelir: adresi sunucudan öğrenir, tarayıcıdaki oynatıcıda açar
 async function canliAc() {
+  canliSayacDur();
   const adres = (await canliBilgi()).adres || "";
-  if (!adres) return youtubeYedek();
+  // İzleyici sayısı: sayfa açıkken yarım dakikada bir "buradayım" denir (sekme arkadaysa sayılmaz)
+  canliSayac = setInterval(() => { if (!document.hidden) canliBilgi(); }, 30000);
+  if (!adres) return canliYedek();
   await hlsYukle();
-  temizle();
-  video = document.createElement("video");
-  video.playsInline = true; video.autoplay = true; video.muted = true; video.controls = true;
-  oynatici.prepend(video);
+  canliTemizle();
+  const v = document.createElement("video");
+  v.controls = true; v.playsInline = true; v.autoplay = true; v.muted = true;
+  canliKutu.replaceChildren(v);
+  v.addEventListener("playing", () => { sesAc.hidden = !v.muted; }, { once: true });
+  v.addEventListener("volumechange", () => { if (!v.muted) sesAc.hidden = true; });
   const kaynak = adres + "/tvplas/index.m3u8";
   if (window.Hls && Hls.isSupported()) {
-    hls = new Hls({ liveDurationInfinity: true });
-    hls.on(Hls.Events.ERROR, (o, d) => { if (d.fatal) youtubeYedek(); });
-    hls.loadSource(kaynak); hls.attachMedia(video);
-  } else { video.onerror = youtubeYedek; video.src = kaynak; }   // iPhone/iPad kendi oynatıcısıyla açar
-  video.addEventListener("playing", () => { $("yukleniyor").hidden = true; sesAc.hidden = !video.muted; }, { once: true });
-  video.addEventListener("volumechange", () => { if (!video.muted) sesAc.hidden = true; });
-  video.play().catch(() => {});
+    canliHls = new Hls({ liveDurationInfinity: true });
+    canliHls.on(Hls.Events.ERROR, (o, d) => { if (d.fatal) canliYedek(); });
+    canliHls.loadSource(kaynak);
+    canliHls.attachMedia(v);
+  } else {
+    v.onerror = canliYedek;   // iPhone ve iPad oynatıcısı bu yayını kendisi açar
+    v.src = kaynak;
+  }
+  // Tarayıcı sesli başlatmaya izin vermezse sessiz başlar; ses oynatıcıdan açılır
+  v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
 }
-sesAc.onclick = () => { if (video) { video.muted = false; video.volume = 1; video.play().catch(() => {}); } sesAc.hidden = true; };
-$("tamEkran").onclick = () => {
-  if (oynatici.requestFullscreen) oynatici.requestFullscreen().catch(() => video && video.webkitEnterFullscreen && video.webkitEnterFullscreen());
-  else if (oynatici.webkitRequestFullscreen) oynatici.webkitRequestFullscreen();
-  else if (video && video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+function sesiAc() {
+  const v = canliKutu.querySelector("video");
+  if (v) { v.muted = false; v.volume = 1; v.play().catch(() => {}); }
+  sesAc.hidden = true;
+}
+sesAc.onclick = sesiAc;
+// Üstteki CANLI YAYIN düğmesi yayına götürür ve sesi açar
+document.getElementById("canli").onclick = () => { canliPencere.scrollIntoView({ behavior: "smooth", block: "start" }); sesiAc(); };
+// Tam ekran: bilgisayar ve Android'de rozetle birlikte büyür; iPhone yalnızca videoyu kendi oynatıcısında büyütebilir
+document.getElementById("tamEkran").onclick = () => {
+  const cerceve = document.getElementById("canliCerceve");
+  const v = canliKutu.querySelector("video");
+  if (cerceve.requestFullscreen) cerceve.requestFullscreen().catch(() => { if (v && v.webkitEnterFullscreen) v.webkitEnterFullscreen(); });
+  else if (cerceve.webkitRequestFullscreen) cerceve.webkitRequestFullscreen();
+  else if (v && v.webkitEnterFullscreen) v.webkitEnterFullscreen();
 };
 canliAc();
-// İzleyici sayısı: sayfa açıkken yarım dakikada bir "buradayım" denir (sekme arkadaysa sayılmaz)
-setInterval(() => { if (!document.hidden) canliBilgi(); }, 30000);
 
-// ---------- Yayın akışı: vMix düzeni sabit (haber :00/:30, reklam :15/:45, gerisi müzik) ----------
-const HABER_DK = 5, REKLAM_DK = 2;
-function iki(n) { return String(n).padStart(2, "0"); }
-function bolumBul(d) {
-  const m = d.getMinutes() % 30;
-  if (m < HABER_DK) return ["haber", "Haber Bülteni", "Kıbrıs, Güney, Türkiye ve dünyadan 6 haber"];
-  if (m >= 15 && m < 15 + REKLAM_DK) return ["reklam", "Reklam ve Tanıtımlar", "Kısa bir aradan sonra müziğe dönüyoruz"];
-  return ["muzik", "Müzik Videoları", "Kıbrıs Türk sanatçıların klipleri"];
-}
+// Yayın akışı: vMix düzeni sabit (haber bülteni :00/:30, reklam ve tanıtım :15/:45, arada müzik videoları)
 function akisCiz() {
-  const simdi = new Date(), [, ad, alt] = bolumBul(simdi);
-  const s = $("simdi"); s.querySelector("b").textContent = ad; s.querySelector("span").textContent = alt;
-  const olaylar = [], t = new Date(simdi); t.setSeconds(0, 0);
-  t.setMinutes(Math.floor(t.getMinutes() / 15) * 15 + 15);
-  while (olaylar.length < 4) {
-    const haber = t.getMinutes() % 30 === 0;
-    olaylar.push({ t: new Date(t), tur: haber ? "haber" : "reklam", ad: haber ? "Haber Bülteni" : "Reklam ve Tanıtımlar" });
-    t.setMinutes(t.getMinutes() + 15);
+  const iki = n => String(n).padStart(2, "0"), simdi = new Date(), m = simdi.getMinutes() % 30;
+  const [ad, alt] = m < 5 ? ["Haber Bülteni", "Kıbrıs, Güney, Türkiye ve dünyadan 6 haber"]
+    : m >= 15 && m < 17 ? ["Reklam ve Tanıtımlar", "Kısa bir aradan sonra müziğe dönüyoruz"]
+    : ["Müzik Videoları", "Kıbrıs Türk sanatçıların klipleri"];
+  const s = document.getElementById("simdi");
+  s.querySelector("b").textContent = ad; s.querySelector("span").textContent = alt;
+  const t = new Date(simdi); t.setSeconds(0, 0); t.setMinutes(Math.floor(t.getMinutes() / 15) * 15 + 15);
+  const satirlar = [];
+  for (let i = 0; i < 3; i++, t.setMinutes(t.getMinutes() + 15)) {
+    const haber = t.getMinutes() % 30 === 0, dk = Math.max(0, Math.ceil((t - simdi) / 60000));
+    const li = el("li");
+    li.append(el("span", "ikon " + (haber ? "i-haber" : "i-reklam"), haber ? "📰" : "📢"), el("span", "saat", iki(t.getHours()) + ":" + iki(t.getMinutes())),
+      el("span", "ad", haber ? "Haber Bülteni" : "Reklam ve Tanıtımlar"), el("span", "kalan", dk < 1 ? "başlıyor" : dk + " dk sonra"));
+    satirlar.push(li);
   }
-  $("sira").replaceChildren(...olaylar.map(o => {
-    const li = el("li"), dk = Math.max(0, Math.ceil((o.t - simdi) / 60000));
-    li.append(el("span", "ikon i-" + o.tur, o.tur === "haber" ? "📰" : "📢"), el("span", "saat", iki(o.t.getHours()) + ":" + iki(o.t.getMinutes())),
-      el("span", "ad", o.ad), el("span", "kalan", dk < 1 ? "başlıyor" : dk + " dk sonra"));
-    return li;
-  }));
+  document.getElementById("sira").replaceChildren(...satirlar);
 }
 akisCiz(); setInterval(akisCiz, 20000);
+const REKLAM_ARALIGI = 3;   // kaç haberde bir reklam afişi girsin
 
-// ---------- Şarkılar: kapak renkleri sanatçı adından üretilir (her sanatçının kendi rengi) ----------
-function renk(ad) {
-  let x = 0; for (const c of ad) x = (x * 31 + c.charCodeAt(0)) >>> 0;
-  const h1 = x % 360, h2 = (h1 + 40 + (x >> 9) % 80) % 360;
-  return `linear-gradient(135deg,hsl(${h1} 85% 55%),hsl(${h2} 75% 35%))`;
+function baglanti(a, url) {
+  if (!url) return;
+  a.href = url; a.target = "_blank"; a.rel = "noopener";
 }
-function basHarf(ad) { return (ad.match(/(^|\s)[A-ZÇĞİÖŞÜ0-9]/gi) || ["♪"]).map(x => x.trim()).slice(0, 2).join("").toUpperCase(); }
-const istek = x => WA + encodeURIComponent("Merhaba TVplas, şarkı isteğim: " + (x.s ? x.s + " - " : "") + x.e);
-const sanatcilar = new Set(SARKILAR.map(x => x.s || x.e));
-$("sSarki").textContent = SARKILAR.length || "–";
-$("sSanatci").textContent = sanatcilar.size || "–";
 
-// Yeni klipler: son eklenen 10 şarkı (son 30 günde eklenenlerde "YENİ" etiketi)
-(function () {
-  const ay = Date.now() / 1000 - 30 * 86400;
-  const yeni = [...SARKILAR].sort((a, b) => b.y - a.y).slice(0, 10);
-  $("yeniListe").replaceChildren(...yeni.map(x => {
-    const k = el("a", "klip"); k.href = istek(x); k.target = "_blank"; k.rel = "noopener"; k.style.textDecoration = "none";
-    k.title = "Bu şarkıyı WhatsApp'tan isteyin";
-    const kapak = el("div", "kapak", basHarf(x.s || x.e)); kapak.style.background = renk(x.s || x.e);
-    kapak.prepend(el("span", "disk"));
-    if (x.y > ay) kapak.prepend(el("span", "yeni-etiket", "YENİ"));
-    const b = el("div", "bilgi"); b.append(el("b", "", x.e), el("span", "", x.s || "TVplas"));
-    k.append(kapak, b); return k;
-  }));
-  if (!yeni.length) $("yeni").hidden = true;
-})();
-
-// Arşiv: arama, baş harf süzgeci, sayfalı liste
-let harf = "", sinir = 60;
-const HARFLER = [...new Set(SARKILAR.map(x => (x.s || x.e)[0].toUpperCase()))].sort((a, b) => a.localeCompare(b, "tr"));
-$("harfler").replaceChildren(...["Tümü", ...HARFLER].map(h => {
-  const b = el("button", h === "Tümü" ? "aktif" : "", h); b.type = "button";
-  b.onclick = () => { harf = h === "Tümü" ? "" : h; sinir = 60; $("harfler").querySelectorAll("button").forEach(x => x.classList.toggle("aktif", x === b)); arsivCiz(); };
-  return b;
-}));
-const sade = s => s.toLocaleLowerCase("tr").replace(/[çğıöşü]/g, c => ({ ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u" })[c]).replace(/i̇/g, "i");
-function arsivCiz() {
-  const q = sade($("ara").value.trim());
-  const liste = SARKILAR.filter(x => (!harf || (x.s || x.e)[0].toUpperCase() === harf) && (!q || sade(x.s + " " + x.e).includes(q)))
-    .sort((a, b) => (a.s || a.e).localeCompare(b.s || b.e, "tr") || a.e.localeCompare(b.e, "tr"));
-  const kutu = $("sarkilar");
-  if (!liste.length) { kutu.replaceChildren(el("div", "bos-durum", "Aramaya uyan şarkı yok.")); $("daha").hidden = true; return; }
-  kutu.replaceChildren(...liste.slice(0, sinir).map(x => {
-    const d = el("div", "sarki"), m = el("div", "mini", basHarf(x.s || x.e)); m.style.background = renk(x.s || x.e);
-    const y = el("div", "yazi"); y.append(el("b", "", x.e), el("span", "", x.s || "TVplas"));
-    const a = el("a", "iste", "İSTE"); a.href = istek(x); a.target = "_blank"; a.rel = "noopener"; a.title = "WhatsApp'tan şarkı isteği gönderin";
-    d.append(m, y, a); return d;
-  }));
-  $("daha").hidden = liste.length <= sinir;
+// ---- Tıklama sayacı: haber kimliği bağlantısından üretilir (sunucuda haberKimligi ile aynı) ----
+function kimlik(h) {
+  const s = String(h.gl || h.l || ("tv:" + h.b));
+  let x = 5381;
+  for (let i = 0; i < s.length; i++) x = (Math.imul(x, 33) + s.charCodeAt(i)) | 0;
+  return (x >>> 0).toString(36);
 }
-$("ara").oninput = () => { sinir = 60; arsivCiz(); };
-$("daha").onclick = () => { sinir += 60; arsivCiz(); };
-arsivCiz();
 
-// ---------- Müzik gündemi: TVplas Portal'ın Müzik bölümündeki haberler (aynı/benzer haberler bir kez) ----------
-const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü|festival|sahne)/i;
+function tikYazi(n) { return "👁 " + n.toLocaleString("tr-TR") + " tıklama"; }
+
+// Aynı tarayıcıdan bir haber yalnızca bir kez sayılır
+function tiklandi(h, yazi) {
+  const id = kimlik(h);
+  let sayilan = [];
+  try { sayilan = JSON.parse(localStorage.getItem("tvplas_tik") || "[]"); } catch (e) { }
+  if (sayilan.includes(id)) return;
+  sayilan.push(id);
+  try { localStorage.setItem("tvplas_tik", JSON.stringify(sayilan.slice(-500))); } catch (e) { }
+  tiklar[id] = (tiklar[id] || 0) + 1;
+  yazi.textContent = tikYazi(tiklar[id]); yazi.hidden = false;
+  // Sayım isteği resim isteği olarak gider: her tarayıcıda (Facebook'un uygulama içi tarayıcısı dahil) güvenle gönderilir
+  new Image().src = API + "?islem=tikla&id=" + id + "&r=" + Date.now();
+}
+
+// Fotoğrafı olmayan (ya da fotoğrafı açılmayan) habere başlığının konusunu simgeleyen metafor illüstrasyon:
+// bölüm renginde zemin, büyük bir sembol ve arkasında soluk desen. Semboller Lucide (MIT lisanslı).
+// Sıra önemli: ilk eşleşen kural kazanır, özel konular genellerden önce. Kelime başında aranır.
+const IKON = "https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/icons/";
+const KB = "(^|[\\s\"'“‘(])";
+const METAFORLAR = [
+  ["ribbon", "kanser|meme kanseri|farkındalık"],
+  ["syringe", "aşı|aşılama"],
+  ["pill", "ilaç|eczane"],
+  ["heart-pulse", "kalp|organ bağış|kan bağış"],
+  ["stethoscope", "hastane|doktor|hekim|sağlık|hasta|tedavi|ameliyat"],
+  ["gavel", "mahkeme|dava|yargı|hakim|savcı|tutuk|hapis|ceza|sanık"],
+  ["siren", "polis|gözaltı|operasyon|uyuşturucu|hırsız|asayiş|soygun|cinayet"],
+  ["car", "kaza|çarpış|trafik|araç"],
+  ["flame", "yangın|alev"],
+  ["activity", "deprem|sarsıntı"],
+  ["shield", "savaş|asker|ordu|saldırı|füze|savunma|nato"],
+  ["vote", "seçim|sandık|aday|oy |oylama"],
+  ["mic", "gazeteci|basın|medya|röportaj"],
+  ["megaphone", "protesto|eylem|grev|sendika|miting"],
+  ["handshake", "müzakere|görüşme|anlaşma|diplomasi|zirve|birleşmiş|ziyaret"],
+  ["landmark", "meclis|genel kurul|milletvekil|yasa|kanun|cumhurbaşkan|başbakan|bakan|hükümet|parti|belediye|üstel|erhürman|tatar|hristodulidis"],
+  ["music", "konser|şarkı|albüm|müzik|orkestra|koro|dinleti"],
+  ["drama", "tiyatro|sahne|oyuncu"],
+  ["clapperboard", "film|sinema|dizi"],
+  ["palette", "sergi|resim|ressam|sanat|müze"],
+  ["book-open", "kitap|şiir|yazar|edebiyat|kütüphane"],
+  ["party-popper", "festival|şenlik|kutlama|bayram|tören|etkinlik"],
+  ["graduation-cap", "okul|öğrenci|öğretmen|eğitim|üniversite|sınav|mezun"],
+  ["trophy", "şampiyon|turnuva|kupa|madalya|final"],
+  ["volleyball", "voleybol"],
+  ["dumbbell", "fitness|halter|güreş|boks"],
+  ["bike", "bisiklet"],
+  ["trophy", "futbol|maç|gol|lig|stadyum|basketbol|teknik direktör|transfer"],
+  ["piggy-bank", "banka|kredi|tasarruf|faiz"],
+  ["trending-up", "ekonomi|enflasyon|borsa|dolar|euro|sterlin|kur |ihracat|büyüme"],
+  ["banknote", "fiyat|zam|maaş|ücret|asgari|vergi|bütçe|para"],
+  ["tree-palm", "turizm|otel|turist|tatil"],
+  ["plane", "uçuş|havalimanı|ercan|uçak|havayolu"],
+  ["ship", "liman|gemi|feribot|deniz"],
+  ["bus", "otobüs|toplu taşıma|ulaşım"],
+  ["zap", "elektrik|enerji|kıb-tek|kesinti|santral"],
+  ["droplets", "su kesintisi|baraj|kuraklık|su "],
+  ["cloud-rain", "hava durumu|yağmur|yağış|fırtına|rüzgar|sıcaklık|meteoroloji|sel"],
+  ["wheat", "tarım|çiftçi|hasat|hayvancılık|üretici"],
+  ["trees", "çevre|orman|ağaç|iklim|doğa"],
+  ["construction", "inşaat|yol çalışması|altyapı"],
+  ["building-2", "konut|bina|imar|kira"],
+  ["cpu", "teknoloji|yapay zeka|yazılım|internet|siber|dijital"],
+  ["rocket", "uzay|roket|uydu|nasa"],
+  ["atom", "bilim|araştırma|bilim insanı|keşif"],
+  ["flower-2", "anma|vefat|hayatını kaybet|cenaze|başsağlığı|veda|son yolculu"],
+  ["footprints", "göç|mülteci|sığınmacı"],
+  ["baby", "çocuk|bebek"],
+  ["paw-print", "hayvan|köpek|kedi|sokak hayvan"],
+  ["utensils", "yemek|gıda|restoran|mutfak"],
+  ["star", "ünlü|şarkıcı|oyuncu|magazin"]
+].map(([ikon, kelimeler]) => [ikon, new RegExp(KB + "(" + kelimeler + ")", "i")]);
+// Hiçbir kural uymazsa bölümün sembolü; renkler bölüme göre
+const BOLUM_SEMBOL = { "Kıbrıs": "map-pin", "Güney": "landmark", "Türkiye": "flag", "Dünya": "globe", "Etkinlikler": "calendar-days", "Müzik": "music",
+  "Kültür-Sanat": "palette", "Magazin": "star", "Bilim": "atom", "Ekonomi": "trending-up", "Sağlık": "heart-pulse", "Spor": "trophy", "Yazarlar": "pen-line", "TVplas Haber": "newspaper" };
+const BOLUM_RENK = { "Kıbrıs": ["#c8102e", "#5c0614"], "Güney": ["#0369a1", "#082f49"], "Türkiye": ["#e30a17", "#6e050b"], "Dünya": ["#1e40af", "#0a1a4a"],
+  "Etkinlikler": ["#7c3aed", "#35106e"], "Müzik": ["#db2777", "#5f0d33"], "Kültür-Sanat": ["#9d174d", "#430920"],
+  "Magazin": ["#ea580c", "#6b2605"], "Bilim": ["#0891b2", "#063847"], "Ekonomi": ["#047857", "#022a1f"],
+  "Sağlık": ["#0e7490", "#05303c"], "Spor": ["#c2410c", "#521b04"], "Yazarlar": ["#6d28d9", "#2e1065"], "TVplas Haber": ["#be123c", "#4c0519"] };
+
+function metaforYap(h) {
+  // Önce başlık, başlıkta ipucu yoksa özet (Türkçe küçük harfe çevrilerek: "YAĞIŞ" → "yağış")
+  const baslik = h.b.toLocaleLowerCase("tr"), ozet = (h.o || "").toLocaleLowerCase("tr");
+  const kural = METAFORLAR.find(([, re]) => re.test(baslik)) || METAFORLAR.find(([, re]) => re.test(ozet));
+  const ikon = kural ? kural[0] : (BOLUM_SEMBOL[h.alt || h.kat] || "newspaper");
+  const [r1, r2] = BOLUM_RENK[h.alt || h.kat] || BOLUM_RENK["Kıbrıs"];
+  const d = el("div", "metafor");
+  d.style.setProperty("--r1", r1);
+  d.style.setProperty("--r2", r2);
+  d.style.setProperty("--ikon", "url(" + IKON + ikon + ".svg)");
+  d.append(el("span", "m-desen"), el("span", "m-halka"), el("span", "m-ikon"), el("span", "m-etiket", "temsili görsel"));
+  return d;
+}
+
+// Yabancı dildeki (çevrilmiş) haberler portalın Türkçe okuma sayfasında (oku.html) açılır: sunucu haberin
+// giriş bölümünü Türkçeye çevirir, haberin tamamı için kaynağa bağlantı verilir. Google Haberler ve Reddit hariç.
+function turkceAdres(h) {
+  if (!h.ob || !h.l || /news\.google\.|reddit\.com/.test(h.l)) return h.l;
+  return "oku.html?u=" + encodeURIComponent(h.l);
+}
+
+// Facebook'taki tıklanabilir kapaktan gelen ziyaretçi kapaktaki habere götürülür. Paylaşım sayfası (p/NNN.html?…&h=…)
+// ziyaretçiyi portala yönlendirir; kapaktaki haber o sayfanın adresinden (yönlendiren sayfa) okunur.
+// Yalnızca portaldaki haber/reklam kimlikleri kabul edilir (adres değil): portal başka sitelere yönlendirme aracı olamaz.
+function kapakHedefi() {
+  let q = location.search;
+  try {
+    const r = new URL(document.referrer);
+    if (!/[?&][hrb]=/.test(q) && r.origin === location.origin && /\/p\/\d+\.html$/.test(r.pathname)) q = r.search;
+  } catch (e) { }
+  const p = new URLSearchParams(q), kim = s => /^[0-9a-z]{1,8}$/.test(s || "") ? s : "";
+  const b = p.get("b");
+  return { h: kim(p.get("h")), r: kim(p.get("r")), b: b === "Gazeteler" || BOLUMLER.includes(b) ? b : "" };
+}
+
+function hedefAc(reklamlar) {
+  const { h, r, b } = kapakHedefi();
+  if (!h && !r && !b) return;
+  // Geri tuşuyla dönülünce ya da sayfa yenilenince yeniden yönlendirilmesin
+  const iz = "tvplas_hedef:" + (h || r || b) + ":" + document.referrer;
+  try { if (sessionStorage.getItem(iz)) return; sessionStorage.setItem(iz, "1"); } catch (e) { }
+  if (location.search) history.replaceState(null, "", location.pathname);
+  if (b) { document.querySelector(`.menu button[data-k="${b}"]`)?.click(); return; }
+  if (h) {
+    const x = haberler.find(y => kimlik(y) === h);
+    if (!x) return;   // haber listeden düşmüşse portal açık kalır
+    new Image().src = API + "?islem=tikla&id=" + h + "&r=" + Date.now();   // kapaktan gelen ziyaret de sayılır
+    document.querySelector(`.menu button[data-k="${x.kat}"]`)?.click();
+    detayAc(ozetHaber(x));
+    return;
+  }
+  const rk = reklamlar.find(y => kimlik({ l: "rk:" + y.g }) === r);
+  if (!rk) return;
+  detayAc({ b: rk.ad || "Reklam", v: rk.v, g: rk.g, l: rk.l, kaynakYazi: "Reklam verenin sitesine git →" });
+}
+
+// Dış kaynaklı haber portalda önce TVplas Haber tarzı özet penceresinde açılır; tamamı oradan kaynağında okunur
+function ozetHaber(h) {
+  return h.tvplas ? h : { ...h, kaynakYazi: "Haberin tamamını kaynağında oku →" };
+}
+
+function kartYap(h) {
+  // Tüm haberler TVplas Haber görünümünde: kırmızı çerçeve, TVplas rozeti, "Kaynak: X", fotoğraf künyesi, "Devamını oku"
+  const kart = el("article", "kart tvplas");
+  // Köşe yazısında görsel yazarın vesikalık fotoğrafıysa kırpılmadan, mor zemin üzerinde gösterilir
+  const portre = h.kat === "Yazarlar" && /_avatar|\/images\/yazarlar\/|\/author\//i.test(h.g || "");
+  const resim = el("a", "resim" + (h.v ? " video" : "") + (portre ? " portre" : ""));
+  const adres = turkceAdres(h);
+  baglanti(resim, adres);
+  if (h.g) {
+    const img = el("img");
+    img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
+    // Kıbrıs haberleri gerçek fotoğrafla gösterilir: fotoğrafı açılmayan haber listeden çıkar (kendi haberlerimiz hariç)
+    img.onerror = () => h.kat === "Kıbrıs" && !h.tvplas ? kart.remove() : resim.replaceChildren(metaforYap(h));
+    resim.append(img);
+    // TVplas Haber: fotoğraf haberin kaynağına aittir; künyede kaynak adı yazılır ("Fotoğraf: Kaynak")
+    // Dış kaynaklı haberlerde fotoğraf o kaynağındır ("Fotoğraf: Kaynak"); köşe yazarının vesikalığı ve videoda yazılmaz
+    const kunyeYazi = h.gk || (!h.tvplas && h.k && !portre && (!h.v || h.vh) ? "Fotoğraf: " + h.k : "");
+    if (kunyeYazi) { resim.classList.add("kunyeli"); resim.append(el("span", "kunye", kunyeYazi)); }
+  } else {
+    resim.append(metaforYap(h));
+  }
+  const ic = el("div", "icerik");
+  const ust = el("div", "ust");
+  ust.append(el("span", "etiket", "TVplas"));
+  if (h.yz && h.kat === "Yazarlar") ust.append(el("span", "yazar", "✍ " + h.yz));   // yalnızca köşe yazılarında
+  ust.append(el("span", "", h.tvplas || !h.k || /^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k), el("span", "", kac(h.t)));
+  const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
+  tik.hidden = !n; ust.append(tik);
+  if (h.ob && !h.tvy) {
+    const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c);
+    if (adres !== h.l) { const o = el("a", "orijinal", "orijinali"); baglanti(o, h.l); ust.append(o); }
+  }
+  const h2 = el("h2"), a = el("a", "", h.b);
+  baglanti(a, adres); h2.append(a);
+  // Linki olmayan ya da videolu kendi haberlerimizde başlık ve fotoğraf tam metni (videoyu) portalda açar
+  if (h.tvplas && (!h.l || h.v || h.th)) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(h); }; });
+  // Dış haberde de başlık ve fotoğraf önce özet penceresini açar
+  if (!h.tvplas && h.l) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(ozetHaber(h)); }; });
+  const pay = el("a", "paylas", "Facebook'ta paylaş");
+  baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.th ? PORTAL : (h.l || PORTAL)));
+  ic.append(ust, h2, el("p", "ozet", h.o));
+  if (h.tvplas && (h.o || "").length > 180) {
+    const devam = el("button", "devam", "Devamını oku →");
+    devam.onclick = () => detayAc(h);
+    ic.append(devam);
+  } else if (!h.tvplas && h.l) {
+    const devam = el("button", "devam", "Devamını oku →");   // dış haber: önce portalda özet penceresi
+    devam.onclick = () => detayAc(ozetHaber(h));
+    ic.append(devam);
+  }
+  if (h.ob && !h.tvy) ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
+  ic.append(pay);
+  kart.append(resim, ic);
+  // Habere giden her tıklama (fotoğraf, başlık, devamı, orijinali; Facebook paylaşımı hariç) sayılır
+  const say = e => { const a = e.target.closest("a, button"); if (a && !a.classList.contains("paylas")) tiklandi(h, tik); };
+  kart.addEventListener("click", say); kart.addEventListener("auxclick", say);
+  return kart;
+}
+
+// Türkçe olmayan (çevrilmiş) haber için iki düğme: haberin tamamı kaynağında ve tamamının Google Çeviri ile Türkçesi.
+// Dil, okuma sayfasıyla (oku.html) aynı yolla seçilir. Google Haberler bağlantısında gerçek adres gizli olduğundan çeviri düğmesi yok
+function googleCeviri(u, ozgun) {
+  const x = new URL(u), h = x.hostname;
+  const dil = /[\u0370-\u03ff]/.test(ozgun) ? "el" : /[\u0400-\u04ff]/.test(ozgun) ? "auto"
+    : /lemonde\.fr|lefigaro\.fr/.test(h) ? "fr" : /faz\.net|sueddeutsche\.de/.test(h) ? "de"
+    : /elpais\.com/.test(h) ? "es" : /corriere\.it/.test(h) ? "it" : "en";
+  const alanAdi = x.hostname.replace(/-/g, "--").replace(/\./g, "-") + ".translate.goog";
+  x.searchParams.set("_x_tr_sl", dil); x.searchParams.set("_x_tr_tl", "tr"); x.searchParams.set("_x_tr_hl", "tr");
+  return "https://" + alanAdi + x.pathname + x.search + x.hash;
+}
+
+function ceviriDugmeleri(h, kutu) {
+  kutu.replaceChildren();
+  if (h.tvplas || !h.ob || !h.l) return kutu;
+  const a = el("a", "dg-ana", "Haberin tamamını kaynağında oku →");
+  baglanti(a, h.l); kutu.append(a);
+  if (!/news\.google\.|reddit\.com/.test(h.l)) {
+    try { const b = el("a", "dg-ikinci", "Tamamını Google Çeviri ile Türkçe dene"); baglanti(b, googleCeviri(h.l, h.ob)); kutu.append(b); } catch (e) { }
+  }
+  return kutu;
+}
+
+function aramaMetni(h) {
+  return (h.b + " " + (h.o || "") + " " + h.k + " " + (h.ob || "") + " " + (h.yz || "")).toLocaleLowerCase("tr");
+}
+
+// Kendi haberimizin tam metnini fotoğrafıyla birlikte pencerede gösterir
+function detayAc(h) {
+  const d = document.getElementById("detay");
+  const kutu = d.querySelector(".d-gorsel");
+  if (h.v) {
+    // Panelden yüklenen video Drive oynatıcısıyla portalın içinde oynar
+    const f = el("iframe");
+    f.src = "https://drive.google.com/file/d/" + encodeURIComponent(h.v) + "/preview";
+    f.allow = "autoplay; fullscreen"; f.title = h.b;
+    // Bazı tarayıcılarda (Google oturumu, çerez ayarları) gömülü oynatıcı açılmayabilir: yedek bağlantı
+    const yedek = el("a", "video-yedek", "▶ Video oynamıyorsa yeni pencerede açın");
+    baglanti(yedek, "https://drive.google.com/file/d/" + encodeURIComponent(h.v) + "/view");
+    kutu.replaceChildren(f, yedek);
+  } else if (h.g) {
+    const img = el("img");
+    img.src = h.g; img.alt = ""; img.referrerPolicy = "no-referrer";
+    img.onerror = () => kutu.replaceChildren(metaforYap(h));
+    kutu.replaceChildren(img);
+  } else {
+    kutu.replaceChildren(metaforYap(h));
+  }
+  const disKaynak = !h.tvplas && h.k;
+  const kunye = d.querySelector(".d-kunye");
+  kunye.textContent = h.v && !h.vh ? "" : h.gk ? "📷 " + h.gk : disKaynak && h.g ? "📷 Fotoğraf: " + h.k : "";
+  const kunyeAdres = h.gs || (disKaynak && h.g ? h.l : "");
+  if (kunyeAdres) kunye.href = kunyeAdres; else kunye.removeAttribute("href");
+  d.querySelector("h2").textContent = h.b;
+  d.querySelector(".govde .ust .etiket").textContent = "TVplas";
+  d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz
+    : disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : "TVplas Portal";
+  d.querySelector(".metin").textContent = h.o || "";
+  const kaynak = d.querySelector(".kaynakLink");
+  kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
+  kaynak.hidden = !h.l || (!h.tvplas && h.ob && turkceAdres(h) === h.l);   // Türkçe sayfası yoksa iki düğme yeter
+  if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
+  ceviriDugmeleri(h, d.querySelector(".ceviri-dugmeler"));
+  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL);
+  d.showModal();
+  d.scrollTop = 0;
+}
+
+// ---- Gazeteler: kibrisgazeteleri.com'daki günün birinci sayfaları (sunucu her sabah toplar) ----
+const coz = s => new DOMParser().parseFromString(s || "", "text/html").documentElement.textContent;
+
+// Gazetelerin internet siteleri (her biri açılıp Kıbrıs içeriği doğrulandı). Spor ekleri ana gazetenin sitesine gider.
+// Listede olmayan gazete (sitesi yok ya da bulunamadı) tıklanınca birinci sayfası portalda büyür.
+const GAZETE_SITELERI = {
+  "AJANS ADA": "https://www.ajansada.com/",
+  "AJANS CYPRUS": "https://ajanscyprus.com/",
+  "AVRUPA": "https://www.avrupagazetesi.com/",
+  "BAĞIMSIZ": "https://www.bagimsiz.com/",
+  "DEMOKRAT": "https://www.demokratkibris.com.tr/",
+  "DİYALOG": "https://www.diyaloggazetesi.com/",
+  "DİYALOG SPOR": "https://www.diyaloggazetesi.com/",
+  "FLAŞ KIBRIS": "https://www.flaskibris.com/",
+  "GIYNIK": "https://giynikgazetesi.com/",
+  "GIYNIK SPOR": "https://giynikgazetesi.com/",
+  "GÜNCEL KIBRIS": "https://www.guncelkibris.com/",
+  "GÜNDEM KIBRIS": "https://www.gundemkibris.com/",
+  "GÜNEŞ": "https://guneskibris.com/",
+  "GÜNEŞ SPOR": "https://guneskibris.com/",
+  "HABER VER KIBRIS": "https://haberverkibris.com/",
+  "HABERCİ": "https://www.kibrishaberci.com/",
+  "HABERLER": "https://haberlerkibris.com/",
+  "HAKİKAT": "https://kibrishakikat.com/",
+  "HALKIN SESİ": "https://www.halkinsesikibris.com/",
+  "HALKIN SESİ SPOR": "https://www.halkinsesikibris.com/",
+  "HAVADİS": "https://www.havadiskibris.com/",
+  "İNKİLAPÇI": "https://www.inkilapci.com/",
+  "KALEM": "https://www.kibriskalem.com/",
+  "KIBRIS": "https://kibrisgazetesi.com/",
+  "KIBRIS GERÇEK": "https://www.kibrisgercek.com/",
+  "KIBRIS HABER AJANS": "https://kibrishaberajans.com/",
+  "KIBRIS MANŞET": "https://www.kibrismanset.com/",
+  "KIBRIS NE HABER": "https://kibrisnehaber.com/",
+  "KIBRIS TÜRK": "https://www.kibristurk.com/",
+  "KIBRISIN SESİ": "https://www.kibrisinsesi.com/",
+  "MEYDAN": "https://www.meydankibris.com/",
+  "OBJEKTİF": "https://www.kibrisobjektif.com/",
+  "ÖZGÜR": "https://ozgurgazetekibris.com/",
+  "STAR": "https://www.starkibris.net/",
+  "TELESKOP": "https://teleskopkibris.com/",
+  "TERCÜMAN": "https://kibristercuman.com/",
+  "YENİ BAKIŞ": "https://yenibakisgazetesi.com/",
+  "YENİ BAKIŞ SPOR": "https://yenibakisgazetesi.com/",
+  "YENİ DÜZEN": "https://www.yeniduzen.com/",
+  "ZİRVE": "https://www.zirvekibris.com/"
+};
+
+function gazeteKartYap(g) {
+  const kart = el("article", "kart gazete-kart");
+  const sayfa = el("a", "sayfa"), img = el("img");
+  img.src = g.g; img.alt = g.ad + " birinci sayfa"; img.loading = "lazy"; img.referrerPolicy = "no-referrer";
+  img.onerror = () => kart.remove();
+  sayfa.append(img);
+  const ic = el("div", "icerik");
+  const ust = el("div", "ust");
+  // Tıklama sayacı: kimlik o günkü birinci sayfanın kimliğinden (her gazete her gün yeniden sayılır)
+  const gh = { l: "gz:" + g.id }, n = tiklar[kimlik(gh)] || 0, tik = el("span", "tik", tikYazi(n));
+  tik.hidden = !n;
+  ust.append(el("span", "etiket", g.ad), tik);
+  const h2 = el("h2", "", g.basliklar[0] || g.ad);
+  ic.append(ust, h2);
+  if (g.basliklar.length > 1) {
+    const ul = el("ul");
+    g.basliklar.slice(1).forEach(b => ul.append(el("li", "", b)));
+    ic.append(ul);
+  }
+  kart.append(sayfa, ic);
+  // İnternet sitesi olan gazete kendi sitesinde açılır; olmayanın birinci sayfası portalda büyür
+  const site = GAZETE_SITELERI[g.ad];
+  if (site) {
+    baglanti(sayfa, site);
+    h2.onclick = () => window.open(site, "_blank", "noopener");
+    ust.append(el("span", "", "🌐 sitesine gider"));
+  } else {
+    [sayfa, h2].forEach(x => x.onclick = () => gazeteAc(g));
+  }
+  if (g.id) [sayfa, h2].forEach(x => x.addEventListener("click", () => tiklandi(gh, tik)));
+  return kart;
+}
+
+// Gazetenin birinci sayfası büyük, okunan başlıklarla birlikte pencerede açılır
+function gazeteAc(g) {
+  const d = document.getElementById("detay");
+  const img = el("img");
+  img.src = g.g; img.alt = g.ad + " birinci sayfa"; img.referrerPolicy = "no-referrer";
+  // Kaynak sayfalar ~370×500 piksel: kendi boyutundan büyük gösterilirse bulanıklaşır, bu yüzden şişirilmez
+  img.style.cssText = "width:auto;max-width:100%;margin:0 auto";
+  d.querySelector(".d-gorsel").replaceChildren(img);
+  d.querySelector("h2").textContent = g.ad + (g.basliklar[0] ? ": " + g.basliklar[0] : "");
+  d.querySelector(".govde .ust span:last-child").textContent = "TVplas Portal";   // önceki köşe yazısının yazar adı kalmasın
+  d.querySelector(".metin").textContent = g.basliklar.slice(1).map(b => "• " + b).join("\n");
+  d.querySelector(".ceviri-dugmeler").replaceChildren();
+  const kaynak = d.querySelector(".kaynakLink");
+  kaynak.textContent = "Gazete sayfaları: kibrisgazeteleri.com →";
+  kaynak.hidden = false;
+  kaynak.href = "http://kibrisgazeteleri.com/";
+  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(PORTAL);
+  d.showModal();
+  d.scrollTop = 0;
+}
+
+function gazeteleriYukle() {
+  fetch(API + "?islem=gazeteler").then(r => r.json()).then(v => {
+    gazeteler = (v.gazeteler || []).filter(g => g.g)
+      .map(g => ({ ...g, ad: coz(g.ad), basliklar: (g.basliklar || []).map(coz) }))
+      .sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
+    if (v.tarih) {
+      const [gun, ay, yil] = v.tarih.split("-");
+      gazeteTarihi = new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+    }
+  }).catch(() => { gazeteler = []; }).then(() => { if (bolum === "Gazeteler" && !ara.value.trim()) ciz(); });
+}
+
+function reklamYap(r) {
+  const a = el("a", "reklam" + (r.v ? " video" : ""));
+  baglanti(a, r.l);
+  // Videolu reklam: afişe tıklanınca video portal içinde oynar, reklam verenin adresi pencerenin altında
+  if (r.v) {
+    a.removeAttribute("target"); a.href = "#";
+    a.onclick = e => { e.preventDefault(); detayAc({ b: r.ad || "Reklam", v: r.v, l: r.l, kaynakYazi: "Reklam verenin sitesine git →" }); };
+  }
+  const img = el("img");
+  img.src = r.g; img.alt = r.ad || "Reklam"; img.referrerPolicy = "no-referrer";
+  img.onerror = () => a.remove();
+  a.append(img, el("span", "rk-etiket", "Reklam"));
+  return a;
+}
+
+// Fotoğrafın yılı: panelde girilen yıl; yoksa başlıkta/açıklamada geçen ilk yıl (ör. "1950"); o da yoksa boş
+const fotoYili = h => (String(h.yil || "").match(/^\d{4}$/) || String(h.b + " " + (h.o || "")).match(/\b(1[89]\d\d|20\d\d)\b/) || [""])[0];
+
+// Fotoğraflar galerisinde kart: büyük fotoğraf, başlık ve yıl; dokununca fotoğraf açıklamasıyla büyür
+function fotoKartYap(h) {
+  const kart = el("article", "kart foto");
+  const resim = el("a", "resim" + (h.v ? " video" : ""));
+  resim.href = "#";
+  if (h.g) {
+    const img = el("img");
+    img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = h.b || "";
+    img.onerror = () => resim.replaceChildren(metaforYap(h));
+    resim.append(img);
+  } else {
+    resim.append(metaforYap(h));
+  }
+  const ic = el("div", "icerik"), ust = el("div", "ust");
+  const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
+  tik.hidden = !n;
+  ust.append(el("span", "", fotoYili(h) ? "📅 " + fotoYili(h) : kac(h.t)), tik);
+  const h2 = el("h2", "", h.b);
+  ic.append(ust, h2);
+  [resim, h2].forEach(x => x.onclick = e => { e.preventDefault(); tiklandi(h, tik); detayAc(h); });
+  kart.append(resim, ic);
+  return kart;
+}
+
+// Seçili bölümün haberlerini çizer; arama yazılıysa tüm bölümlerde arar.
+// Reklamlar her bölümde numara sırasıyla REKLAM_ARALIGI haberde bir, birer kez girer (aramada reklam yok).
+// Kartları dizer; reklamlıysa REKLAM_ARALIGI kartta bir reklam afişi girer
+function diz(ogeler, yap, reklamli) {
+  const kartlar = [];
+  ogeler.forEach((x, i) => {
+    kartlar.push(yap(x));
+    const sira = (i + 1) / REKLAM_ARALIGI - 1;
+    if (reklamli && Number.isInteger(sira) && sira < araReklam.length) {
+      const k = el("article", "kart reklam-kart");
+      k.append(reklamYap(araReklam[sira]));
+      kartlar.push(k);
+    }
+  });
+  return kartlar;
+}
+
+function ciz() {
+  const q = ara.value.trim().toLocaleLowerCase("tr");
+  if (!q && bolum === "Gazeteler") {
+    if (!gazeteler) { liste.replaceChildren(el("div", "durum", "Gazeteler yükleniyor…")); return; }
+    if (!gazeteler.length) { liste.replaceChildren(el("div", "durum", "Bugünün gazeteleri henüz hazırlanıyor, haberler için menüden bir bölüm seçin.")); return; }
+    const baslik = el("div", "bolum-baslik", "📰 " + (gazeteTarihi ? gazeteTarihi + " · " : "") + "Kıbrıs gazetelerinin birinci sayfaları (" + gazeteler.length + " gazete) · büyütmek için sayfaya dokunun");
+    liste.replaceChildren(baslik, ...diz(gazeteler, gazeteKartYap, true));
+    return;
+  }
+  const secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
+    : haberler.filter(h => h.kat === bolum || h.ekBolum.includes(bolum));
+  // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
+  // Dünya'da sunucunun öncelikli saydığı büyük gazeteler (h.on) diğer kaynaklardan önce gelir
+  if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
+  // Yazarlar'da önce kendi yazarlarımızın yazıları, sonra gazetelerin köşe yazıları
+  if (!q && bolum === "Yazarlar") secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
+  if (!q && bolum === "Fotoğraflar") {
+    if (!secili.length) { liste.replaceChildren(el("div", "durum", "Henüz fotoğraf eklenmedi.")); return; }
+    // (Fotoğraf sayısı artınca yıllara/on yıllara göre ayırma yeniden açılabilir: yıl bilgisi panelden girilmeye devam ediyor)
+    const baslik = el("div", "bolum-baslik", "📷 Fotoğraflar (" + secili.length + ") · büyütmek için fotoğrafa dokunun");
+    liste.replaceChildren(baslik, ...diz(secili, fotoKartYap, true));
+    return;
+  }
+  const kartlar = diz(secili, kartYap, !q);
+  liste.replaceChildren(...(kartlar.length ? kartlar
+    : [el("div", "durum", q ? "Aramaya uyan haber yok." : "Bu bölümde şu an haber yok.")]));
+}
+
+ara.oninput = ciz;
+const detay = document.getElementById("detay");
+detay.querySelector(".kapat").onclick = () => detay.close();
+// Haber penceresinden TVplas Portal ana sayfasına (en üste) dönülür
+detay.querySelector(".anaDon").onclick = () => { detay.close(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+detay.addEventListener("close", () => detay.querySelector("iframe")?.remove());   // kapanınca video da durur
+detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
+document.querySelectorAll(".menu button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".menu button").forEach(x => x.classList.toggle("aktif", x === b));
+  bolum = b.dataset.k;
+  ara.value = "";
+  ciz();
+});
+
+// Ziyaretçi sayacı: bu tarayıcı bugün henüz sayılmadıysa sunucuya ziyaret=1 gönderilir
+function bugunTarih() {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Famagusta" });
+}
+
+function sayilacakMi() {
+  try { return localStorage.getItem("tvplas_ziyaret") !== bugunTarih(); } catch (e) { return true; }
+}
+
+// Kurlar bandı: Sterlin, Euro, Dolar (TCMB döviz satış). Kesintisiz akması için içerik iki kez yazılır
+function kurGoster(k) {
+  if (!k || !k.USD || !k.EUR || !k.GBP) return;
+  const tl = n => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " TL";
+  const ogeler = [["💷 Sterlin", k.GBP], ["💶 Euro", k.EUR], ["💵 Dolar", k.USD]];
+  const kopya = () => [...ogeler.map(([ad, d]) => { const s = el("span", "kur", ad + " "); s.append(el("b", "", tl(d))); return s; }),
+    el("span", "kur", "").appendChild(el("small", "", "TCMB · " + (k.tarih || ""))).parentNode];
+  document.getElementById("kurAkis").replaceChildren(...kopya(), ...kopya());
+  document.getElementById("kurlar").hidden = false;
+}
+
+// Hava bandı: MET Norway sembol kodu (ör. clearsky_day, lightrainshowers_night) → simge ve Türkçe açıklama
+function havaSimgesi(kod) {
+  const k = String(kod || ""), gece = /_night/.test(k);
+  if (/thunder/.test(k)) return ["⛈️", "Gök gürültülü"];
+  if (/snow/.test(k)) return ["❄️", "Karlı"];
+  if (/sleet/.test(k)) return ["🌨️", "Karla karışık yağmur"];
+  if (/showers/.test(k)) return ["🌦️", "Sağanak"];
+  if (/rain/.test(k)) return ["🌧️", "Yağmurlu"];
+  if (/fog/.test(k)) return ["🌫️", "Sisli"];
+  if (/cloudy/.test(k) && !/partly/.test(k)) return ["☁️", "Bulutlu"];
+  if (/partlycloudy/.test(k)) return [gece ? "☁️" : "⛅", "Parçalı bulutlu"];
+  if (/fair/.test(k)) return [gece ? "🌙" : "🌤️", "Az bulutlu"];
+  if (/clearsky/.test(k)) return [gece ? "🌙" : "☀️", "Açık"];
+  return ["🌡️", ""];
+}
+
+function havaGoster(h) {
+  if (!h || !h.yerler || !h.yerler.length) return;
+  const kopya = () => h.yerler.map(y => {
+    const [simge, ad] = havaSimgesi(y.d), s = el("span", "kur", y.ad + " " + simge + " ");
+    s.append(el("b", "", Math.round(y.s) + "°C"));
+    if (ad) s.append(el("small", "", " " + ad));
+    return s;
+  });
+  document.getElementById("havaAkis").replaceChildren(...kopya(), ...kopya());
+  document.getElementById("hava").hidden = false;
+}
+
+function sayacGoster(s) {
+  if (!s) return;
+  try { localStorage.setItem("tvplas_ziyaret", bugunTarih()); } catch (e) { }
+  document.getElementById("sayacToplam").textContent = s.toplam.toLocaleString("tr-TR");
+  document.getElementById("sayacBugun").textContent = s.bugun.toLocaleString("tr-TR");
+  document.getElementById("sayac").hidden = false;
+}
+
+// Aynı ya da benzer haber portalda tek kez görünür (2026-11-09 kullanıcı). Kelimelerin ilk 4 harfi karşılaştırılır (kapısı/kapıları);
+// çok haberde geçen sözcükler (Cumhurbaşkanı, Kıbrıs...) az, nadir olanlar (kişi, yer adı) çok sayılır.
+// Benzerlerden TVplas yazısı olanı, o da yoksa en yenisi kalır.
 function kokler(s) { return new Set((String(s || "").toLocaleLowerCase("tr").match(/\p{L}{4,}/gu) || []).map(k => k.slice(0, 4))); }
 function tekle(liste) {
-  const kalan = [];
-  for (const h of liste) {
-    const k = kokler(h.b);
-    if (kalan.some(x => { let o = 0; k.forEach(w => { if (x._k.has(w)) o++; }); return o / Math.max(1, k.size + x._k.size - o) >= 0.4; })) continue;
-    h._k = k; kalan.push(h);
-  }
-  return kalan;
+  liste.forEach(h => { h._kb = kokler(h.b); h._km = h.tvy ? kokler(h.b + " " + String(h.o || "").slice(0, 300)) : null; });
+  const df = new Map();
+  liste.forEach(h => new Set([...h._kb, ...(h._km || [])]).forEach(k => df.set(k, (df.get(k) || 0) + 1)));
+  const w = k => Math.log(liste.length / (df.get(k) || 1));
+  const benzer = (a, b) => {
+    let ortak = 0, tum = 0, nadir = false;
+    new Set([...a, ...b]).forEach(k => { const x = w(k); tum += x; if (a.has(k) && b.has(k)) { ortak += x; if ((df.get(k) || 1) <= 6) nadir = true; } });
+    return nadir ? ortak / Math.max(1e-9, tum) : 0;
+  };
+  const kalan = [], atilan = new Set();
+  [...liste].sort((x, y) => (!!y.tvy - !!x.tvy) || (y.t || "").localeCompare(x.t || "")).forEach(h => {
+    if (kalan.some(x => benzer(h._kb, x._kb) >= 0.3 || (h._km && x._km && benzer(h._km, x._km) >= 0.2))) atilan.add(h);
+    else kalan.push(h);
+  });
+  for (let i = liste.length - 1; i >= 0; i--) if (atilan.has(liste[i])) liste.splice(i, 1);
 }
-function kac(t) {
-  const dk = Math.round((Date.now() - new Date(t)) / 60000);
-  if (!t || isNaN(dk)) return "";
-  if (dk < 60) return Math.max(1, dk) + " dk önce";
-  if (dk < 1440) return Math.floor(dk / 60) + " saat önce";
-  return new Date(t).toLocaleDateString("tr-TR", { day: "2-digit", month: "long" });
-}
-async function haberler() {
+
+async function yukle() {
   try {
-    const v = await (await fetch(API + "?ziyaret=0")).json();
-    let l = (v.haberler || []).map(h => ({ ...h, b: h.tb || h.b, o: h.tm || "" }))
-      .filter(h => h.tur === "Müzik" || h.tur === "Kültür-Sanat" && MUZIK.test(h.b) || MUZIK.test(h.b))
-      .sort((a, b) => (b.t || "").localeCompare(a.t || ""));
-    l = tekle(l).slice(0, 12);
-    if (!l.length) { $("haberler").replaceChildren(el("div", "bos-durum", "Şu an yeni müzik haberi yok.")); return; }
-    $("haberler").replaceChildren(...l.map(h => {
-      const a = el("a", "haber"); a.href = h.l || "./"; a.target = "_blank"; a.rel = "noopener";
-      const g = el("div", "gorsel" + (h.g ? "" : " bos"), h.g ? null : "🎵");
-      if (h.g) g.style.backgroundImage = "url(" + JSON.stringify(h.g) + ")";
-      const ic = el("div", "ic"), ub = el("div", "ust-bilgi");
-      ub.append(el("b", "", h.tur === "Müzik" ? "MÜZİK" : (h.tur || "SANAT").toLocaleUpperCase("tr")), el("span", "", h.k || ""), el("span", "", kac(h.t)));
-      ic.append(ub, el("h3", "", h.b));
-      if (h.o) ic.append(el("p", "", h.o));
-      a.append(g, ic); return a;
-    }));
-  } catch (e) { $("haberler").replaceChildren(el("div", "bos-durum", "Haberler şu an yüklenemedi, lütfen sayfayı yenileyin.")); }
+    const r = await fetch(API + "?ziyaret=" + (sayilacakMi() ? "1" : "0"));
+    const veri = await r.json();
+    sayacGoster(veri.sayac);
+    kurGoster(veri.kur);
+    havaGoster(veri.hava);
+    tiklar = veri.tiklama || {};
+    const ekler = veri.ekler || {};
+    // Kendi haberlerimiz panelde seçilen bölümde (boşsa Kıbrıs; sabitler en üstte); diğerleri sunucudan tarihe göre dizili gelir
+    const benim = (ekler.haberler || []).map(h => {
+      const [kat, alt] = bolumBul(h.bolum);
+      return { ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true, kat, alt };
+    });
+    // Etkinlikler bölümü kaldırıldı: sunucunun önbelleğinden gelebilecek eski etkinlik haberleri atlanır
+    const vh = veri.videoHaber || {};
+    const tum = (veri.haberler || []).filter(h => h.tur !== "Etkinlikler").map(h => {
+      let tur = h.tur;
+      if (tur === "Müzik" && !MUZIK.test(h.b)) tur = "Magazin";
+      const [kat, alt] = bolumBul(tur);
+      // TVplas Haber biçiminde yeniden yazılmış haber (sunucu: tumunuYaz): başlık ve metin TVplas yazısıdır
+      if (h.tm) return { ...h, b: h.tb || h.b, o: h.tm, kat, alt, tvy: true };
+      return { ...h, kat, alt };
+    });
+    tekle(tum);
+    // TVplas Haber yazıları: haberin kaynağındaki kendi fotoğrafı (künyesiyle); kaynakta fotoğraf yoksa konuya uygun TVplas çizimi.
+    // Kaynak adı ve bağlantısı pencerede
+    const tvh = (veri.tvplasHaber || []).map(x => ({ b: x.b, o: x.o, t: x.t, l: x.l, gl: "tvh:" + x.id, k: "Kaynak: " + x.kaynak,
+      g: x.g && x.g !== "-" ? x.g : "", gk: x.g && x.g !== "-" ? x.gk : "", gs: x.gs,
+      ...(vh[x.id] ? { v: vh[x.id], vh: true } : {}),
+      kaynakYazi: "Kaynak: " + x.kaynak + " →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }));
+    // Video haberler yalnızca bu menüdedir: bültene girip burada yazısı olmayan haberler de videosuyla eklenir
+    const tvhVar = new Set((veri.tvplasHaber || []).map(x => x.id));
+    const videoKarti = (id, b, o, t, l, k, g) => { tvhVar.add(id); tvh.push({ b, o, t, l, gl: "tvh:" + id, k: "Kaynak: " + k, g: g || "", gk: g ? "Fotoğraf: " + k : "", gs: l,
+      v: vh[id], vh: true, kaynakYazi: "Kaynak: " + k + " →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }); };
+    (veri.videoKart || []).forEach(x => { if (vh[x.id] && !tvhVar.has(x.id)) videoKarti(x.id, x.b, x.o, x.t, x.l, x.k, x.g); });
+    (veri.haberler || []).forEach(h => {
+      const id = kimlik(h);
+      if (vh[id] && !tvhVar.has(id) && h.tm) videoKarti(id, h.tb || h.b, h.tm, h.t, h.l, h.k, h.g);
+    });
+    [...benim, ...tum, ...tvh].forEach(h => {
+      h.ekBolum = [];
+      if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && h.kat !== "Yazarlar" && h.kat !== "TVplas Haber" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
+    });
+    haberler = [...benim.filter(h => h.sabit),
+      ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
+      ...tum.filter(h => h.kat !== "Kıbrıs"), ...tvh.filter(h => h.v)];   // TVplas Haber menüsünde yalnızca video haberler
+    // Her menüde en çok 24 haber (panelden eklenen kendi haberlerimiz önce sayılır ve her zaman kalır)
+    const menuAdet = {};
+    benim.forEach(h => { menuAdet[h.kat] = (menuAdet[h.kat] || 0) + 1; });
+    haberler = haberler.filter(h => (h.tvplas && !h.th) || (menuAdet[h.kat] = (menuAdet[h.kat] || 0) + 1) <= 24);
+
+    // Reklamlar sunucudan "Sıra no"ya göre dizili gelir. Numarası en küçük "Üst" reklam en üstte durur;
+    // kalan her reklam numara sırasıyla haber aralarına birer kez girer (tekrar yok).
+    const reklamlar = ekler.reklamlar || [];
+    const ust = reklamlar.find(r => r.yer === "ust");
+    document.getElementById("reklamUst").replaceChildren(...(ust ? [reklamYap(ust)] : []));
+    araReklam = reklamlar.filter(r => r !== ust);
+    ciz();
+    document.getElementById("zaman").textContent =
+      haberler.length + " haber · son güncelleme " + kac(veri.guncelleme);
+    hedefAc(reklamlar);
+  } catch (e) {
+    liste.replaceChildren(el("div", "durum", "Haberler şu an yüklenemedi, lütfen sayfayı yenileyin."));
+    document.getElementById("zaman").textContent = "";
+  }
 }
-haberler();
+gazeteleriYukle();
+yukle();
 </script>
 </body>
 </html>
