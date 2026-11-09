@@ -3,13 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TVplas Portal – Kıbrıs'tan güncel haberler</title>
-<meta name="description" content="Kıbrıs ile ilgili en güncel haberler, görselleriyle ve Türkçe olarak tek sayfada. Her 30 dakikada bir yenilenir.">
+<title>TVplas Portal – Canlı yayın ve Kıbrıs'tan güncel haberler</title>
+<meta name="description" content="TVplas canlı yayını ve Kıbrıs, Türkiye ve dünyadan en güncel haberler tek sayfada. Haberler her 30 dakikada bir yenilenir.">
+<meta name="theme-color" content="#120a24">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="TVplas">
-<meta property="og:title" content="TVplas Portal – Kıbrıs'tan güncel haberler">
-<meta property="og:description" content="Kıbrıs ile ilgili en güncel haberler, görselleriyle ve Türkçe olarak tek sayfada. Her 30 dakikada bir yenilenir.">
+<meta property="og:title" content="TVplas Portal – Canlı yayın ve güncel haberler">
+<meta property="og:description" content="TVplas canlı yayını ve Kıbrıs, Türkiye ve dünyadan en güncel haberler tek sayfada.">
 <meta property="og:url" content="https://tvplas.github.io/haber/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <meta property="og:image" content="https://tvplas.github.io/haber/kapak.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -156,14 +160,91 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 .izin-bant .yazi b{display:block;font-size:17px}
 .izin-bant .dugme{flex:none;background:#fff;color:#4c1d95;font-weight:800;font-size:14px;padding:9px 16px;border-radius:9px;white-space:nowrap}
 .izin-bant:hover .dugme{background:#ede9fe}
+
+/* ================= Yeni görünüm (2026-11-10, Müzik Portal ile aynı) ================= */
+:root{--bg:#f5f3fa;--kart:#fff;--yazi:#1b1530;--soluk:#6b6382;--vurgu:#e0115f;--cizgi:#e8e3f2;--grad:linear-gradient(110deg,#ff2d87,#8b5cf6 55%,#3b82f6)}
+@media (prefers-color-scheme:dark){:root{--bg:#0e0a18;--kart:#181226;--yazi:#f1edfa;--soluk:#a79fbd;--vurgu:#ff4d94;--cizgi:#2a2140}}
+[hidden]{display:none!important}
+body{font-family:Outfit,"Segoe UI",system-ui,-apple-system,sans-serif;font-size:15.5px}
+/* Üst vitrin: koyu, renkli ışıklı zemin; başlık ve canlı yayın burada */
+.vitrin{position:relative;color:#f5f3ff;background:#0d0818;padding-bottom:26px;overflow:hidden;isolation:isolate}
+.vitrin::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(45% 70% at 10% 0%,rgba(255,45,135,.38),transparent 70%),radial-gradient(50% 80% at 95% 5%,rgba(139,92,246,.42),transparent 70%),radial-gradient(40% 60% at 55% 110%,rgba(59,130,246,.3),transparent 70%)}
+.vitrin header{padding:18px 16px 14px}
+.vitrin h1{display:flex;align-items:center;gap:10px;font-size:30px;font-weight:900;letter-spacing:-.8px;color:#fff}
+.vitrin h1 .marka{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.vitrin .bilgi{color:#c9bfe0}
+.vitrin .sayac{color:#c9bfe0}.vitrin .sayac b{color:#fff}
+.eq{display:inline-flex;align-items:flex-end;gap:3px;height:24px}
+.eq i{width:4px;border-radius:2px;background:var(--grad);transform-origin:bottom;animation:eq 1s ease-in-out infinite}
+.eq i:nth-child(1){height:45%;animation-delay:-.2s}.eq i:nth-child(2){height:95%;animation-delay:-.5s}.eq i:nth-child(3){height:65%;animation-delay:-.8s}.eq i:nth-child(4){height:80%;animation-delay:-.35s}
+@keyframes eq{50%{transform:scaleY(.35)}}
+.canli{background:var(--grad);box-shadow:0 6px 20px rgba(255,45,135,.35)}
+.canli:hover{background:var(--grad);filter:brightness(1.1)}
+/* Canlı yayın sahnesi */
+.sahne{max-width:1200px;margin:auto;padding:0 16px;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
+@media (max-width:980px){.sahne{grid-template-columns:1fr}}
+.sahne .canli-cerceve{position:relative;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 30px 70px -25px rgba(255,45,135,.55),0 0 0 1px rgba(255,255,255,.1)}
+.sahne .canli-oynatici{position:relative;aspect-ratio:16/9;background:#000}
+.sahne .canli-oynatici video,.sahne .canli-oynatici iframe{position:absolute;inset:0;width:100%;height:100%}
+.canli-yukleniyor{position:absolute;inset:0;display:grid;place-items:center;color:#c9bfe0;font-weight:600}
+.canli-rozet{z-index:3}
+.canli-rozet span{border-radius:999px;padding:6px 10px}
+.canli-rozet .etiket{display:inline-flex;align-items:center;gap:6px}
+.canli-rozet .canli-nokta{width:8px;height:8px;background:#fff}
+.ses-ac{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.5));border:0;color:#fff;cursor:pointer;font:inherit}
+.ses-ac span{display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border-radius:999px;background:var(--grad);font-weight:800;font-size:17px;box-shadow:0 10px 30px rgba(255,45,135,.45)}
+.sahne .tam{position:absolute;right:12px;top:12px;z-index:5;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:18px;cursor:pointer}
+.sahne .canli-cerceve:fullscreen{border-radius:0;display:flex;align-items:center}
+.sahne .canli-cerceve:fullscreen .canli-oynatici{width:100%;max-height:100%}
+.sahne-yan{display:flex;flex-direction:column;gap:12px}
+.akis{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(8px)}
+.akis-baslik{font-weight:800;font-size:16px}
+.simdi{border-radius:14px;padding:12px 14px;background:var(--grad)}
+.simdi small{display:block;font-weight:700;letter-spacing:1px;font-size:11px;opacity:.85}
+.simdi b{display:block;font-size:20px;font-weight:900;line-height:1.2}
+.simdi span{font-size:13px;opacity:.9}
+.sira{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sira li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06)}
+.sira .saat{font-weight:800;font-variant-numeric:tabular-nums}
+.sira .ad{flex:1;font-weight:600;font-size:14px}
+.sira .kalan{font-size:12px;color:#c9bfe0;white-space:nowrap}
+.sira .ikon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:14px}
+.i-haber{background:rgba(59,130,246,.3)}.i-reklam{background:rgba(255,138,61,.3)}
+.sahne-yan .izin-bant{margin:0;border-radius:20px}
+.sahne-yan .izin-bant .yazi{font-size:14px}.sahne-yan .izin-bant .yazi b{font-size:16px}
+@media (max-width:980px){.sahne-yan{display:grid;grid-template-columns:1fr 1fr}}
+/* Telefonda haberler aşağıda kaybolmasın: yayın akışı yalnızca "şu an yayında" satırıyla kısa kalır */
+@media (max-width:640px){.sahne-yan{grid-template-columns:1fr}.vitrin h1{font-size:25px}.akis{padding:0;background:none;border:0;backdrop-filter:none}.akis-baslik,.sira{display:none}
+  .simdi{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding:10px 14px}.simdi b{font-size:17px}.simdi span{display:none}
+  .sahne-yan .izin-bant{padding:10px 14px}.sahne-yan .izin-bant .ikon{display:none}.vitrin{padding-bottom:18px}}
+/* Vitrin altı: döviz, hava, arama, menüler */
+.ust-alt{max-width:1200px;margin:auto;padding:16px 16px 12px}
+.ust-alt .kurlar:first-child{margin-top:0}
+.kurlar{border-radius:14px}
+.kur-baslik{background:var(--grad)}
+.kurlar.hava .kur-baslik{background:linear-gradient(110deg,#0ea5e9,#6366f1)}
+#ara{border-radius:14px;padding:12px 16px;font:inherit}
+.menu button{border-radius:999px;font-family:inherit;font-weight:700}
+.menu button.aktif{background:var(--grad);border-color:transparent;box-shadow:0 4px 14px rgba(255,45,135,.3)}
+/* Haber kartları */
+.kart{border-radius:18px;transition:transform .2s,box-shadow .2s;box-shadow:0 1px 2px rgba(20,10,40,.04)}
+.kart:hover{transform:translateY(-3px);box-shadow:0 14px 30px -12px rgba(80,30,140,.25)}
+.kart.reklam-kart:hover{transform:none}
+.kart.tvplas{border:2px solid transparent;background:linear-gradient(var(--kart),var(--kart)) padding-box,var(--grad) border-box}
+.kart.tvplas .etiket{background:var(--grad)}
+h2{font-weight:700}
+dialog#detay{border-radius:20px}
+#detay .anaDon{background:var(--grad)}
+@media (prefers-reduced-motion:reduce){.eq i{animation:none}.kart{transition:none}}
 </style>
 </head>
 <body>
+<div class="vitrin">
 <header>
   <div class="ust-satir">
     <div>
-      <h1><span>TVplas</span> Portal</h1>
-      <div class="bilgi">Kıbrıs, Türkiye ve dünyadan güncel haberler · <span id="zaman">yükleniyor…</span></div>
+      <h1><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="marka">TVplas</span> Portal</h1>
+      <div class="bilgi">Canlı yayın · Kıbrıs, Türkiye ve dünyadan güncel haberler · <span id="zaman">yükleniyor…</span></div>
     </div>
     <div class="iletisim">
       <button class="canli" id="canli" type="button"><span class="canli-nokta"></span>CANLI YAYIN</button>
@@ -174,11 +255,30 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
       <span class="sayac" id="sayac" hidden>👁 <b id="sayacToplam"></b> ziyaret · bugün <b id="sayacBugun"></b></span>
     </div>
   </div>
-  <a class="izin-bant" href="izin.html">
-    <span class="ikon" aria-hidden="true">🎤</span>
-    <span class="yazi"><b>Sanatçılarımıza duyuru</b>Eserlerinizin TVplas yayınlarında ve televizyon kanallarında yer alması için yayın izin formunu doldurun.</span>
-    <span class="dugme">Yayın İzin Formu →</span>
-  </a>
+</header>
+<!-- Canlı yayın açılış sayfasında: sayfa açılınca sessiz başlar (tarayıcılar sesli başlatmaya izin vermez), dokununca ses açılır -->
+<section class="sahne" id="canliBolum" aria-label="TVplas canlı yayın">
+  <div class="canli-cerceve" id="canliCerceve">
+    <div class="canli-oynatici"><div class="canli-yukleniyor">Canlı yayın açılıyor…</div></div>
+    <div class="canli-rozet"><span class="etiket"><span class="canli-nokta"></span>CANLI</span><span class="sayi" hidden></span></div>
+    <button class="ses-ac" id="sesAc" type="button" hidden><span>🔊 Sesi açmak için dokunun</span></button>
+    <button class="tam" id="tamEkran" type="button" aria-label="Tam ekran">⛶</button>
+  </div>
+  <aside class="sahne-yan">
+    <div class="akis">
+      <div class="akis-baslik">📺 Yayın Akışı</div>
+      <div class="simdi" id="simdi"><small>ŞU AN YAYINDA</small><b>Müzik Videoları</b><span></span></div>
+      <ul class="sira" id="sira"></ul>
+    </div>
+    <a class="izin-bant" href="izin.html">
+      <span class="ikon" aria-hidden="true">🎤</span>
+      <span class="yazi"><b>Sanatçılarımıza duyuru</b>Eserlerinizin TVplas yayınlarında yer alması için yayın izin formunu doldurun.</span>
+      <span class="dugme">Yayın İzin Formu →</span>
+    </a>
+  </aside>
+</section>
+</div>
+<div class="ust-alt">
   <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
   <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
     <span class="kur-baslik">💱 DÖVİZ</span>
@@ -211,16 +311,9 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
     <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
     <button data-k="Yazarlar">✍️ YAZARLAR</button>
   </nav>
-</header>
+</div>
 <div id="reklamUst"></div>
 <main id="liste"><div class="durum">Haberler yükleniyor…</div></main>
-<dialog id="canliPencere" aria-label="TVplas canlı yayın">
-  <div class="canli-ust"><span class="canli-nokta"></span>TVplas Canlı Yayın<button class="canli-kapat" type="button" aria-label="Kapat">✕</button></div>
-  <div class="canli-cerceve"><div class="canli-oynatici"></div><div class="canli-rozet"><span class="etiket">CANLI</span><span class="sayi" hidden></span></div></div>
-  <div class="canli-alt">
-    <button class="tam" type="button">⛶ Tam ekran</button>
-  </div>
-</dialog>
 <dialog id="detay" aria-label="Haberin tamamı">
   <button class="kapat" aria-label="Kapat">✕</button>
   <button class="anaDon">🏠 Ana sayfaya dön</button>
@@ -278,9 +371,10 @@ function el(etiket, sinif, metin) {
 }
 
 const PORTAL = "https://tvplas.github.io/haber/";
-// Canlı yayın menüsü dışına dokununca kapanır
-const canliPencere = document.getElementById("canliPencere");
+// Canlı yayın açılış sayfasının üstünde, sayfayla birlikte açılır
+const canliPencere = document.getElementById("canliBolum");
 const canliKutu = canliPencere.querySelector(".canli-oynatici");
+const sesAc = document.getElementById("sesAc");
 let canliHls = null;
 // İzleyici sayısı: açık olan her pencere 30 saniyede bir sunucuya "buradayım" der, sunucu son bir dakikadakileri sayar
 const izleyiciNo = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, "0")).join("");
@@ -305,7 +399,9 @@ function canliYedek() {
   f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
   f.allowFullscreen = true;
   f.referrerPolicy = "strict-origin-when-cross-origin";   // YouTube bu bilgi olmadan oynatıcıyı açmıyor
+  f.src += "&mute=1";   // sayfa açılınca kendiliğinden başlayabilmesi için sessiz
   canliKutu.replaceChildren(f);
+  sesAc.hidden = true;
 }
 function hlsYukle() {
   if (window.Hls) return Promise.resolve();
@@ -320,17 +416,18 @@ function hlsYukle() {
 }
 // Canlı yayın vMix'ten doğrudan gelir: adresi sunucudan öğrenir, tarayıcıdaki oynatıcıda açar
 async function canliAc() {
-  canliTemizle(); canliSayacDur();
-  canliPencere.showModal();
+  canliSayacDur();
   const adres = (await canliBilgi()).adres || "";
-  if (!canliPencere.open) return;
-  canliSayac = setInterval(canliBilgi, 30000);
+  // İzleyici sayısı: sayfa açıkken yarım dakikada bir "buradayım" denir (sekme arkadaysa sayılmaz)
+  canliSayac = setInterval(() => { if (!document.hidden) canliBilgi(); }, 30000);
   if (!adres) return canliYedek();
   await hlsYukle();
-  if (!canliPencere.open) return;
+  canliTemizle();
   const v = document.createElement("video");
-  v.controls = true; v.playsInline = true; v.autoplay = true;
+  v.controls = true; v.playsInline = true; v.autoplay = true; v.muted = true;
   canliKutu.replaceChildren(v);
+  v.addEventListener("playing", () => { sesAc.hidden = !v.muted; }, { once: true });
+  v.addEventListener("volumechange", () => { if (!v.muted) sesAc.hidden = true; });
   const kaynak = adres + "/tvplas/index.m3u8";
   if (window.Hls && Hls.isSupported()) {
     canliHls = new Hls({ liveDurationInfinity: true });
@@ -344,20 +441,44 @@ async function canliAc() {
   // Tarayıcı sesli başlatmaya izin vermezse sessiz başlar; ses oynatıcıdan açılır
   v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
 }
-document.getElementById("canli").onclick = canliAc;
+function sesiAc() {
+  const v = canliKutu.querySelector("video");
+  if (v) { v.muted = false; v.volume = 1; v.play().catch(() => {}); }
+  sesAc.hidden = true;
+}
+sesAc.onclick = sesiAc;
+// Üstteki CANLI YAYIN düğmesi yayına götürür ve sesi açar
+document.getElementById("canli").onclick = () => { canliPencere.scrollIntoView({ behavior: "smooth", block: "start" }); sesiAc(); };
 // Tam ekran: bilgisayar ve Android'de rozetle birlikte büyür; iPhone yalnızca videoyu kendi oynatıcısında büyütebilir
-canliPencere.querySelector(".canli-alt .tam").onclick = () => {
-  const cerceve = canliPencere.querySelector(".canli-cerceve");
+document.getElementById("tamEkran").onclick = () => {
+  const cerceve = document.getElementById("canliCerceve");
   const v = canliKutu.querySelector("video");
   if (cerceve.requestFullscreen) cerceve.requestFullscreen().catch(() => { if (v && v.webkitEnterFullscreen) v.webkitEnterFullscreen(); });
   else if (cerceve.webkitRequestFullscreen) cerceve.webkitRequestFullscreen();
   else if (v && v.webkitEnterFullscreen) v.webkitEnterFullscreen();
 };
-// Kapanınca ses hemen kesilsin diye oynatıcı beklemeden kaldırılır
-const canliKapat = () => { canliPencere.close(); canliTemizle(); canliSayacDur(); };
-canliPencere.querySelector(".canli-kapat").onclick = canliKapat;
-canliPencere.addEventListener("click", e => { if (e.target === canliPencere) canliKapat(); });
-canliPencere.addEventListener("close", () => { canliTemizle(); canliSayacDur(); });
+canliAc();
+
+// Yayın akışı: vMix düzeni sabit (haber bülteni :00/:30, reklam ve tanıtım :15/:45, arada müzik videoları)
+function akisCiz() {
+  const iki = n => String(n).padStart(2, "0"), simdi = new Date(), m = simdi.getMinutes() % 30;
+  const [ad, alt] = m < 5 ? ["Haber Bülteni", "Kıbrıs, Güney, Türkiye ve dünyadan 6 haber"]
+    : m >= 15 && m < 17 ? ["Reklam ve Tanıtımlar", "Kısa bir aradan sonra müziğe dönüyoruz"]
+    : ["Müzik Videoları", "Kıbrıs Türk sanatçıların klipleri"];
+  const s = document.getElementById("simdi");
+  s.querySelector("b").textContent = ad; s.querySelector("span").textContent = alt;
+  const t = new Date(simdi); t.setSeconds(0, 0); t.setMinutes(Math.floor(t.getMinutes() / 15) * 15 + 15);
+  const satirlar = [];
+  for (let i = 0; i < 3; i++, t.setMinutes(t.getMinutes() + 15)) {
+    const haber = t.getMinutes() % 30 === 0, dk = Math.max(0, Math.ceil((t - simdi) / 60000));
+    const li = el("li");
+    li.append(el("span", "ikon " + (haber ? "i-haber" : "i-reklam"), haber ? "📰" : "📢"), el("span", "saat", iki(t.getHours()) + ":" + iki(t.getMinutes())),
+      el("span", "ad", haber ? "Haber Bülteni" : "Reklam ve Tanıtımlar"), el("span", "kalan", dk < 1 ? "başlıyor" : dk + " dk sonra"));
+    satirlar.push(li);
+  }
+  document.getElementById("sira").replaceChildren(...satirlar);
+}
+akisCiz(); setInterval(akisCiz, 20000);
 const REKLAM_ARALIGI = 3;   // kaç haberde bir reklam afişi girsin
 
 function baglanti(a, url) {
