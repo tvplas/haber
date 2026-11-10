@@ -691,7 +691,7 @@ async function dogruFotoBul(h, kart) {
     if (!adres) return;
     h.g = adres;   // haber ayrıntısı ve sonraki çizimler de doğru fotoğrafı kullanır
     if (!resim) return;
-    const img = el("img"); img.src = adres; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
+    const img = el("img"); img.referrerPolicy = "no-referrer"; img.alt = ""; img.src = adres;   // "lazy" olmaz: sayfaya eklenmemiş resim hiç yüklenmez
     img.onload = () => { resim.classList.add("portre"); resim.replaceChildren(img); };
   } catch (e) {}
 }
