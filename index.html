@@ -429,14 +429,16 @@ function canliYedek() {
   sesAc.hidden = true;
   // Bilgisayardaki yayın geri gelince sayfa yenilenmeden ona dönülür (2 dakikada bir denenir)
   clearInterval(canliDeneme);
-  canliDeneme = setInterval(async () => {
-    if (document.hidden) return;
-    const adres = (await canliBilgi()).adres || "";
-    if (!adres) return;
-    try { if ((await fetch(adres + "/tvplas/index.m3u8", { cache: "no-store" })).ok) canliAc(); } catch (e) {}
-  }, 120000);
+  canliDeneme = setInterval(canliDon, 120000);
 }
 let canliDeneme = null;
+async function canliDon() {
+  if (document.hidden || !canliDeneme) return;   // arkadaki sekme sayılmaz; öne gelince hemen denenir
+  const adres = (await canliBilgi()).adres || "";
+  if (!adres) return;
+  try { if ((await fetch(adres + "/tvplas/index.m3u8", { cache: "no-store" })).ok) canliAc(); } catch (e) {}
+}
+document.addEventListener("visibilitychange", canliDon);
 function hlsYukle() {
   if (window.Hls) return Promise.resolve();
   return new Promise(tamam => {
