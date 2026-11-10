@@ -981,13 +981,22 @@ function ciz() {
     liste.replaceChildren(baslik, ...diz(gazeteler, gazeteKartYap, true));
     return;
   }
-  const secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
+  let secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
     : haberler.filter(h => h.kat === bolum || h.ekBolum.includes(bolum));
   // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
   // Dünya'da sunucunun öncelikli saydığı büyük gazeteler (h.on) diğer kaynaklardan önce gelir
   if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
   // Yazarlar'da önce kendi yazarlarımızın yazıları, sonra gazetelerin köşe yazıları
-  if (!q && bolum === "Yazarlar") secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
+  if (!q && bolum === "Yazarlar") {
+    // Her yazarın yalnızca en son yazısı gösterilir; önceki yazıları listeye alınmaz
+    const enSon = new Map();
+    for (const h of secili) {
+      const ad = (h.yz || "").trim().toLocaleLowerCase("tr");
+      if (ad && (!enSon.has(ad) || (h.t || "") > (enSon.get(ad).t || ""))) enSon.set(ad, h);
+    }
+    secili = secili.filter(h => { const ad = (h.yz || "").trim().toLocaleLowerCase("tr"); return !ad || enSon.get(ad) === h; });
+    secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
+  }
   if (!q && bolum === "Fotoğraflar") {
     if (!secili.length) { liste.replaceChildren(el("div", "durum", "Henüz fotoğraf eklenmedi.")); return; }
     // (Fotoğraf sayısı artınca yıllara/on yıllara göre ayırma yeniden açılabilir: yıl bilgisi panelden girilmeye devam ediyor)
