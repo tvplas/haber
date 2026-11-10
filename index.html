@@ -427,7 +427,16 @@ function canliYedek() {
   f.src += "&mute=1";   // sayfa açılınca kendiliğinden başlayabilmesi için sessiz
   canliKutu.replaceChildren(f);
   sesAc.hidden = true;
+  // Bilgisayardaki yayın geri gelince sayfa yenilenmeden ona dönülür (2 dakikada bir denenir)
+  clearInterval(canliDeneme);
+  canliDeneme = setInterval(async () => {
+    if (document.hidden) return;
+    const adres = (await canliBilgi()).adres || "";
+    if (!adres) return;
+    try { if ((await fetch(adres + "/tvplas/index.m3u8", { cache: "no-store" })).ok) canliAc(); } catch (e) {}
+  }, 120000);
 }
+let canliDeneme = null;
 function hlsYukle() {
   if (window.Hls) return Promise.resolve();
   return new Promise(tamam => {
@@ -441,6 +450,7 @@ function hlsYukle() {
 }
 // Canlı yayın vMix'ten doğrudan gelir: adresi sunucudan öğrenir, tarayıcıdaki oynatıcıda açar
 async function canliAc() {
+  clearInterval(canliDeneme); canliDeneme = null;
   canliSayacDur();
   const adres = (await canliBilgi()).adres || "";
   // İzleyici sayısı: sayfa açıkken yarım dakikada bir "buradayım" denir (sekme arkadaysa sayılmaz)
