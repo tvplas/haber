@@ -672,10 +672,36 @@ function ozetHaber(h) {
   return h.tvplas ? h : { ...h, kaynakYazi: "Haberin tamamını kaynağında oku →" };
 }
 
+function adSadele(s) {
+  return (s || "").toLocaleLowerCase("tr").replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s").replace(/ı/g, "i").replace(/ö/g, "o").replace(/ç/g, "c").replace(/â/g, "a");
+}
+function adParcalari(ad) { return adSadele(ad).split(/[^a-z]+/).filter(p => p.length >= 3); }
+function baskaYazarFotosu(h) {
+  const dosya = adSadele(decodeURIComponent((h.g.split("/").pop() || "")));
+  if (adParcalari(h.yz).some(p => dosya.includes(p))) return false;   // fotoğraf bu yazarın
+  return haberler.some(x => x.kat === "Yazarlar" && x.yz && adSadele(x.yz) !== adSadele(h.yz) && adParcalari(x.yz).some(p => dosya.includes(p)));
+}
+const dogruFotolar = {};
+async function dogruFotoBul(h, kart) {
+  if (!h.l) return;
+  try {
+    const g = dogruFotolar[h.l] ??= fetch(h.l).then(r => r.text()).then(t => (t.match(/property="og:image"\s+content="([^"]+)"/) || t.match(/content="([^"]+)"\s+property="og:image"/) || [])[1] || "");
+    const adres = await g;
+    const resim = kart.querySelector(".resim");
+    if (!adres) return;
+    h.g = adres;   // haber ayrıntısı ve sonraki çizimler de doğru fotoğrafı kullanır
+    if (!resim) return;
+    const img = el("img"); img.src = adres; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
+    img.onload = () => { resim.classList.add("portre"); resim.replaceChildren(img); };
+  } catch (e) {}
+}
 function kartYap(h) {
   // Tüm haberler TVplas Haber görünümünde: kırmızı çerçeve, TVplas rozeti, "Kaynak: X", fotoğraf künyesi, "Devamını oku"
   const kart = el("article", "kart tvplas");
   // Köşe yazısında görsel yazarın vesikalık fotoğrafıysa kırpılmadan, mor zemin üzerinde gösterilir
+  // Kaynak sitesi bazen yan sütundaki başka bir yazarın fotoğrafını verir (Uğur Bakıcı'ya Osman Güvenir'inki geldi):
+  // fotoğraf başka bir yazarın adını taşıyorsa yazının kendi sayfasındaki asıl fotoğraf (og:image) alınır
+  if (h.kat === "Yazarlar" && h.g && baskaYazarFotosu(h)) { h.g = ""; dogruFotoBul(h, kart); }
   const portre = h.kat === "Yazarlar" && /_avatar|\/images\/yazarlar\/|\/author\//i.test(h.g || "");
   const resim = el("a", "resim" + (h.v ? " video" : "") + (portre ? " portre" : ""));
   const adres = turkceAdres(h);
