@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yazar Paneli – TVplas Portal</title>
+<meta name="robots" content="noindex">
+<style>
+/* 2026-11-11: Köşe yazarları kendi kodlarıyla yazı gönderir; yazı TVplas onayından sonra portalın Yazarlar bölümünde çıkar.
+   Aynı sayfa ?no=…&a=… ile açılınca e-postadaki onay sayfası olur (yayınla / reddet). */
+:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#6d28d9;--cizgi:#e4e7ec;--alan:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--kart:#1b2029;--yazi:#e8eaee;--soluk:#98a2b3;--vurgu:#a78bfa;--cizgi:#2a313d;--alan:#12151b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+main{max-width:820px;margin:auto;padding:20px 16px 48px}
+a{color:var(--vurgu)}
+.geri{display:inline-block;margin-bottom:14px;font-weight:600;text-decoration:none}
+h1{margin:0 0 4px;font-size:28px;letter-spacing:-.3px}h1 span{color:var(--vurgu)}
+.alt{color:var(--soluk);margin:0 0 20px}
+section{background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:18px;margin-bottom:16px}
+h2{margin:0 0 12px;font-size:18px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+label small{font-weight:400;color:var(--soluk)}
+input[type=text],input[type=password],textarea{width:100%;padding:10px 12px;border:1px solid var(--cizgi);border-radius:9px;background:var(--alan);color:var(--yazi);font:inherit}
+textarea{min-height:420px;resize:vertical;line-height:1.65}
+input:focus,textarea:focus{outline:2px solid var(--vurgu);outline-offset:1px}
+#kod{text-transform:uppercase;letter-spacing:1px;font-size:18px;max-width:280px}
+button.ana{padding:13px 22px;border:0;border-radius:11px;background:var(--vurgu);color:#fff;font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+button.ana:disabled{opacity:.6;cursor:wait}
+button.ikinci{background:none;border:1px solid var(--cizgi);color:var(--yazi);border-radius:9px;padding:8px 14px;font:inherit;cursor:pointer}
+.durum{margin-top:12px;padding:12px 14px;border-radius:10px;font-weight:600}
+.durum:empty{display:none}
+.durum.iyi{background:#dcfce7;color:#166534}.durum.kotu{background:#fee2e2;color:#991b1b}
+.not{font-size:13px;color:var(--soluk)}
+.yazar{display:flex;align-items:center;gap:14px}
+.yazar img{width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--cizgi)}
+.yazar b{font-size:19px;display:block}
+.sayac{text-align:right;font-size:13px;color:var(--soluk);margin-top:4px}
+.gecmis{list-style:none;margin:0;padding:0}
+.gecmis li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--cizgi);font-size:15px}
+.gecmis li:last-child{border:0}
+.rozet{flex:none;font-size:13px;font-weight:700;padding:2px 10px;border-radius:20px;background:var(--cizgi)}
+.rozet.Yayınlandı{background:#dcfce7;color:#166534}.rozet.Reddedildi{background:#fee2e2;color:#991b1b}.rozet.Bekliyor{background:#fef3c7;color:#92400e}
+.gizli{display:none}
+.tuzak{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.metin{white-space:pre-line;line-height:1.65;border:1px solid var(--cizgi);border-radius:10px;padding:14px;background:var(--alan)}
+.kararlar{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+#evet{background:#16a34a}#hayir{background:#dc2626}
+</style>
+</head>
+<body>
+<main>
+<a class="geri" href="./">← TVplas Portal'a dön</a>
+
+<!-- Yazar paneli -->
+<div id="panel">
+  <h1><span>TVplas</span> Yazar Paneli</h1>
+  <p class="alt">Köşe yazarlarımız yazılarını buradan gönderir. Yazınız TVplas onayından sonra portalın <b>Yazarlar</b> bölümünde adınız ve fotoğrafınızla yayınlanır.</p>
+
+  <section id="girisAlan">
+    <h2>Giriş</h2>
+    <label for="kod">Yazar kodunuz <small>(TVplas'ın size verdiği kod, ör. TV-AB12-CD34)</small></label>
+    <input id="kod" type="text" autocomplete="off" spellcheck="false" maxlength="12" placeholder="TV-____-____">
+    <p><button class="ana" id="girisBtn">Giriş yap</button></p>
+    <div class="durum" id="girisDurum"></div>
+    <p class="not">Kodunuz yoksa TVplas ile iletişime geçin: WhatsApp 0533 863 6839</p>
+  </section>
+
+  <div id="yazarAlan" class="gizli">
+    <section>
+      <div class="yazar"><img id="foto" alt=""><div><b id="ad"></b><span class="not">Köşe yazarı</span></div>
+        <button class="ikinci" id="cikis" style="margin-left:auto">Çıkış</button></div>
+    </section>
+
+    <section>
+      <h2>Yeni köşe yazısı</h2>
+      <form id="yazi" novalidate>
+        <label for="baslik">Başlık</label>
+        <input id="baslik" type="text" maxlength="150" required>
+        <label for="metin">Yazınız <small>(paragrafları boş satırla ayırın; Word'den kopyalayıp yapıştırabilirsiniz)</small></label>
+        <textarea id="metin" maxlength="30000" required></textarea>
+        <div class="sayac" id="sayac">0 karakter</div>
+        <div class="tuzak" aria-hidden="true"><label for="web">Web sitesi</label><input id="web" type="text" tabindex="-1" autocomplete="off"></div>
+        <p><button class="ana" type="submit" id="gonderBtn">Yazıyı gönder</button></p>
+        <div class="durum" id="gonderDurum"></div>
+        <p class="not">Yazınız taslak olarak bu bilgisayarda da saklanır; sayfa kapanırsa kaybolmaz. Gönderdikten sonra TVplas'ın onayıyla yayınlanır.</p>
+      </form>
+    </section>
+
+    <section>
+      <h2>Son yazılarım</h2>
+      <ul class="gecmis" id="gecmis"></ul>
+    </section>
+  </div>
+</div>
+
+<!-- E-postadaki onay bağlantısı (yazar.html?no=…&a=…) -->
+<div id="onay" class="gizli">
+  <h1><span>TVplas</span> Köşe Yazısı Onayı</h1>
+  <section>
+    <div class="durum" id="onayDurum">Yükleniyor…</div>
+    <div id="onayIcerik" class="gizli">
+      <p class="not" id="onayBilgi"></p>
+      <h2 id="onayBaslik"></h2>
+      <div class="metin" id="onayMetin"></div>
+      <div class="kararlar" id="kararlar">
+        <button class="ana" id="evet">✅ Portalda yayınla</button>
+        <button class="ana" id="hayir">❌ Reddet</button>
+      </div>
+    </div>
+  </section>
+</div>
+</main>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
+const $ = id => document.getElementById(id);
+const sakla = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} };
+const oku = k => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
+
+async function istek(veri) {
+  const r = await fetch(API, { method: "POST", body: JSON.stringify(veri) });
+  if (!r.ok) throw new Error("Sunucuya ulaşılamadı (" + r.status + ")");
+  return r.json();
+}
+function durum(el, metin, iyi) { el.textContent = metin; el.className = "durum " + (iyi ? "iyi" : "kotu"); }
+const tarih = s => s ? new Date(s).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }) : "";
+
+// ---- Yazar paneli ----
+let kod = "";
+function gecmisGoster(yazilar) {
+  const ul = $("gecmis");
+  ul.replaceChildren();
+  if (!yazilar || !yazilar.length) { const li = document.createElement("li"); li.textContent = "Henüz yazı göndermediniz."; ul.append(li); return; }
+  yazilar.forEach(y => {
+    const li = document.createElement("li"), s = document.createElement("span"), r = document.createElement("span");
+    s.textContent = y.baslik + (y.tarih ? " · " + tarih(y.tarih) : "");
+    r.className = "rozet " + y.durum;
+    r.textContent = y.durum === "Bekliyor" ? "Onay bekliyor" : y.durum;
+    li.append(s, r); ul.append(li);
+  });
+}
+
+async function girisYap(k, sessiz) {
+  k = k.trim().toUpperCase();
+  if (!/^TV-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(k)) { if (!sessiz) durum($("girisDurum"), "Kod TV-XXXX-XXXX biçiminde olmalı.", false); return; }
+  $("girisBtn").disabled = true;
+  if (!sessiz) durum($("girisDurum"), "Kontrol ediliyor…", true);
+  try {
+    const c = await istek({ islem: "yazarGiris", kod: k });
+    if (!c.tamam) throw new Error(c.hata || "Giriş yapılamadı");
+    kod = k; sakla("tvplas_yazar_kod", k);
+    $("ad").textContent = c.ad;
+    if (c.foto) $("foto").src = c.foto;
+    gecmisGoster(c.yazilar);
+    $("girisAlan").classList.add("gizli");
+    $("yazarAlan").classList.remove("gizli");
+  } catch (e) {
+    sakla("tvplas_yazar_kod", null);
+    durum($("girisDurum"), e.message, false);
+  } finally {
+    $("girisBtn").disabled = false;
+  }
+}
+
+function sayacGuncelle() {
+  const n = $("metin").value.trim().length;
+  $("sayac").textContent = n.toLocaleString("tr-TR") + " karakter" + (n && n < 200 ? " (en az 200)" : "");
+  sakla("tvplas_yazar_taslak", JSON.stringify({ b: $("baslik").value, m: $("metin").value }));
+}
+
+$("girisBtn").onclick = () => girisYap($("kod").value);
+$("kod").onkeydown = e => { if (e.key === "Enter") girisYap($("kod").value); };
+$("cikis").onclick = () => { sakla("tvplas_yazar_kod", null); location.reload(); };
+$("metin").oninput = sayacGuncelle;
+$("baslik").oninput = sayacGuncelle;
+
+$("yazi").onsubmit = async e => {
+  e.preventDefault();
+  const baslik = $("baslik").value.trim(), metin = $("metin").value.trim(), m = $("gonderDurum");
+  if (baslik.length < 3) return durum(m, "Lütfen bir başlık yazın.", false);
+  if (metin.length < 200) return durum(m, "Yazı çok kısa (en az 200 karakter olmalı).", false);
+  if (!confirm("Yazınız TVplas'a gönderilsin mi?\n\n" + baslik)) return;
+  $("gonderBtn").disabled = true;
+  durum(m, "Gönderiliyor…", true);
+  try {
+    const c = await istek({ islem: "yaziGonder", kod, baslik, metin, web: $("web").value });
+    if (!c.tamam) throw new Error(c.hata || "Gönderilemedi");
+    $("yazi").reset(); sakla("tvplas_yazar_taslak", null); sayacGuncelle();
+    durum(m, "✅ Yazınız gönderildi. TVplas onayladıktan sonra portalın Yazarlar bölümünde yayınlanacak.", true);
+    const g = await istek({ islem: "yazarGiris", kod });
+    if (g.tamam) gecmisGoster(g.yazilar);
+  } catch (err) {
+    durum(m, "Olmadı: " + err.message, false);
+  } finally {
+    $("gonderBtn").disabled = false;
+  }
+};
+
+// ---- Onay sayfası (yalnızca e-postadaki bağlantıyla: no + onay anahtarı) ----
+async function onayAc(no, a) {
+  $("panel").classList.add("gizli");
+  $("onay").classList.remove("gizli");
+  document.title = "Köşe Yazısı Onayı – TVplas Portal";
+  try {
+    const c = await (await fetch(API + "?islem=yaziBilgi&no=" + encodeURIComponent(no) + "&a=" + encodeURIComponent(a))).json();
+    if (!c.tamam) throw new Error(c.hata || "Yazı bulunamadı");
+    const y = c.yazi;
+    $("onayBilgi").textContent = "Yazı #" + y.no + " · Yazar: " + y.yazar + " · Durum: " + y.durum;
+    $("onayBaslik").textContent = y.baslik;
+    $("onayMetin").textContent = y.metin;
+    $("onayIcerik").classList.remove("gizli");
+    if (y.durum === "Bekliyor") { $("onayDurum").textContent = ""; $("onayDurum").className = "durum"; }
+    else { $("kararlar").classList.add("gizli"); durum($("onayDurum"), "Bu yazı için karar verilmiş: " + y.durum, y.durum === "Yayınlandı"); }
+  } catch (e) {
+    durum($("onayDurum"), e.message, false);
+  }
+  const karar = async k => {
+    if (k === "hayir" && !confirm("Yazı reddedilsin mi?")) return;
+    $("kararlar").classList.add("gizli");
+    durum($("onayDurum"), "İşleniyor…", true);
+    try {
+      const c = await istek({ islem: "yaziKarar", no, a, karar: k });
+      if (!c.tamam) throw new Error(c.hata || "Olmadı");
+      durum($("onayDurum"), k === "evet" ? "✅ Yayınlandı. Portalın Yazarlar bölümünde birkaç dakika içinde görünür." : "Yazı reddedildi.", true);
+    } catch (e) {
+      durum($("onayDurum"), "Olmadı: " + e.message, false);
+      $("kararlar").classList.remove("gizli");
+    }
+  };
+  $("evet").onclick = () => karar("evet");
+  $("hayir").onclick = () => karar("hayir");
+}
+
+const q = new URLSearchParams(location.search);
+if (q.get("no") && q.get("a")) {
+  onayAc(q.get("no"), q.get("a"));
+} else {
+  try { const t = JSON.parse(oku("tvplas_yazar_taslak") || "{}"); $("baslik").value = t.b || ""; $("metin").value = t.m || ""; } catch (e) {}
+  sayacGuncelle();
+  const k = oku("tvplas_yazar_kod");
+  if (k) { $("kod").value = k; girisYap(k, true); }
+}
+</script>
+</body>
+</html>

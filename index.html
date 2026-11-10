@@ -717,7 +717,7 @@ function kartYap(h) {
   // Kaynak sitesi bazen yan sütundaki başka bir yazarın fotoğrafını verir (Uğur Bakıcı'ya Osman Güvenir'inki geldi):
   // fotoğraf başka bir yazarın adını taşıyorsa yazının kendi sayfasındaki asıl fotoğraf (og:image) alınır
   if (h.kat === "Yazarlar" && h.g && baskaYazarFotosu(h)) { h.g = ""; dogruFotoBul(h, kart); }
-  const portre = h.kat === "Yazarlar" && /_avatar|\/images\/yazarlar\/|\/author\//i.test(h.g || "");
+  const portre = h.kat === "Yazarlar" && (h.tvplas && !!h.g || /_avatar|\/images\/yazarlar\/|\/author\//i.test(h.g || ""));   // kendi yazarlarımızın fotoğrafı da vesikalıktır
   const resim = el("a", "resim" + (h.v ? " video" : "") + (portre ? " portre" : ""));
   const adres = turkceAdres(h);
   baglanti(resim, adres);

@@ -72,6 +72,7 @@ button:disabled{opacity:.6;cursor:wait}
       <button data-s="reklam">📣 Reklam ekle</button>
       <button data-s="liste">📋 Yayındakiler</button>
       <button data-s="ai">🤖 TVplas Haber</button>
+      <button data-s="yazarlar">✍️ Köşe yazarları</button>
       <button class="cikis" id="cikis">Çıkış</button>
     </div>
 
@@ -153,6 +154,22 @@ button:disabled{opacity:.6;cursor:wait}
         <button id="aiSil">Anahtarı sil (yazımı durdur)</button>
       </div>
       <div class="mesaj" id="aiMesaj"></div>
+    </div>
+
+    <!-- 2026-11-11 Köşe yazarları: her yazara bir kod verilir; yazar tvplas.github.io/haber/yazar.html'den yazı gönderir,
+         yazı e-postayla onaya gelir, onaylanınca Yazarlar bölümünde yayınlanır -->
+    <div id="yazarlar" class="kutu sekme gizli liste">
+      <p>Köşe yazarlarınız yazılarını <a href="yazar.html" target="_blank"><b>Yazar Paneli</b></a>'nden (tvplas.github.io/haber/yazar.html) kendilerine verdiğiniz <b>yazar koduyla</b> gönderir. Her yazı önce <b>e-postanıza onaya</b> gelir; e-postadaki bağlantıdan “Portalda yayınla”ya basınca yazarın adı ve fotoğrafıyla <b>Yazarlar</b> bölümünde çıkar.</p>
+      <form id="yazarForm">
+        <label for="yAd">Yazarın adı soyadı</label>
+        <input id="yAd" type="text" maxlength="60" required placeholder="ör. Ayşe Demir">
+        <label>Yazarın fotoğrafı <small>(vesikalık; portalda yazılarının yanında görünür)</small></label>
+        <div class="dosya"><input type="file" accept="image/*" data-onizleme id="yFoto"><span>📷 Fotoğraf seçmek için dokunun</span></div>
+        <button class="ana" type="submit">Yazarı ekle ve kod üret</button>
+        <div class="mesaj" id="yMesaj"></div>
+      </form>
+      <h2>Yazarlar</h2>
+      <div id="yazarListe">Yükleniyor…</div>
     </div>
   </div>
 </div>
@@ -301,7 +318,57 @@ document.querySelectorAll(".sekmeler [data-s]").forEach(b => b.onclick = () => {
   document.querySelectorAll(".sekme").forEach(s => s.classList.toggle("gizli", s.id !== b.dataset.s));
   if (b.dataset.s === "liste") listele();
   if (b.dataset.s === "ai") aiDurumGoster();
+  if (b.dataset.s === "yazarlar") yazarListele();
 });
+
+// ---- Köşe yazarları sekmesi ----
+async function yazarListele() {
+  const yer = $("yazarListe");
+  yer.textContent = "Yükleniyor…";
+  try {
+    const c = await istek({ islem: "yazarListe" });
+    if (!c.tamam) throw new Error(c.hata || "Liste alınamadı");
+    yer.replaceChildren();
+    if (!c.yazarlar.length) { yer.textContent = "Henüz yazar eklenmedi."; return; }
+    c.yazarlar.forEach(y => {
+      const k = document.createElement("div"); k.className = "kayit";
+      const img = document.createElement("img"); img.src = y.foto; img.alt = ""; img.style.cssText = "width:48px;height:48px;border-radius:50%";
+      const b = document.createElement("div"); b.className = "bilgi";
+      const ad = document.createElement("div"); ad.className = "bas"; ad.textContent = y.ad;
+      const det = document.createElement("div"); det.className = "det " + (y.aktif ? "durum-yayinda" : "durum-bitti");
+      det.textContent = "Kod: " + y.kod + " · " + (y.aktif ? "Aktif" : "Pasif (yazı gönderemez)");
+      b.append(ad, det);
+      const kopya = document.createElement("button"); kopya.textContent = "Kodu kopyala";
+      kopya.onclick = () => navigator.clipboard.writeText("TVplas Yazar Paneli: https://tvplas.github.io/haber/yazar.html\nYazar kodunuz: " + y.kod)
+        .then(() => { kopya.textContent = "Kopyalandı ✓"; setTimeout(() => kopya.textContent = "Kodu kopyala", 2000); });
+      const dur = document.createElement("button"); dur.textContent = y.aktif ? "Pasif yap" : "Aktif yap";
+      dur.onclick = async () => {
+        if (y.aktif && !confirm(y.ad + " pasif yapılsın mı? Kodu çalışmaz, yazı gönderemez.")) return;
+        dur.disabled = true;
+        try { const r = await istek({ islem: "yazarDurum", satir: y.satir, kod: y.kod, aktif: !y.aktif }); if (!r.tamam) throw new Error(r.hata); yazarListele(); }
+        catch (e) { alert("Olmadı: " + e.message); dur.disabled = false; }
+      };
+      k.append(img, b, kopya, dur); yer.append(k);
+    });
+  } catch (e) { yer.textContent = "Liste alınamadı: " + e.message; }
+}
+$("yazarForm").onsubmit = async e => {
+  e.preventDefault();
+  const form = $("yazarForm"), btn = form.querySelector("button.ana"), m = $("yMesaj"), f = $("yFoto").files[0];
+  if ($("yAd").value.trim().length < 3) return mesaj(m, "Lütfen yazarın adını yazın.", false);
+  if (!f) return mesaj(m, "Lütfen yazarın fotoğrafını seçin.", false);
+  btn.disabled = true;
+  mesaj(m, "Fotoğraf yükleniyor, kod üretiliyor…", true);
+  try {
+    const c = await istek({ islem: "yazarEkle", ad: $("yAd").value.trim(), gorsel: await kucult(f) });
+    if (!c.tamam) throw new Error(c.hata || "Eklenemedi");
+    form.reset(); $("yFoto").parentElement.querySelector("img")?.remove();
+    $("yFoto").parentElement.querySelector("span").textContent = "📷 Fotoğraf seçmek için dokunun";
+    mesaj(m, "✅ " + c.ad + " eklendi. Yazar kodu: " + c.kod + " — bu kodu ve yazar.html adresini yazara iletin (listedeki “Kodu kopyala” düğmesi).", true);
+    yazarListele();
+  } catch (err) { mesaj(m, "Olmadı: " + err.message, false); }
+  finally { btn.disabled = false; }
+};
 
 // ---- TVplas Haber (yapay zekâ) sekmesi ----
 async function aiDurumGoster() {
