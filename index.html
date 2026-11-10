@@ -401,6 +401,8 @@ const canliPencere = document.getElementById("canliBolum");
 const canliKutu = canliPencere.querySelector(".canli-oynatici");
 const sesAc = document.getElementById("sesAc");
 let canliHls = null;
+// Canlı yayın 2026-11-10'dan beri sabit adresli kendi sunucumuzdan (Hetzner) gelir; izleyiciler ev internetini kullanmaz
+const CANLI_SUNUCU = "https://2-29-142-134.sslip.io";
 // İzleyici sayısı: açık olan her pencere 30 saniyede bir sunucuya "buradayım" der, sunucu son bir dakikadakileri sayar
 const izleyiciNo = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, "0")).join("");
 const canliSayi = canliPencere.querySelector(".canli-rozet .sayi");
@@ -434,7 +436,7 @@ function canliYedek() {
 let canliDeneme = null;
 async function canliDon() {
   if (document.hidden || !canliDeneme) return;   // arkadaki sekme sayılmaz; öne gelince hemen denenir
-  const adres = (await canliBilgi()).adres || "";
+  const adres = CANLI_SUNUCU || (await canliBilgi()).adres || "";
   if (!adres) return;
   try { if ((await fetch(adres + "/tvplas/index.m3u8", { cache: "no-store" })).ok) canliAc(); } catch (e) {}
 }
@@ -454,7 +456,8 @@ function hlsYukle() {
 async function canliAc() {
   clearInterval(canliDeneme); canliDeneme = null;
   canliSayacDur();
-  const adres = (await canliBilgi()).adres || "";
+  const bilgi = await canliBilgi();
+  const adres = CANLI_SUNUCU || bilgi.adres || "";
   // İzleyici sayısı: sayfa açıkken yarım dakikada bir "buradayım" denir (sekme arkadaysa sayılmaz)
   canliSayac = setInterval(() => { if (!document.hidden) canliBilgi(); }, 30000);
   if (!adres) return canliYedek();
