@@ -236,6 +236,20 @@ h2{font-weight:700}
 dialog#detay{border-radius:20px}
 #detay .anaDon{background:var(--grad)}
 @media (prefers-reduced-motion:reduce){.eq i{animation:none}.kart{transition:none}}
+/* Seçim anketleri (2026-11-10): canlı yayının hemen altında, iki büyük kart; ayrı sekmede açılır */
+.anketler{max-width:1200px;margin:18px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.anketler{grid-template-columns:1fr}}
+.anket{position:relative;display:flex;flex-direction:column;border-radius:20px;overflow:hidden;text-decoration:none;color:#fff;background:linear-gradient(110deg,#ff2d87,#8b5cf6 60%,#3b82f6);box-shadow:0 14px 34px -14px rgba(255,45,135,.6);transition:transform .2s}
+.anket:hover{transform:translateY(-3px) scale(1.01)}
+.anket img{width:100%;aspect-ratio:1200/630;object-fit:cover;display:block;background:#1b1530}
+.anket .a-yazi{padding:12px 16px 14px;display:grid;grid-template-columns:1fr auto;column-gap:12px;row-gap:2px;align-items:center}.anket .a-yazi>small,.anket .a-yazi>b,.anket .a-yazi>.soru{grid-column:1}.anket .a-yazi>.oy{grid-column:2;grid-row:1/4;align-self:center}
+.anket small{font-weight:800;letter-spacing:1px;font-size:12px;opacity:.9}
+.anket b{font-size:20px;line-height:1.2;font-weight:900}
+.anket span.soru{font-size:14px;opacity:.95;line-height:1.35}
+.anket .oy{white-space:nowrap;background:#fff;color:#7c1d6f;font-weight:900;font-size:15px;padding:8px 16px;border-radius:999px;animation:oyNabiz 1.6s ease-in-out infinite}
+@keyframes oyNabiz{50%{box-shadow:0 0 0 8px rgba(255,255,255,.25)}}
+.anket .yeni{position:absolute;top:10px;left:10px;background:#ffd400;color:#1b1530;font-weight:900;font-size:12px;letter-spacing:1px;padding:4px 9px;border-radius:999px}
+@media (prefers-reduced-motion:reduce){.anket .oy{animation:none}.anket{transition:none}}
 </style>
 </head>
 <body>
@@ -269,14 +283,26 @@ dialog#detay{border-radius:20px}
       <div class="simdi" id="simdi"><small>ŞU AN YAYINDA</small><b>Müzik Videoları</b><span></span></div>
       <ul class="sira" id="sira"></ul>
     </div>
-    <a class="izin-bant" href="izin.html">
+    <a class="izin-bant" href="izin.html" target="_blank" rel="noopener">
       <span class="ikon" aria-hidden="true">🎤</span>
       <span class="yazi"><b>Sanatçılarımıza duyuru</b>Eserlerinizin TVplas yayınlarında yer alması için yayın izin formunu doldurun.</span>
       <span class="dugme">Yayın İzin Formu →</span>
     </a>
   </aside>
 </section>
-</div>
+<!-- Seçim anketleri: göze çarpan yer, canlı yayının hemen altı -->
+<div class="anketler" aria-label="Seçim anketleri">
+  <a class="anket" href="https://tvplas.github.io/anket/" target="_blank" rel="noopener">
+    <span class="yeni">ANKET</span>
+    <img src="https://tvplas.github.io/anket/kapak.jpg" alt="" loading="lazy">
+    <span class="a-yazi"><small>🗳️ SİZ KARAR VERİN</small><b>KKTC Genel Seçim Anketi</b><span class="soru">Bugün seçim olsa hangi partiye oy verirsiniz?</span><span class="oy">OY VER →</span></span>
+  </a>
+  <a class="anket" href="https://tvplas.github.io/anket/magusa.html" target="_blank" rel="noopener">
+    <span class="yeni">ANKET</span>
+    <img src="https://tvplas.github.io/anket/kapak-magusa.jpg" alt="" loading="lazy">
+    <span class="a-yazi"><small>🗳️ SİZ KARAR VERİN</small><b>Gazimağusa Belediye Başkanlığı</b><span class="soru">Bugün seçim olsa belediye başkanı olarak kime oy verirsiniz?</span><span class="oy">OY VER →</span></span>
+  </a>
+</div></div>
 <div class="ust-alt">
   <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
   <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
