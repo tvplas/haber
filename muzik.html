@@ -470,8 +470,20 @@ async function canliAc() {
   v.addEventListener("volumechange", () => { if (!v.muted) sesAc.hidden = true; });
   const kaynak = adres + "/tvplas/index.m3u8";
   if (window.Hls && Hls.isSupported()) {
-    canliHls = new Hls({ liveDurationInfinity: true });
-    canliHls.on(Hls.Events.ERROR, (o, d) => { if (d.fatal) canliYedek(); });
+    // Yavaş bağlantıda (örneğin yayını yapan bilgisayarın kendisinde) hemen YouTube yedeğine düşmesin: zaman aşımları uzun,
+    // ölümcül hata olursa önce 3 kez yeniden denenir
+    canliHls = new Hls({ liveDurationInfinity: true, liveSyncDurationCount: 4, maxBufferLength: 30,
+      manifestLoadingTimeOut: 20000, levelLoadingTimeOut: 20000, fragLoadingTimeOut: 40000,
+      manifestLoadingMaxRetry: 6, levelLoadingMaxRetry: 6, fragLoadingMaxRetry: 6 });
+    let deneme = 0;
+    canliHls.on(Hls.Events.ERROR, (o, d) => {
+      if (!d.fatal) return;
+      if (deneme++ < 3) {
+        if (d.type === Hls.ErrorTypes.MEDIA_ERROR) canliHls.recoverMediaError(); else canliHls.startLoad();
+        return;
+      }
+      canliYedek();
+    });
     canliHls.loadSource(kaynak);
     canliHls.attachMedia(v);
   } else {
