@@ -1127,7 +1127,7 @@ function tekle(liste) {
   for (let i = liste.length - 1; i >= 0; i--) if (atilan.has(liste[i])) liste.splice(i, 1);
 }
 
-async function yukle() {
+async function yukle(sessiz) {
   try {
     const r = await fetch(API + "?ziyaret=" + (sayilacakMi() ? "1" : "0"));
     const veri = await r.json();
@@ -1188,14 +1188,26 @@ async function yukle() {
     ciz();
     document.getElementById("zaman").textContent =
       haberler.length + " haber · son güncelleme " + kac(veri.guncelleme);
-    hedefAc(reklamlar);
+    sonYukleme = Date.now();
+    if (!sessiz) hedefAc(reklamlar);
   } catch (e) {
+    if (sessiz) return;   // otomatik yenilemede hata olursa eldeki haberler kalır
     liste.replaceChildren(el("div", "durum", "Haberler şu an yüklenemedi, lütfen sayfayı yenileyin."));
     document.getElementById("zaman").textContent = "";
   }
 }
 gazeteleriYukle();
 yukle();
+// Haberler sayfa açık kaldıkça kendiliğinden yenilenir (sunucu 10-15 dakikada bir yeni haber toplar).
+// Okuyanı rahatsız etmemek için yalnızca sayfa öndeyken, haber penceresi kapalıyken ve aramada değilken yapılır.
+let sonYukleme = Date.now();
+function otomatikYenile() {
+  if (document.hidden || detay.open || ara.value.trim() || Date.now() - sonYukleme < 10 * 60000) return;
+  const y = window.scrollY;
+  yukle(true).then(() => window.scrollTo(0, y));
+}
+setInterval(otomatikYenile, 60000);
+document.addEventListener("visibilitychange", otomatikYenile);
 </script>
 </body>
 </html>
