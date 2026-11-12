@@ -418,23 +418,26 @@ function izleyiciGoster(n) {
 async function canliBilgi() {
   try { const j = await (await fetch(API + "?islem=canli&izleyici=" + izleyiciNo)).json(); izleyiciGoster(j.izleyici); return j; } catch (e) { return {}; }
 }
-function canliTemizle() { if (canliHls) { canliHls.destroy(); canliHls = null; } canliKutu.replaceChildren(); }
+let canliBekci = null;
+function canliTemizle() { clearInterval(canliBekci); canliBekci = null; if (canliHls) { canliHls.destroy(); canliHls = null; } canliKutu.replaceChildren(); }
 function canliSayacDur() { clearInterval(canliSayac); canliSayac = null; canliSayi.hidden = true; }
-// Yedek: bilgisayardaki yayın kapalıysa oynatıcı boş kalmasın diye YouTube'daki yayın açılır
+// Yedek: yayın yoksa veya durursa oynatıcıda "yayın olmadığında" videosu sürekli döner.
+// Video portalın kendi dosyasıdır (yayin-yok.mp4), canlı yayın sunucusu kapalıyken de açılır
+let canliSesli = false;   // izleyici sesi açtıysa yedek video da sesli başlar
 function canliYedek() {
+  if (canliKutu.querySelector("video.yedek")) return;
   canliTemizle();
-  const f = document.createElement("iframe");
-  f.src = "https://www.youtube.com/embed/live_stream?channel=UC8d8loqizR60Wm80IaduzaQ&autoplay=1&playsinline=1&rel=0";
-  f.title = "TVplas canlı yayın";
-  f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-  f.allowFullscreen = true;
-  f.referrerPolicy = "strict-origin-when-cross-origin";   // YouTube bu bilgi olmadan oynatıcıyı açmıyor
-  f.src += "&mute=1";   // sayfa açılınca kendiliğinden başlayabilmesi için sessiz
-  canliKutu.replaceChildren(f);
-  sesAc.hidden = true;
-  // Bilgisayardaki yayın geri gelince sayfa yenilenmeden ona dönülür (2 dakikada bir denenir)
+  const v = document.createElement("video");
+  v.className = "yedek";
+  v.src = "yayin-yok.mp4";
+  v.loop = true; v.controls = true; v.playsInline = true; v.autoplay = true; v.muted = !canliSesli;
+  v.title = "TVplas canlı yayın";
+  canliKutu.replaceChildren(v);
+  v.addEventListener("volumechange", () => { if (!v.muted) { canliSesli = true; sesAc.hidden = true; } });
+  v.play().then(() => { sesAc.hidden = !v.muted; }).catch(() => { v.muted = true; sesAc.hidden = false; v.play().catch(() => {}); });
+  // Canlı yayın geri gelince sayfa yenilenmeden ona dönülür (yarım dakikada bir denenir)
   clearInterval(canliDeneme);
-  canliDeneme = setInterval(canliDon, 120000);
+  canliDeneme = setInterval(canliDon, 30000);
 }
 let canliDeneme = null;
 async function canliDon() {
@@ -470,10 +473,18 @@ async function canliAc() {
   v.controls = true; v.playsInline = true; v.autoplay = true; v.muted = true;
   canliKutu.replaceChildren(v);
   v.addEventListener("playing", () => { sesAc.hidden = !v.muted; }, { once: true });
-  v.addEventListener("volumechange", () => { if (!v.muted) sesAc.hidden = true; });
+  v.addEventListener("volumechange", () => { if (!v.muted) { canliSesli = true; sesAc.hidden = true; } });
+  // Yayın durursa (görüntü 45 saniye ilerlemezse) yedek videoya geçilir; izleyici kendisi durdurduysa geçilmez
+  let sonAn = -1, durgun = 0;
+  canliBekci = setInterval(() => {
+    if (document.hidden || v.paused) { durgun = 0; return; }
+    durgun = v.currentTime === sonAn ? durgun + 5 : 0;
+    sonAn = v.currentTime;
+    if (durgun >= 45) canliYedek();
+  }, 5000);
   const kaynak = adres + "/tvplas/index.m3u8";
   if (window.Hls && Hls.isSupported()) {
-    // Yavaş bağlantıda (örneğin yayını yapan bilgisayarın kendisinde) hemen YouTube yedeğine düşmesin: zaman aşımları uzun,
+    // Yavaş bağlantıda (örneğin yayını yapan bilgisayarın kendisinde) hemen yedek videoya düşmesin: zaman aşımları uzun,
     // ölümcül hata olursa önce 3 kez yeniden denenir
     canliHls = new Hls({ liveDurationInfinity: true, liveSyncDurationCount: 4, maxBufferLength: 30,
       manifestLoadingTimeOut: 20000, levelLoadingTimeOut: 20000, fragLoadingTimeOut: 40000,
