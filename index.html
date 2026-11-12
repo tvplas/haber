@@ -467,6 +467,11 @@ async function canliAc() {
   // İzleyici sayısı: sayfa açıkken yarım dakikada bir "buradayım" denir (sekme arkadaysa sayılmaz)
   canliSayac = setInterval(() => { if (!document.hidden) canliBilgi(); }, 30000);
   if (!adres) return canliYedek();
+  // Önce yayın var mı diye hızlıca bakılır: yoksa (vMix kapalı) yedek video beklemeden hemen başlar
+  try {
+    const yanit = await fetch(adres + "/tvplas/index.m3u8", { cache: "no-store", signal: window.AbortSignal && AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined });
+    if (!yanit.ok) return canliYedek();
+  } catch (e) { return canliYedek(); }
   await hlsYukle();
   canliTemizle();
   const v = document.createElement("video");
@@ -474,13 +479,13 @@ async function canliAc() {
   canliKutu.replaceChildren(v);
   v.addEventListener("playing", () => { sesAc.hidden = !v.muted; }, { once: true });
   v.addEventListener("volumechange", () => { if (!v.muted) { canliSesli = true; sesAc.hidden = true; } });
-  // Yayın durursa (görüntü 45 saniye ilerlemezse) yedek videoya geçilir; izleyici kendisi durdurduysa geçilmez
+  // Yayın durursa (görüntü 30 saniye ilerlemezse) yedek videoya geçilir; izleyici kendisi durdurduysa geçilmez
   let sonAn = -1, durgun = 0;
   canliBekci = setInterval(() => {
     if (document.hidden || v.paused) { durgun = 0; return; }
     durgun = v.currentTime === sonAn ? durgun + 5 : 0;
     sonAn = v.currentTime;
-    if (durgun >= 45) canliYedek();
+    if (durgun >= 30) canliYedek();
   }, 5000);
   const kaynak = adres + "/tvplas/index.m3u8";
   if (window.Hls && Hls.isSupported()) {
