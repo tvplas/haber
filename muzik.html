@@ -1083,13 +1083,17 @@ document.querySelectorAll(".menu button").forEach(b => b.onclick = () => {
   ciz();
 });
 
-// Ziyaretçi sayacı: bu tarayıcı bugün henüz sayılmadıysa sunucuya ziyaret=1 gönderilir
+// Ziyaretçi sayacı (2026-11-13 kullanıcı isteği): her sayfa açılışı sayılır. Sayfa açıkken yapılan otomatik
+// haber yenilemeleri yeniden saymaz (aynı açılışta yalnızca ilk istek ziyaret=1 gönderir)
 function bugunTarih() {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Famagusta" });
 }
 
+let ziyaretSayildi = false;
 function sayilacakMi() {
-  try { return localStorage.getItem("tvplas_ziyaret") !== bugunTarih(); } catch (e) { return true; }
+  if (ziyaretSayildi) return false;
+  ziyaretSayildi = true;
+  return true;
 }
 
 // Kurlar bandı: Sterlin, Euro, Dolar (TCMB döviz satış). Kesintisiz akması için içerik iki kez yazılır
