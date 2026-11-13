@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Haber Gönder – TVplas Portal</title>
+<meta name="description" content="Kurumlar, dernekler, partiler ve okurlar için: haberinizi ya da basın toplantısı duyurunuzu TVplas Portal'ın Kıbrıs bölümünde yayınlanmak üzere gönderin.">
+<meta property="og:title" content="TVplas Portal – Haber ve Basın Toplantısı Duyurusu Gönder">
+<meta property="og:description" content="Haberinizi ya da basın toplantısı duyurunuzu TVplas Portal'a gönderin.">
+<meta property="og:image" content="https://tvplas.github.io/haber/kapak.jpg">
+<style>
+/* 2026-11-13: Yazar Paneli'nin benzeri. Kurumlar ve okurlar Kıbrıs bölümü için haber ya da basın toplantısı duyurusu gönderir;
+   TVplas e-postadaki bağlantıdan onaylayınca portalın Kıbrıs bölümünde yayınlanır.
+   Aynı sayfa ?no=…&a=… ile açılınca e-postadaki onay sayfası olur (yayınla / reddet). */
+:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#c8102e;--vurgu2:#a50d26;--cizgi:#e4e7ec;--alan:#fff;--secili:#fde8eb}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--kart:#1b2029;--yazi:#e8eaee;--soluk:#98a2b3;--vurgu:#ff5a6e;--vurgu2:#ff3d55;--cizgi:#2a313d;--alan:#12151b;--secili:#3a1820}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--yazi);font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif}
+main{max-width:820px;margin:auto;padding:20px 16px 48px}
+a{color:var(--vurgu)}
+.geri{display:inline-block;margin-bottom:14px;font-weight:600;text-decoration:none}
+h1{margin:0 0 4px;font-size:28px;letter-spacing:-.3px}h1 span{color:var(--vurgu)}
+.alt{color:var(--soluk);margin:0 0 20px}
+section{background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:18px;margin-bottom:16px}
+h2{margin:0 0 12px;font-size:18px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+label small{font-weight:400;color:var(--soluk)}
+input[type=text],input[type=email],input[type=tel],input[type=datetime-local],textarea{width:100%;padding:10px 12px;border:1px solid var(--cizgi);border-radius:9px;background:var(--alan);color:var(--yazi);font:inherit}
+textarea{min-height:260px;resize:vertical;line-height:1.65}
+input:focus,textarea:focus{outline:2px solid var(--vurgu);outline-offset:1px}
+.iki{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:560px){.iki{grid-template-columns:1fr}}
+.turler{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.turler{grid-template-columns:1fr}}
+.turler label{margin:0;display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--cizgi);border-radius:11px;padding:12px;cursor:pointer;font-weight:400}
+.turler label b{display:block;font-size:16px}
+.turler input{margin-top:4px;width:18px;height:18px;flex:none;accent-color:var(--vurgu)}
+.turler label:has(input:checked){border-color:var(--vurgu);background:var(--secili)}
+.not{font-size:13px;color:var(--soluk)}
+.sayac{text-align:right;font-size:13px;color:var(--soluk);margin-top:4px}
+.foto-sec{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.foto-sec img{width:160px;height:90px;object-fit:cover;border-radius:9px;border:1px solid var(--cizgi);background:var(--alan)}
+.foto-sec img[hidden]{display:none}
+button.ikinci{background:none;border:1px solid var(--cizgi);color:var(--yazi);border-radius:9px;padding:9px 14px;font:inherit;cursor:pointer}
+.onay label{display:flex;align-items:flex-start;gap:8px;font-weight:400;font-size:15px;margin:0 0 10px}
+.onay input{margin-top:4px;width:18px;height:18px;flex:none;accent-color:var(--vurgu)}
+button.ana{padding:13px 22px;border:0;border-radius:11px;background:var(--vurgu);color:#fff;font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+button.ana:hover{background:var(--vurgu2)}
+button.ana:disabled{opacity:.6;cursor:wait}
+.durum{margin-top:12px;padding:12px 14px;border-radius:10px;font-weight:600}
+.durum:empty{display:none}
+.durum.iyi{background:#dcfce7;color:#166534}.durum.kotu{background:#fee2e2;color:#991b1b}
+.gizli{display:none}
+.tuzak{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.metin{white-space:pre-line;line-height:1.65;border:1px solid var(--cizgi);border-radius:10px;padding:14px;background:var(--alan)}
+.kunye{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:15px;margin-bottom:14px}
+.kunye dt{color:var(--soluk)}.kunye dd{margin:0;font-weight:600}
+.kararlar{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+#evet{background:#16a34a}#hayir{background:#dc2626}
+</style>
+</head>
+<body>
+<main>
+<a class="geri" href="./">← TVplas Portal'a dön</a>
+
+<!-- Gönderme formu -->
+<div id="panel">
+  <h1><span>TVplas</span> Haber Gönder</h1>
+  <p class="alt">Kurumlar, dernekler, siyasi partiler, belediyeler ve okurlarımız haberlerini ya da basın toplantısı duyurularını buradan gönderebilir. Gönderiniz TVplas'ın onayından sonra portalın <b>Kıbrıs</b> bölümünde yayınlanır.</p>
+
+  <form id="form" novalidate>
+    <section>
+      <h2>Ne göndermek istiyorsunuz?</h2>
+      <div class="turler">
+        <label><input type="radio" name="tur" value="haber" checked><span><b>📰 Haber</b><span class="not">Basın bülteni, açıklama, etkinlik haberi</span></span></label>
+        <label><input type="radio" name="tur" value="basin"><span><b>🎤 Basın toplantısı duyurusu</b><span class="not">Basın mensuplarını toplantıya davet</span></span></label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Gönderen</h2>
+      <label for="kim">Adınız ya da kurumunuzun adı</label>
+      <input id="kim" type="text" maxlength="120" autocomplete="organization" required>
+      <div class="iki">
+        <div><label for="tel">Telefon <small>(yayınlanmaz, gerekirse size ulaşmak için)</small></label>
+          <input id="tel" type="tel" maxlength="30" autocomplete="tel" required></div>
+        <div><label for="eposta">E-posta <small>(isteğe bağlı, yayınlanmaz)</small></label>
+          <input id="eposta" type="email" maxlength="120" autocomplete="email"></div>
+      </div>
+    </section>
+
+    <section id="toplantiAlan" class="gizli">
+      <h2>Basın toplantısı</h2>
+      <div class="iki">
+        <div><label for="zaman">Tarih ve saat</label><input id="zaman" type="datetime-local"></div>
+        <div><label for="yer">Yer <small>(adres ya da salon adı)</small></label><input id="yer" type="text" maxlength="150"></div>
+      </div>
+      <p class="not">Duyuru portalda toplantı gününün sonuna kadar kalır, sonra kendiliğinden kalkar.</p>
+    </section>
+
+    <section>
+      <h2 id="icerikBaslik">Haber</h2>
+      <label for="baslik">Başlık</label>
+      <input id="baslik" type="text" maxlength="150" required>
+      <label for="metin">Metin <small>(paragrafları boş satırla ayırın; Word'den kopyalayıp yapıştırabilirsiniz)</small></label>
+      <textarea id="metin" maxlength="20000" required></textarea>
+      <div class="sayac" id="sayac">0 karakter</div>
+
+      <label>Fotoğraf <small>(isteğe bağlı, tek fotoğraf; yatay fotoğraf en iyi görünür)</small></label>
+      <div class="foto-sec">
+        <img id="onizleme" alt="Seçilen fotoğraf" hidden>
+        <input id="foto" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <button type="button" class="ikinci" id="fotoSec">📷 Fotoğraf seç</button>
+        <button type="button" class="ikinci gizli" id="fotoKaldir">Kaldır</button>
+      </div>
+      <div class="tuzak" aria-hidden="true"><label for="web">Web sitesi</label><input id="web" type="text" tabindex="-1" autocomplete="off"></div>
+    </section>
+
+    <section class="onay">
+      <label><input type="checkbox" id="beyan"><span>Gönderdiğim metnin ve fotoğrafın yayınlanmasına yetkiliyim. TVplas'ın gerektiğinde metni kısaltabileceğini, düzeltebileceğini ya da yayınlamayabileceğini kabul ediyorum.</span></label>
+      <button class="ana" type="submit" id="gonderBtn">Gönder</button>
+      <div class="durum" id="gonderDurum"></div>
+      <p class="not">Taslağınız bu cihazda da saklanır; sayfa kapanırsa kaybolmaz. Sorularınız için WhatsApp: 0533 863 6839</p>
+    </section>
+  </form>
+</div>
+
+<!-- E-postadaki onay bağlantısı (haber-gonder.html?no=…&a=…) -->
+<div id="onay" class="gizli">
+  <h1><span>TVplas</span> Gelen Haber Onayı</h1>
+  <section>
+    <div class="durum" id="onayDurum">Yükleniyor…</div>
+    <div id="onayIcerik" class="gizli">
+      <dl class="kunye" id="onayKunye"></dl>
+      <h2 id="onayBaslik"></h2>
+      <div class="metin" id="onayMetin"></div>
+      <p class="not" id="onayFoto"></p>
+      <div class="kararlar" id="kararlar">
+        <button class="ana" id="evet">✅ Kıbrıs bölümünde yayınla</button>
+        <button class="ana" id="hayir">❌ Reddet</button>
+      </div>
+    </div>
+  </section>
+</div>
+</main>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
+const $ = id => document.getElementById(id);
+const sakla = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} };
+const oku = k => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
+const TASLAK = "tvplas_haber_taslak";
+
+async function istek(veri) {
+  const r = await fetch(API, { method: "POST", body: JSON.stringify(veri) });
+  if (!r.ok) throw new Error("Sunucuya ulaşılamadı (" + r.status + ")");
+  return r.json();
+}
+function durum(el, metin, iyi) { el.textContent = metin; el.className = "durum " + (iyi ? "iyi" : "kotu"); }
+const tur = () => document.querySelector("input[name=tur]:checked").value;
+
+// ---- Gönderme formu ----
+let fotoVeri = "";   // küçültülmüş JPEG (data URL)
+
+function turGuncelle() {
+  const basin = tur() === "basin";
+  $("toplantiAlan").classList.toggle("gizli", !basin);
+  $("icerikBaslik").textContent = basin ? "Duyuru" : "Haber";
+  $("baslik").placeholder = basin ? "ör. Kurumumuz yarın saat 10.30'da basın toplantısı düzenliyor" : "";
+}
+
+function taslakKaydet() {
+  const n = $("metin").value.trim().length;
+  $("sayac").textContent = n.toLocaleString("tr-TR") + " karakter" + (n && n < 80 ? " (en az 80)" : "");
+  sakla(TASLAK, JSON.stringify({ t: tur(), k: $("kim").value, te: $("tel").value, e: $("eposta").value,
+    z: $("zaman").value, y: $("yer").value, b: $("baslik").value, m: $("metin").value }));
+}
+
+// Fotoğraf tarayıcıda en çok 1600 piksel genişliğe küçültülür (mobil veriyle de hızlı gitsin)
+function fotoKucult(dosya) {
+  return new Promise((tamam, hata) => {
+    const img = new Image(), url = URL.createObjectURL(dosya);
+    img.onload = () => {
+      const o = Math.min(1, 1600 / img.naturalWidth, 1600 / img.naturalHeight);
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.naturalWidth * o); c.height = Math.round(img.naturalHeight * o);
+      const x = c.getContext("2d");
+      x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
+      x.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      tamam(c.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); hata(new Error("Bu dosya fotoğraf olarak açılamadı")); };
+    img.src = url;
+  });
+}
+
+$("fotoSec").onclick = () => $("foto").click();
+$("foto").onchange = async () => {
+  const f = $("foto").files[0];
+  if (!f) return;
+  try {
+    fotoVeri = await fotoKucult(f);
+    $("onizleme").src = fotoVeri; $("onizleme").hidden = false;
+    $("fotoKaldir").classList.remove("gizli");
+    $("fotoSec").textContent = "📷 Başka fotoğraf seç";
+  } catch (e) { durum($("gonderDurum"), e.message, false); }
+};
+$("fotoKaldir").onclick = () => {
+  fotoVeri = ""; $("foto").value = ""; $("onizleme").hidden = true; $("onizleme").removeAttribute("src");
+  $("fotoKaldir").classList.add("gizli"); $("fotoSec").textContent = "📷 Fotoğraf seç";
+};
+
+document.querySelectorAll("input[name=tur]").forEach(r => r.onchange = () => { turGuncelle(); taslakKaydet(); });
+["kim", "tel", "eposta", "zaman", "yer", "baslik", "metin"].forEach(id => $(id).addEventListener("input", taslakKaydet));
+
+$("form").onsubmit = async e => {
+  e.preventDefault();
+  const m = $("gonderDurum"), basin = tur() === "basin";
+  const v = { kim: $("kim").value.trim(), tel: $("tel").value.trim(), eposta: $("eposta").value.trim(),
+    baslik: $("baslik").value.trim(), metin: $("metin").value.trim(), zaman: $("zaman").value, yer: $("yer").value.trim() };
+  if (v.kim.length < 2) return durum(m, "Lütfen adınızı ya da kurumunuzun adını yazın.", false);
+  if (v.tel.replace(/\D/g, "").length < 7) return durum(m, "Lütfen geçerli bir telefon numarası yazın.", false);
+  if (v.eposta && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.eposta)) return durum(m, "E-posta adresi geçersiz görünüyor.", false);
+  if (basin && !v.zaman) return durum(m, "Basın toplantısının tarihini ve saatini seçin.", false);
+  if (basin && v.yer.length < 3) return durum(m, "Basın toplantısının yerini yazın.", false);
+  if (v.baslik.length < 5) return durum(m, "Lütfen bir başlık yazın.", false);
+  if (v.metin.length < 80) return durum(m, "Metin çok kısa (en az 80 karakter olmalı).", false);
+  if (!$("beyan").checked) return durum(m, "Göndermek için yayınlama yetkisi beyanını işaretleyin.", false);
+  $("gonderBtn").disabled = true;
+  durum(m, fotoVeri ? "Gönderiliyor (fotoğrafla birlikte, biraz sürebilir)…" : "Gönderiliyor…", true);
+  try {
+    const c = await istek({ islem: "haberGonder", tur: tur(), ...v, zaman: basin ? v.zaman : "", yer: basin ? v.yer : "",
+      foto: fotoVeri, web: $("web").value });
+    if (!c.tamam) throw new Error(c.hata || "Gönderilemedi");
+    $("form").reset(); $("fotoKaldir").click(); sakla(TASLAK, null); turGuncelle(); taslakKaydet();
+    durum(m, "✅ Gönderiniz alındı (kayıt no " + c.no + "). TVplas onayladıktan sonra portalın Kıbrıs bölümünde yayınlanacak.", true);
+  } catch (err) {
+    durum(m, "Olmadı: " + err.message, false);
+  } finally {
+    $("gonderBtn").disabled = false;
+  }
+};
+
+// ---- Onay sayfası (yalnızca e-postadaki bağlantıyla: no + onay anahtarı) ----
+async function onayAc(no, a) {
+  $("panel").classList.add("gizli");
+  $("onay").classList.remove("gizli");
+  document.title = "Gelen Haber Onayı – TVplas Portal";
+  try {
+    const c = await (await fetch(API + "?islem=gelenBilgi&no=" + encodeURIComponent(no) + "&a=" + encodeURIComponent(a))).json();
+    if (!c.tamam) throw new Error(c.hata || "Kayıt bulunamadı");
+    const y = c.kayit, kunye = $("onayKunye");
+    const satir = (k, d) => { if (!d) return; const dt = document.createElement("dt"), dd = document.createElement("dd"); dt.textContent = k; dd.textContent = d; kunye.append(dt, dd); };
+    satir("Kayıt", "#" + y.no + " · " + y.tur);
+    satir("Gönderen", y.kim);
+    satir("Telefon", y.tel);
+    satir("E-posta", y.eposta);
+    satir("Toplantı", y.ttarih);
+    satir("Yer", y.tyer);
+    satir("Durum", y.durum);
+    $("onayBaslik").textContent = y.baslik;
+    $("onayMetin").textContent = y.metin;
+    $("onayFoto").textContent = y.foto ? "📷 Fotoğraf var: onay e-postasının ekinde görebilirsiniz; yayınlanırsa haberle birlikte çıkar." : "Fotoğraf gönderilmemiş.";
+    $("onayIcerik").classList.remove("gizli");
+    if (y.durum === "Bekliyor") { $("onayDurum").textContent = ""; $("onayDurum").className = "durum"; }
+    else { $("kararlar").classList.add("gizli"); durum($("onayDurum"), "Bu gönderi için karar verilmiş: " + y.durum, y.durum === "Yayınlandı"); }
+  } catch (e) {
+    durum($("onayDurum"), e.message, false);
+  }
+  const karar = async k => {
+    if (k === "hayir" && !confirm("Gönderi reddedilsin mi?")) return;
+    $("kararlar").classList.add("gizli");
+    durum($("onayDurum"), "İşleniyor…", true);
+    try {
+      const c = await istek({ islem: "gelenKarar", no, a, karar: k });
+      if (!c.tamam) throw new Error(c.hata || "Olmadı");
+      durum($("onayDurum"), k === "evet" ? "✅ Yayınlandı. Portalın Kıbrıs bölümünde birkaç dakika içinde görünür." : "Gönderi reddedildi.", true);
+    } catch (e) {
+      durum($("onayDurum"), "Olmadı: " + e.message, false);
+      $("kararlar").classList.remove("gizli");
+    }
+  };
+  $("evet").onclick = () => karar("evet");
+  $("hayir").onclick = () => karar("hayir");
+}
+
+const q = new URLSearchParams(location.search);
+if (q.get("no") && q.get("a")) {
+  onayAc(q.get("no"), q.get("a"));
+} else {
+  try {
+    const t = JSON.parse(oku(TASLAK) || "{}");
+    if (t.t === "basin" || q.get("tur") === "basin") document.querySelector("input[value=basin]").checked = true;
+    $("kim").value = t.k || ""; $("tel").value = t.te || ""; $("eposta").value = t.e || "";
+    $("zaman").value = t.z || ""; $("yer").value = t.y || ""; $("baslik").value = t.b || ""; $("metin").value = t.m || "";
+  } catch (e) {}
+  turGuncelle(); taslakKaydet();
+}
+</script>
+</body>
+</html>
