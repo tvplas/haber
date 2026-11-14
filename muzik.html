@@ -398,8 +398,8 @@ function izleyiciGoster(n) {
 async function canliBilgi() {
   try { const j = await (await fetch(API + "?islem=canli&izleyici=" + izleyiciNo)).json(); izleyiciGoster(j.izleyici); return j; } catch (e) { return {}; }
 }
-let canliBekci = null;
-function canliTemizle() { clearInterval(canliBekci); canliBekci = null; if (canliHls) { canliHls.destroy(); canliHls = null; } canliKutu.replaceChildren(); }
+let canliBekci = null, canliKare = null;
+function canliTemizle() { clearInterval(canliBekci); canliBekci = null; clearInterval(canliKare); canliKare = null; if (canliHls) { canliHls.destroy(); canliHls = null; } canliKutu.replaceChildren(); }
 function canliSayacDur() { clearInterval(canliSayac); canliSayac = null; canliSayi.hidden = true; }
 // Yedek: yayın yoksa veya durursa oynatıcıda "yayın olmadığında" videosu sürekli döner.
 // Video portalın kendi dosyasıdır (yayin-yok.mp4), canlı yayın sunucusu kapalıyken de açılır
@@ -427,6 +427,13 @@ async function canliDon() {
   try { if ((await fetch(adres + "/tvplas/index.m3u8", { cache: "no-store" })).ok) canliAc(); } catch (e) {}
 }
 document.addEventListener("visibilitychange", canliDon);
+// 2026-11-14 kullanıcı: "portal yayınlarında görüntü ve sesler birbirini tutmuyor, kalıcı çözün". Sunucudan çıkan yayın
+// her kalitede uyumlu ölçüldü (≤0,08 sn); kayma izleyicinin tarayıcısında oluşuyor. Sekme arkadayken Chrome görüntüyü
+// çözmeyi bırakıp sesi sürdürebiliyor: sekme öne gelince oynatıcı aynı ana yeniden konumlanır, ses ve görüntü hizalanır.
+document.addEventListener("visibilitychange", () => {
+  const v = canliKutu.querySelector("video:not(.yedek)");
+  if (!document.hidden && v && !v.paused) setTimeout(() => { if (v.readyState > 2) v.currentTime = v.currentTime; }, 500);
+});
 function hlsYukle() {
   if (window.Hls) return Promise.resolve();
   return new Promise(tamam => {
@@ -472,6 +479,8 @@ async function canliAc() {
     // Yavaş bağlantıda (örneğin yayını yapan bilgisayarın kendisinde) hemen yedek videoya düşmesin: zaman aşımları uzun,
     // ölümcül hata olursa önce 3 kez yeniden denenir
     canliHls = new Hls({ liveDurationInfinity: true, liveSyncDurationCount: 4, maxBufferLength: 30,
+      // bilgisayar görüntüyü yetiştiremeyip kare atlarsa (ses önde kalır) daha düşük kaliteye geçer; küçük oynatıcıya büyük kalite indirilmez
+      capLevelOnFPSDrop: true, fpsDroppedMonitoringPeriod: 5000, fpsDroppedMonitoringThreshold: 0.1, capLevelToPlayerSize: true,
       manifestLoadingTimeOut: 20000, levelLoadingTimeOut: 20000, fragLoadingTimeOut: 40000,
       manifestLoadingMaxRetry: 6, levelLoadingMaxRetry: 6, fragLoadingMaxRetry: 6 });
     let deneme = 0;
@@ -489,6 +498,18 @@ async function canliAc() {
     v.onerror = canliYedek;   // iPhone ve iPad oynatıcısı bu yayını kendisi açar
     v.src = kaynak;
   }
+  // Kare bekçisi: 10 saniyede atlanan kare %10'u geçerse görüntü sesin gerisine düşmüştür -> bir alt kaliteye inilir
+  // ve oynatıcı yeniden konumlanarak ses ile görüntü hizalanır (2026-11-14)
+  let sonKare = 0, sonDusen = 0;
+  canliKare = setInterval(() => {
+    if (document.hidden || v.paused || !v.getVideoPlaybackQuality) return;
+    const q = v.getVideoPlaybackQuality(), k = q.totalVideoFrames - sonKare, d = q.droppedVideoFrames - sonDusen;
+    sonKare = q.totalVideoFrames; sonDusen = q.droppedVideoFrames;
+    if (k > 50 && d / k > 0.1) {
+      if (canliHls && canliHls.currentLevel > 0) canliHls.nextLevel = canliHls.currentLevel - 1;
+      if (v.readyState > 2) v.currentTime = v.currentTime;
+    }
+  }, 10000);
   // Tarayıcı sesli başlatmaya izin vermezse sessiz başlar; ses oynatıcıdan açılır
   v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
 }
