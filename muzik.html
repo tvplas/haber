@@ -1056,6 +1056,15 @@ detay.querySelector(".kapat").onclick = () => detay.close();
 detay.querySelector(".anaDon").onclick = () => { detay.close(); window.scrollTo({ top: 0, behavior: "smooth" }); };
 detay.addEventListener("close", () => detay.querySelector("iframe")?.remove());   // kapanınca video da durur
 detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
+// 2026-11-14 kullanıcı: Haber ve Duyuru Gönder, Yazar Girişi ve Yayın İzin Formu ana sayfadan AYRI PENCEREDE açılsın
+// (target=_blank Chrome'da yalnızca yeni sekme açıyordu). Pencere açılamazsa (engelleyici, telefon) bağlantı yeni sekmede açılır.
+document.querySelectorAll("a.haber-gonder, a.yazar-giris, a.izin-bant").forEach(a => a.addEventListener("click", e => {
+  if (e.ctrlKey || e.metaKey || e.shiftKey || e.button) return;
+  const g = Math.min(980, screen.availWidth - 40), y = Math.min(1000, screen.availHeight - 60);
+  const s = Math.max(0, (screen.availWidth - g) / 2 + (screen.availLeft || 0)), u = Math.max(0, (screen.availHeight - y) / 2 + (screen.availTop || 0));
+  const p = window.open(a.href, "tvplas_" + a.className, `popup=yes,width=${g},height=${y},left=${Math.round(s)},top=${Math.round(u)}`);
+  if (p) { e.preventDefault(); p.focus(); }
+}));
 document.querySelectorAll(".menu button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".menu button").forEach(x => x.classList.toggle("aktif", x === b));
   bolum = b.dataset.k;
