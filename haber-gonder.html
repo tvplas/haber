@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Haber ve Duyuru – TVplas Portal</title>
-<meta name="description" content="Kurumlar, dernekler, partiler ve okurlar için: haberinizi ya da basın toplantısı duyurunuzu TVplas Portal'ın Kıbrıs bölümünde yayınlanmak üzere gönderin.">
-<meta property="og:title" content="TVplas Portal – Haber ve Basın Toplantısı Duyurusu Gönder">
-<meta property="og:description" content="Haberinizi ya da basın toplantısı duyurunuzu TVplas Portal'a gönderin.">
+<meta name="description" content="Kurumlar, dernekler, partiler ve okurlar için: haberinizi ya da duyurunuzu TVplas Portal'ın Kıbrıs bölümünde yayınlanmak üzere gönderin.">
+<meta property="og:title" content="TVplas Portal – Haber ve Duyuru Gönder">
+<meta property="og:description" content="Haberinizi ya da duyurunuzu TVplas Portal'a gönderin.">
 <meta property="og:image" content="https://tvplas.github.io/haber/kapak.jpg">
 <style>
-/* 2026-11-13: Yazar Paneli'nin benzeri. Kurumlar ve okurlar Kıbrıs bölümü için haber ya da basın toplantısı duyurusu gönderir;
+/* 2026-11-13: Yazar Paneli'nin benzeri. Kurumlar ve okurlar Kıbrıs bölümü için haber ya da duyuru gönderir
+   (2026-11-14 kullanıcı isteğiyle ayrı "Basın toplantısı duyurusu" seçeneği kaldırıldı);
    TVplas e-postadaki bağlantıdan onaylayınca portalın Kıbrıs bölümünde yayınlanır.
    Aynı sayfa ?no=…&a=… ile açılınca e-postadaki onay sayfası olur (yayınla / reddet). */
 :root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#c8102e;--vurgu2:#a50d26;--cizgi:#e4e7ec;--alan:#fff;--secili:#fde8eb}
@@ -30,8 +31,7 @@ textarea{min-height:260px;resize:vertical;line-height:1.65}
 input:focus,textarea:focus{outline:2px solid var(--vurgu);outline-offset:1px}
 .iki{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 @media (max-width:560px){.iki{grid-template-columns:1fr}}
-.turler{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:480px){.turler{grid-template-columns:1fr}}
+.turler{display:grid;grid-template-columns:1fr;gap:10px}
 .turler label{margin:0;display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--cizgi);border-radius:11px;padding:12px;cursor:pointer;font-weight:400}
 .turler label b{display:block;font-size:16px}
 .turler input{margin-top:4px;width:18px;height:18px;flex:none;accent-color:var(--vurgu)}
@@ -66,14 +66,13 @@ button.ana:disabled{opacity:.6;cursor:wait}
 <!-- Gönderme formu -->
 <div id="panel">
   <h1><span>TVplas</span> Haber ve Duyuru</h1>
-  <p class="alt">Kurumlar, dernekler, siyasi partiler, belediyeler ve okurlarımız haberlerini ya da basın toplantısı duyurularını buradan gönderebilir. Gönderiniz TVplas'ın onayından sonra portalın <b>Kıbrıs</b> bölümünde yayınlanır.</p>
+  <p class="alt">Kurumlar, dernekler, siyasi partiler, belediyeler ve okurlarımız haberlerini ya da basın toplantısı duyurularını buradan gönderebilir. Gönderiniz TVplas'ın onayından sonra portalın <b>Kıbrıs</b> bölümünde yayınlanır. <b>HABER DEĞERİ OLAN HER HABER İÇİN KAPIMIZ AÇIK.</b></p>
 
   <form id="form" novalidate>
     <section>
       <h2>Ne göndermek istiyorsunuz?</h2>
       <div class="turler">
-        <label><input type="radio" name="tur" value="haber" checked><span><b>📰 Haber</b><span class="not">Basın bülteni, açıklama, etkinlik haberi</span></span></label>
-        <label><input type="radio" name="tur" value="basin"><span><b>🎤 Basın toplantısı duyurusu</b><span class="not">Basın mensuplarını toplantıya davet</span></span></label>
+        <label><input type="radio" name="tur" value="haber" checked><span><b>📰 Haber ve duyuru</b><span class="not">Basın bülteni, açıklama, etkinlik haberi, duyuru</span></span></label>
       </div>
     </section>
 
@@ -87,15 +86,6 @@ button.ana:disabled{opacity:.6;cursor:wait}
         <div><label for="eposta">E-posta <small>(isteğe bağlı, yayınlanmaz)</small></label>
           <input id="eposta" type="email" maxlength="120" autocomplete="email"></div>
       </div>
-    </section>
-
-    <section id="toplantiAlan" class="gizli">
-      <h2>Basın toplantısı</h2>
-      <div class="iki">
-        <div><label for="zaman">Tarih ve saat</label><input id="zaman" type="datetime-local"></div>
-        <div><label for="yer">Yer <small>(adres ya da salon adı)</small></label><input id="yer" type="text" maxlength="150"></div>
-      </div>
-      <p class="not">Duyuru portalda toplantı gününün sonuna kadar kalır, sonra kendiliğinden kalkar.</p>
     </section>
 
     <section>
@@ -162,18 +152,11 @@ const tur = () => document.querySelector("input[name=tur]:checked").value;
 // ---- Gönderme formu ----
 let fotoVeri = "";   // küçültülmüş JPEG (data URL)
 
-function turGuncelle() {
-  const basin = tur() === "basin";
-  $("toplantiAlan").classList.toggle("gizli", !basin);
-  $("icerikBaslik").textContent = basin ? "Duyuru" : "Haber";
-  $("baslik").placeholder = basin ? "ör. Kurumumuz yarın saat 10.30'da basın toplantısı düzenliyor" : "";
-}
-
 function taslakKaydet() {
   const n = $("metin").value.trim().length;
   $("sayac").textContent = n.toLocaleString("tr-TR") + " karakter" + (n && n < 80 ? " (en az 80)" : "");
-  sakla(TASLAK, JSON.stringify({ t: tur(), k: $("kim").value, te: $("tel").value, e: $("eposta").value,
-    z: $("zaman").value, y: $("yer").value, b: $("baslik").value, m: $("metin").value }));
+  sakla(TASLAK, JSON.stringify({ k: $("kim").value, te: $("tel").value, e: $("eposta").value,
+    b: $("baslik").value, m: $("metin").value }));
 }
 
 // Fotoğraf tarayıcıda en çok 1600 piksel genişliğe küçültülür (mobil veriyle de hızlı gitsin)
@@ -211,29 +194,26 @@ $("fotoKaldir").onclick = () => {
   $("fotoKaldir").classList.add("gizli"); $("fotoSec").textContent = "📷 Fotoğraf seç";
 };
 
-document.querySelectorAll("input[name=tur]").forEach(r => r.onchange = () => { turGuncelle(); taslakKaydet(); });
-["kim", "tel", "eposta", "zaman", "yer", "baslik", "metin"].forEach(id => $(id).addEventListener("input", taslakKaydet));
+["kim", "tel", "eposta", "baslik", "metin"].forEach(id => $(id).addEventListener("input", taslakKaydet));
 
 $("form").onsubmit = async e => {
   e.preventDefault();
-  const m = $("gonderDurum"), basin = tur() === "basin";
+  const m = $("gonderDurum");
   const v = { kim: $("kim").value.trim(), tel: $("tel").value.trim(), eposta: $("eposta").value.trim(),
-    baslik: $("baslik").value.trim(), metin: $("metin").value.trim(), zaman: $("zaman").value, yer: $("yer").value.trim() };
+    baslik: $("baslik").value.trim(), metin: $("metin").value.trim() };
   if (v.kim.length < 2) return durum(m, "Lütfen adınızı ya da kurumunuzun adını yazın.", false);
   if (v.tel.replace(/\D/g, "").length < 7) return durum(m, "Lütfen geçerli bir telefon numarası yazın.", false);
   if (v.eposta && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.eposta)) return durum(m, "E-posta adresi geçersiz görünüyor.", false);
-  if (basin && !v.zaman) return durum(m, "Basın toplantısının tarihini ve saatini seçin.", false);
-  if (basin && v.yer.length < 3) return durum(m, "Basın toplantısının yerini yazın.", false);
   if (v.baslik.length < 5) return durum(m, "Lütfen bir başlık yazın.", false);
   if (v.metin.length < 80) return durum(m, "Metin çok kısa (en az 80 karakter olmalı).", false);
   if (!$("beyan").checked) return durum(m, "Göndermek için yayınlama yetkisi beyanını işaretleyin.", false);
   $("gonderBtn").disabled = true;
   durum(m, fotoVeri ? "Gönderiliyor (fotoğrafla birlikte, biraz sürebilir)…" : "Gönderiliyor…", true);
   try {
-    const c = await istek({ islem: "haberGonder", tur: tur(), ...v, zaman: basin ? v.zaman : "", yer: basin ? v.yer : "",
+    const c = await istek({ islem: "haberGonder", tur: tur(), ...v, zaman: "", yer: "",
       foto: fotoVeri, web: $("web").value });
     if (!c.tamam) throw new Error(c.hata || "Gönderilemedi");
-    $("form").reset(); $("fotoKaldir").click(); sakla(TASLAK, null); turGuncelle(); taslakKaydet();
+    $("form").reset(); $("fotoKaldir").click(); sakla(TASLAK, null); taslakKaydet();
     durum(m, "✅ Gönderiniz alındı (kayıt no " + c.no + "). TVplas onayladıktan sonra portalın Kıbrıs bölümünde yayınlanacak.", true);
   } catch (err) {
     durum(m, "Olmadı: " + err.message, false);
@@ -291,11 +271,10 @@ if (q.get("no") && q.get("a")) {
 } else {
   try {
     const t = JSON.parse(oku(TASLAK) || "{}");
-    if (t.t === "basin" || q.get("tur") === "basin") document.querySelector("input[value=basin]").checked = true;
     $("kim").value = t.k || ""; $("tel").value = t.te || ""; $("eposta").value = t.e || "";
-    $("zaman").value = t.z || ""; $("yer").value = t.y || ""; $("baslik").value = t.b || ""; $("metin").value = t.m || "";
+    $("baslik").value = t.b || ""; $("metin").value = t.m || "";
   } catch (e) {}
-  turGuncelle(); taslakKaydet();
+  taslakKaydet();
 }
 </script>
 </body>
