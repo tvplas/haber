@@ -1060,7 +1060,7 @@ detay.addEventListener("click", e => { if (e.target === detay) detay.close(); })
 // (target=_blank Chrome'da yalnızca yeni sekme açıyordu). Pencere açılamazsa (engelleyici, telefon) bağlantı yeni sekmede açılır.
 document.querySelectorAll("a.haber-gonder, a.yazar-giris, a.izin-bant").forEach(a => a.addEventListener("click", e => {
   if (e.ctrlKey || e.metaKey || e.shiftKey || e.button) return;
-  const g = Math.min(980, screen.availWidth - 40), y = Math.min(1000, screen.availHeight - 60);
+  const g = Math.min(680, screen.availWidth - 80), y = Math.min(720, Math.round(screen.availHeight * 0.8));   // küçük pencere: "çok büyük açılıyor, ekranı kapatıyor"
   const s = Math.max(0, (screen.availWidth - g) / 2 + (screen.availLeft || 0)), u = Math.max(0, (screen.availHeight - y) / 2 + (screen.availTop || 0));
   const p = window.open(a.href, "tvplas_" + a.className, `popup=yes,width=${g},height=${y},left=${Math.round(s)},top=${Math.round(u)}`);
   if (p) { e.preventDefault(); p.focus(); }
