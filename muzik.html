@@ -1351,6 +1351,8 @@ async function yukle(sessiz) {
     const kalan = new Set([...haberler].sort((x, y) => (y.t || "").localeCompare(x.t || ""))
       .filter(h => (h.tvplas && !h.th) || (menuAdet[h.kat] = (menuAdet[h.kat] || 0) + 1) <= 24));
     haberler = haberler.filter(h => kalan.has(h));
+    // son liste (menü başına 24) üzerinde bir kez daha: kelime ağırlıkları burada yeniden tartılınca kaçan benzerler de teklenir
+    { const at = tekleTum(haberler.filter(h => h.kat !== "Yazarlar" && h.kat !== "Fotoğraflar" && !(h.tvplas && !h.th))); if (at.size) haberler = haberler.filter(h => !at.has(h)); }
 
     // Reklamlar sunucudan "Sıra no"ya göre dizili gelir. Numarası en küçük "Üst" reklam en üstte durur;
     // kalan her reklam numara sırasıyla haber aralarına birer kez girer (tekrar yok).
