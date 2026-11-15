@@ -751,6 +751,14 @@ function hedefAc(reklamlar) {
 }
 
 // Dış kaynaklı haber portalda önce TVplas Haber tarzı özet penceresinde açılır; tamamı oradan kaynağında okunur
+// 2026-11-15 kullanıcı: Facebook paylaşımı haberin görseliyle çıksın, görselin sol üstünde TVplas Portal logosu.
+// Sunucudaki paylaşım sayfası (paylas.py) Facebook'a haberin başlığını, özetini ve logolu görselini verir;
+// tıklayan okuyucuyu portaldaki habere getirir (?h=kimlik). Haber olmayanlar (reklam) eskisi gibi.
+function paylasAdres(h) {
+  if (!h.kat) return h.l || PORTAL;
+  return CANLI_SUNUCU + "/p/" + kimlik(h) + (/muzik\.html/.test(location.pathname) ? "?m=1" : "");
+}
+
 function ozetHaber(h) {
   // 2026-11-15 kullanıcı: "haberi kaynağından oku" olmayacak; haberleri TVplas Haber yazar. Yalnızca köşe yazıları kaynağına gider
   return h.tvplas || h.kat !== "Yazarlar" ? h : { ...h, kaynakYazi: "Yazının tamamını gazetesinde oku →" };
@@ -822,7 +830,7 @@ function kartYap(h) {
   // Dış haberde de başlık ve fotoğraf önce özet penceresini açar
   else if (!h.tvplas && h.l) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(ozetHaber(h)); }; });
   const pay = el("a", "paylas", "Facebook'ta paylaş");
-  baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.kat !== "Yazarlar" ? PORTAL : (h.l || PORTAL)));
+  baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasAdres(h)));
   ic.append(ust, h2, el("p", "ozet", h.o));
   if (h.tvplas && (h.o || "").length > 180) {
     const devam = el("button", "devam", "Devamını oku →");
@@ -905,7 +913,7 @@ function detayAc(h) {
   kaynak.hidden = !h.l || (h.kat && h.kat !== "Yazarlar") || (!h.tvplas && h.ob && turkceAdres(h) === h.l);   // haberlerde kaynak bağlantısı yok   // Türkçe sayfası yoksa iki düğme yeter
   if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
   ceviriDugmeleri(h, d.querySelector(".ceviri-dugmeler"));
-  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.kat && h.kat !== "Yazarlar" ? PORTAL : (h.l || PORTAL));
+  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasAdres(h));
   d.showModal();
   d.scrollTop = 0;
 }
