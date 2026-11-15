@@ -896,7 +896,7 @@ function detayAc(h) {
   d.querySelector("h2").textContent = h.b;
   d.querySelector(".govde .ust .etiket").textContent = "TVplas";
   d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz
-    : disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : "TVplas Portal";
+    : disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : h.thf ? h.k : "TVplas Portal";
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
@@ -1263,13 +1263,21 @@ async function yukle(sessiz) {
       const id = kimlik(h);
       if (vh[id] && !tvhVar.has(id) && h.tm) videoKarti(id, h.tb || h.b, h.tm, h.t, h.l, h.k, h.g);
     });
-    [...benim, ...tum, ...tvh].forEach(h => {
+    // 2026-11-15 kullanıcı: TVplas Haber formatıyla yazılmış haberler (tvplas_haber.json, format: TVPLAS_HABER_FORMATI.md).
+    // Kaynak adı gösterilmez, imza "TVplas Haber"; fotoğraf kaynağın fotoğrafı ve künyesiyle. İlk deneme yalnızca Müzik Portal'da
+    const thYazi = (await fetch("tvplas_haber.json?t=" + Date.now()).then(r => r.ok ? r.json() : []).catch(() => [])).map(x => ({
+      b: x.b, t: x.t, g: x.g || "", gk: x.gk || "", gl: "thf:" + x.id, k: "TVplas Haber · " + x.kat,
+      o: [x.s, ...(x.p || []), (x.n || []).length ? "Neden önemli?\n" + x.n.map(m => "• " + m).join("\n") : "",
+        "TVplas Haber · " + new Date(x.t).toLocaleString("tr-TR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })]
+        .filter(Boolean).join("\n\n"),
+      tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true, thf: true, sabit: true }));
+    [...benim, ...tum, ...tvh, ...thYazi].forEach(h => {
       h.ekBolum = [];
       if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && h.kat !== "Yazarlar" && h.kat !== "TVplas Haber" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
     });
     haberler = [...benim.filter(h => h.sabit),
       ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
-      ...tum.filter(h => h.kat !== "Kıbrıs"), ...tvh.filter(h => h.v)];   // TVplas Haber menüsünde yalnızca video haberler
+      ...tum.filter(h => h.kat !== "Kıbrıs"), ...thYazi, ...tvh.filter(h => h.v)];   // TVplas Haber menüsünde yalnızca video haberler
     // Her menüde en çok 24 haber (panelden eklenen kendi haberlerimiz önce sayılır ve her zaman kalır)
     const menuAdet = {};
     benim.forEach(h => { menuAdet[h.kat] = (menuAdet[h.kat] || 0) + 1; });
