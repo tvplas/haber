@@ -1260,7 +1260,7 @@ function tekleTum(liste) {
   const kalan = [], atilan = new Set();
   [...liste].sort((x, y) => (oncelik(y) - oncelik(x)) || (y.t || "").localeCompare(x.t || "")).forEach(h => {
     // eşik canlı veriyle ayarlandı: metin tek başına 0.33, metin 0.24 + başlık 0.3, ya da başlık 0.6 (farklı maç/festival karışmasın)
-    const ayni = (a, b) => { const m = benzer(a._kt, b._kt), t = benzer(a._kb, b._kb); return m >= 0.33 || (m >= 0.24 && t >= 0.3) || t >= 0.6; };
+    const ayni = (a, b) => { const m = benzer(a._kt, b._kt), t = benzer(a._kb, b._kb); return m >= 0.33 || (m >= 0.24 && t >= 0.3) || (m >= 0.2 && t >= 0.5) || t >= 0.6; };
     const x = kalan.find(x => ayni(h, x));
     if (!x) { kalan.push(h); return; }
     if (h.v && !x.v) { x.v = h.v; x.vh = true; }
