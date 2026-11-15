@@ -516,9 +516,13 @@ async function canliAc() {
   if (window.Hls && Hls.isSupported()) {
     // Yavaş bağlantıda (örneğin yayını yapan bilgisayarın kendisinde) hemen yedek videoya düşmesin: zaman aşımları uzun,
     // ölümcül hata olursa önce 3 kez yeniden denenir
+    // ?kalite=480 gibi: en yüksek kalite sınırlanır. Yayını yapan bilgisayarın interneti yayın göndermekle meşgul
+    // (indirme 3-4 Mbit/sn), 720p'de görüntü geri kalıp ses kayıyordu (2026-11-15); masaüstü simgesi 480 ile açar.
+    // Sınır varken "oynatıcı boyutuna göre kalite" kapalı: o da sınırı değiştiriyordu
+    const kaliteSinir = parseInt(new URLSearchParams(location.search).get("kalite"), 10) || 0;
     canliHls = new Hls({ liveDurationInfinity: true, liveSyncDurationCount: 4, maxBufferLength: 30,
       // bilgisayar görüntüyü yetiştiremeyip kare atlarsa (ses önde kalır) daha düşük kaliteye geçer; küçük oynatıcıya büyük kalite indirilmez
-      capLevelOnFPSDrop: true, fpsDroppedMonitoringPeriod: 5000, fpsDroppedMonitoringThreshold: 0.1, capLevelToPlayerSize: true,
+      capLevelOnFPSDrop: true, fpsDroppedMonitoringPeriod: 5000, fpsDroppedMonitoringThreshold: 0.1, capLevelToPlayerSize: !kaliteSinir,
       // kalite seçimi temkinli: ölçülen hızın daha küçük payıyla seçer, yükseğe geç çıkar (yavaş hatta takılıp kaymasın)
       abrBandWidthFactor: 0.8, abrBandWidthUpFactor: 0.5,
       manifestLoadingTimeOut: 20000, levelLoadingTimeOut: 20000, fragLoadingTimeOut: 40000,
@@ -532,9 +536,6 @@ async function canliAc() {
       }
       canliYedek();
     });
-    // ?kalite=480 gibi: en yüksek kalite sınırlanır. Yayını yapan bilgisayarın interneti yayın göndermekle meşgul
-    // (indirme 3-4 Mbit/sn), 720p'de görüntü geri kalıp ses kayıyordu (2026-11-15); masaüstü simgesi 480 ile açar
-    const kaliteSinir = parseInt(new URLSearchParams(location.search).get("kalite"), 10);
     if (kaliteSinir > 0) canliHls.on(Hls.Events.MANIFEST_PARSED, (o, d) => {
       const uygun = d.levels.map((l, i) => l.height <= kaliteSinir ? i : -1).filter(i => i >= 0);
       if (uygun.length) canliHls.autoLevelCapping = Math.max(...uygun);
