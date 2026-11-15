@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>TVplas Kapak Hazırlayıcı</title>
 <style>
-:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#c8102e;--cizgi:#e4e7ec}
+:root{--bg:#f4f5f7;--kart:#fff;--yazi:#1d2330;--soluk:#667085;--vurgu:#bd1521;--cizgi:#e4e7ec}
 @media (prefers-color-scheme:dark){:root{--bg:#12151b;--kart:#1b2029;--yazi:#e8eaee;--soluk:#98a2b3;--vurgu:#ff5a6e;--cizgi:#2a313d}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--yazi);font:15px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif}
@@ -167,7 +167,8 @@ const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFY
 const PORTAL = "https://tvplas.github.io/haber/";
 const BOLUMLER = ["Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Güney", "Yazarlar"];
 // Her gün farklı renk teması: [canlı ton, koyu ton]
-const RENKLER = [["#c8102e", "#5c0614"], ["#0f766e", "#042f2e"], ["#1d4ed8", "#0b1a4a"], ["#c2410c", "#431407"],
+// 2026-11-15 kullanıcı: kapaklarda da TVplas kırmızısı TOP10 rozetindeki gibi #bd1521 olsun
+const RENKLER = [["#bd1521", "#5c0a10"], ["#0f766e", "#042f2e"], ["#1d4ed8", "#0b1a4a"], ["#c2410c", "#431407"],
   ["#7c3aed", "#2e1065"], ["#be185d", "#4a0420"], ["#0369a1", "#082f49"]];
 const tuval = document.getElementById("tuval"), ctx = tuval.getContext("2d");
 const durum = document.getElementById("durum");
@@ -248,8 +249,11 @@ function rozet(metin, x, y, px, arka, sagdan = false) {
 }
 function logo(x, y, px = 46) {
   yazi(px, 900);
-  ctx.fillStyle = "#ff4058"; ctx.fillText("TVplas", x, y);
+  // TOP10 kırmızısı (#bd1521); koyu zeminden ayrılsın diye hafif gölge
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = px * 0.18;
+  ctx.fillStyle = "#bd1521"; ctx.fillText("TVplas", x, y);
   ctx.fillStyle = "#fff"; ctx.fillText(" Portal", x + ctx.measureText("TVplas").width, y);
+  ctx.restore();
 }
 function altBant(W, H, yuk, sagMetin) {
   ctx.fillStyle = renk()[0]; ctx.fillRect(0, H - yuk, W, yuk);
