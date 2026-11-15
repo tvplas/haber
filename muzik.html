@@ -374,7 +374,7 @@ footer{padding-top:10px}
     <a class="paylas" target="_blank" rel="noopener">Facebook'ta paylaş</a>
   </div>
 </dialog>
-<footer>Haberler kaynak sitelerine aittir; başlıklara tıklayarak haberin tamamını kaynağında okuyabilirsiniz. Yabancı dildeki haberler otomatik olarak Türkçeye çevrilmiştir.</footer>
+<footer>Haberler TVplas Haber tarafından derlenip yazılmaktadır. Fotoğraflar künyelerinde belirtilen sahiplerine aittir; köşe yazıları yazarlarınındır.</footer>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
@@ -752,7 +752,8 @@ function hedefAc(reklamlar) {
 
 // Dış kaynaklı haber portalda önce TVplas Haber tarzı özet penceresinde açılır; tamamı oradan kaynağında okunur
 function ozetHaber(h) {
-  return h.tvplas ? h : { ...h, kaynakYazi: "Haberin tamamını kaynağında oku →" };
+  // 2026-11-15 kullanıcı: "haberi kaynağından oku" olmayacak; haberleri TVplas Haber yazar. Yalnızca köşe yazıları kaynağına gider
+  return h.tvplas || h.kat !== "Yazarlar" ? h : { ...h, kaynakYazi: "Yazının tamamını gazetesinde oku →" };
 }
 
 function adSadele(s) {
@@ -812,16 +813,16 @@ function kartYap(h) {
   tik.hidden = !n; ust.append(tik);
   if (h.ob && !h.tvy) {
     const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c);
-    if (adres !== h.l) { const o = el("a", "orijinal", "orijinali"); baglanti(o, h.l); ust.append(o); }
+    if (adres !== h.l && h.kat === "Yazarlar") { const o = el("a", "orijinal", "orijinali"); baglanti(o, h.l); ust.append(o); }
   }
   const h2 = el("h2"), a = el("a", "", h.b);
   baglanti(a, adres); h2.append(a);
   // Linki olmayan ya da videolu kendi haberlerimizde başlık ve fotoğraf tam metni (videoyu) portalda açar
-  if (h.tvplas && (!h.l || h.v || h.th)) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(h); }; });
+  if (h.kat !== "Yazarlar" || (h.tvplas && (!h.l || h.v || h.th))) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(ozetHaber(h)); }; });
   // Dış haberde de başlık ve fotoğraf önce özet penceresini açar
-  if (!h.tvplas && h.l) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(ozetHaber(h)); }; });
+  else if (!h.tvplas && h.l) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(ozetHaber(h)); }; });
   const pay = el("a", "paylas", "Facebook'ta paylaş");
-  baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.th ? PORTAL : (h.l || PORTAL)));
+  baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.kat !== "Yazarlar" ? PORTAL : (h.l || PORTAL)));
   ic.append(ust, h2, el("p", "ozet", h.o));
   if (h.tvplas && (h.o || "").length > 180) {
     const devam = el("button", "devam", "Devamını oku →");
@@ -832,7 +833,7 @@ function kartYap(h) {
     devam.onclick = () => detayAc(ozetHaber(h));
     ic.append(devam);
   }
-  if (h.ob && !h.tvy) ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
+  if (h.ob && !h.tvy && h.kat === "Yazarlar") ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
   ic.append(pay);
   kart.append(resim, ic);
   // Habere giden her tıklama (fotoğraf, başlık, devamı, orijinali; Facebook paylaşımı hariç) sayılır
@@ -855,7 +856,7 @@ function googleCeviri(u, ozgun) {
 
 function ceviriDugmeleri(h, kutu) {
   kutu.replaceChildren();
-  if (h.tvplas || !h.ob || !h.l) return kutu;
+  if (h.tvplas || !h.ob || !h.l || h.kat !== "Yazarlar") return kutu;
   const a = el("a", "dg-ana", "Haberin tamamını kaynağında oku →");
   baglanti(a, h.l); kutu.append(a);
   if (!/news\.google\.|reddit\.com/.test(h.l)) {
@@ -892,7 +893,7 @@ function detayAc(h) {
   const disKaynak = !h.tvplas && h.k;
   const kunye = d.querySelector(".d-kunye");
   kunye.textContent = h.v && !h.vh ? "" : h.gk ? "📷 " + h.gk : disKaynak && h.g ? "📷 Fotoğraf: " + h.k : "";
-  const kunyeAdres = h.gs || (disKaynak && h.g ? h.l : "");
+  const kunyeAdres = h.kat && h.kat !== "Yazarlar" ? "" : h.gs || (disKaynak && h.g ? h.l : "");
   if (kunyeAdres) kunye.href = kunyeAdres; else kunye.removeAttribute("href");
   d.querySelector("h2").textContent = h.b;
   d.querySelector(".govde .ust .etiket").textContent = "TVplas";
@@ -901,10 +902,10 @@ function detayAc(h) {
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
-  kaynak.hidden = !h.l || (!h.tvplas && h.ob && turkceAdres(h) === h.l);   // Türkçe sayfası yoksa iki düğme yeter
+  kaynak.hidden = !h.l || (h.kat && h.kat !== "Yazarlar") || (!h.tvplas && h.ob && turkceAdres(h) === h.l);   // haberlerde kaynak bağlantısı yok   // Türkçe sayfası yoksa iki düğme yeter
   if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
   ceviriDugmeleri(h, d.querySelector(".ceviri-dugmeler"));
-  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.l || PORTAL);
+  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(h.kat && h.kat !== "Yazarlar" ? PORTAL : (h.l || PORTAL));
   d.showModal();
   d.scrollTop = 0;
 }
@@ -1259,6 +1260,8 @@ async function yukle(sessiz) {
       if (h.tm) return { ...h, b: h.tb || h.b, o: h.tm, kat, alt, tvy: true };
       return { ...h, kat, alt };
     });
+    // 2026-11-15 kullanıcı: yalnızca TVplas Haber olarak yazılmış haberler; yazılmamış akış haberi yazılınca çıkar
+    for (let i = tum.length - 1; i >= 0; i--) if (!tum[i].tvy && tum[i].kat !== "Yazarlar" && tum[i].kat !== "Fotoğraflar") tum.splice(i, 1);
     tekle(tum);
     // TVplas Haber yazıları: haberin kaynağındaki kendi fotoğrafı (künyesiyle); kaynakta fotoğraf yoksa konuya uygun TVplas çizimi.
     // Kaynak adı ve bağlantısı pencerede
