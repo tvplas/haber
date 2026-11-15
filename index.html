@@ -1266,7 +1266,10 @@ function tekleTum(liste) {
     // eşik canlı veriyle ayarlandı: metin tek başına 0.33, metin 0.24 + başlık 0.3, ya da başlık 0.6 (farklı maç/festival karışmasın)
     // aynı haber fotoğrafı (genel görseller hariç) da aynı olay sayılır; metin 0.24 + başlık 0.15: başlığı farklı çevrilmiş aynı haber
     const foto = h => { const g = String(h.g || ""); return !/\.(jpe?g|png|webp)(\?|$)/i.test(g) || /bing\.com\/th|gstatic|googleusercontent|drive\.google/i.test(g) ? "" : g.replace(/[?#].*$/, "").replace(/-\d+x\d+(?=\.\w+$)/, "").replace(/^https?:\/\/(www\.)?/, ""); };
-    const ayni = (a, b) => { const m = benzer(a._kt, b._kt), t = benzer(a._kb, b._kb), fa = foto(a); return m >= 0.33 || (m >= 0.24 && t >= 0.15) || (m >= 0.21 && t >= 0.36) || (m >= 0.2 && t >= 0.5) || t >= 0.6 || (fa && fa === foto(b)); };
+    const ayni = (a, b) => { const m = benzer(a._kt, b._kt), t = benzer(a._kb, b._kb), fa = foto(a); if (m >= 0.33 || (m >= 0.24 && t >= 0.15) || (m >= 0.21 && t >= 0.36) || (m >= 0.2 && t >= 0.5) || t >= 0.6 || (fa && fa === foto(b))) return true;
+      // ortak nadir ayrıntılar (yalnızca 1–3 haberde geçen ad, yer, kurum): 5+ ve metin 0.15, ya da 4+ ve metin 0.22 (Güllü, Selanik festivali…)
+      let nadir = 0; a._kt.forEach(k => { if (b._kt.has(k) && k[0] !== "#" && (df.get(k) || 1) <= 3) nadir++; });
+      return (nadir >= 5 && m >= 0.15) || (nadir >= 4 && m >= 0.22); };
     const x = kalan.find(x => ayni(h, x));
     if (!x) { kalan.push(h); return; }
     if (h.v && !x.v) { x.v = h.v; x.vh = true; }
