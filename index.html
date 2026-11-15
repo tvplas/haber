@@ -269,6 +269,18 @@ dialog#detay{border-radius:16px}
 #detay .anaDon{background:var(--dolu);box-shadow:none}
 .bolum-baslik{font-size:13px;letter-spacing:.6px;text-transform:uppercase}
 footer{padding-top:10px}
+/* Sanatçı / haber / yazar kartı: üç düğme alt alta, tam genişlikte (2026-11-15) */
+.duyuru-kutu{background:var(--sahne-kart);border:1px solid var(--sahne-cizgi);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.duyuru-ust{display:flex;gap:10px;align-items:flex-start}
+.duyuru-ust .ikon{font-size:22px;line-height:1}
+.duyuru-ust .yazi{font-size:13.5px;line-height:1.4;color:var(--sahne-soluk)}
+.duyuru-ust .yazi b{display:block;font-size:15px;color:var(--sahne-yazi);margin-bottom:2px}
+.duyuru-dugmeler{display:flex;flex-direction:column;gap:8px}
+.duyuru-dugmeler a{display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;white-space:nowrap;font-size:14px;font-weight:600;padding:9px 14px;border-radius:999px;text-decoration:none;transition:background .15s,border-color .15s,color .15s}
+.duyuru-dugmeler .izin-form{color:var(--sahne-vurgu);border:1px solid var(--sahne-vurgu);background:transparent}
+.duyuru-dugmeler .izin-form:hover{background:var(--dolu);border-color:var(--dolu);color:#fff}
+@media (max-width:980px){.iletisim{align-items:flex-start}}   /* başlık altına inince WhatsApp ve sayaç sola hizalı */
+@media (max-width:640px){.duyuru-kutu{padding:12px 14px}.duyuru-ust .ikon{display:none}.duyuru-dugmeler a{font-size:13.5px}}
 </style>
 </head>
 <body>
@@ -284,10 +296,6 @@ footer{padding-top:10px}
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>
         WhatsApp: 0533 863 6839
       </a>
-      <div class="giris-dugmeler">
-        <a class="haber-gonder" href="haber-gonder.html" target="_blank" rel="noopener" aria-label="Haber ya da duyuru gönderin">📰 HABER ve DUYURU GÖNDER</a>
-        <a class="yazar-giris" href="yazar.html" target="_blank" rel="noopener" aria-label="Köşe yazarları için yazar girişi">✍️ Yazar Girişi</a>
-      </div>
       <span class="sayac" id="sayac" hidden>👁 <b id="sayacToplam"></b> ziyaret · bugün <b id="sayacBugun"></b></span>
     </div>
   </div>
@@ -306,11 +314,18 @@ footer{padding-top:10px}
       <div class="simdi" id="simdi"><small>ŞU AN YAYINDA</small><b>Müzik Videoları</b><span></span></div>
       <ul class="sira" id="sira"></ul>
     </div>
-    <a class="izin-bant" href="izin.html" target="_blank" rel="noopener">
-      <span class="ikon" aria-hidden="true">🎤</span>
-      <span class="yazi"><b>Sanatçılarımıza duyuru</b>Eserlerinizin TVplas yayınlarında yer alması için yayın izin formunu doldurun.</span>
-      <span class="dugme">Yayın İzin Formu →</span>
-    </a>
+    <!-- 2026-11-15 kullanıcı: Haber ve Duyuru Gönder, Yazar Girişi ve Yayın İzin Formu düğmeleri bu kartta bir arada -->
+    <div class="duyuru-kutu">
+      <div class="duyuru-ust">
+        <span class="ikon" aria-hidden="true">🎤</span>
+        <span class="yazi"><b>Sanatçılarımıza duyuru</b>Eserlerinizin TVplas yayınlarında yer alması için yayın izin formunu doldurun.</span>
+      </div>
+      <div class="duyuru-dugmeler">
+        <a class="izin-form" href="izin.html" target="_blank" rel="noopener">🎤 Yayın İzin Formu</a>
+        <a class="haber-gonder" href="haber-gonder.html" target="_blank" rel="noopener" aria-label="Haber ya da duyuru gönderin">📰 HABER ve DUYURU GÖNDER</a>
+        <a class="yazar-giris" href="yazar.html" target="_blank" rel="noopener" aria-label="Köşe yazarları için yazar girişi">✍️ Yazar Girişi</a>
+      </div>
+    </div>
   </aside>
 </section>
 </div>
@@ -1107,7 +1122,7 @@ detay.addEventListener("close", () => detay.querySelector("iframe")?.remove()); 
 detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
 // 2026-11-14 kullanıcı: Haber ve Duyuru Gönder, Yazar Girişi ve Yayın İzin Formu ana sayfadan AYRI PENCEREDE açılsın
 // (target=_blank Chrome'da yalnızca yeni sekme açıyordu). Pencere açılamazsa (engelleyici, telefon) bağlantı yeni sekmede açılır.
-document.querySelectorAll("a.haber-gonder, a.yazar-giris, a.izin-bant").forEach(a => a.addEventListener("click", e => {
+document.querySelectorAll("a.haber-gonder, a.yazar-giris, a.izin-form").forEach(a => a.addEventListener("click", e => {
   if (e.ctrlKey || e.metaKey || e.shiftKey || e.button) return;
   const g = Math.min(680, screen.availWidth - 80), y = Math.min(720, Math.round(screen.availHeight * 0.8));   // küçük pencere: "çok büyük açılıyor, ekranı kapatıyor"
   const s = Math.max(0, (screen.availWidth - g) / 2 + (screen.availLeft || 0)), u = Math.max(0, (screen.availHeight - y) / 2 + (screen.availTop || 0));
