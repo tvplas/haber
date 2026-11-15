@@ -756,7 +756,8 @@ function hedefAc(reklamlar) {
 // tıklayan okuyucuyu portaldaki habere getirir (?h=kimlik). Haber olmayanlar (reklam) eskisi gibi.
 function paylasAdres(h) {
   if (!h.kat) return h.l || PORTAL;
-  return CANLI_SUNUCU + "/p/" + kimlik(h) + (/muzik\.html/.test(location.pathname) ? "?m=1" : "");
+  // Facebook eski adresin (2-29-142-134) robots.txt reddini hatırladığından paylaşım noktalı adresten
+  return "https://2.29.142.134.sslip.io/p/" + kimlik(h) + (/muzik\.html/.test(location.pathname) ? "?m=1" : "");
 }
 
 function ozetHaber(h) {
