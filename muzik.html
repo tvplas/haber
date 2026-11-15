@@ -1304,6 +1304,11 @@ async function yukle(sessiz) {
     });
     // 2026-11-15 kullanıcı: yalnızca TVplas Haber olarak yazılmış haberler; yazılmamış akış haberi yazılınca çıkar
     for (let i = tum.length - 1; i >= 0; i--) if (!tum[i].tvy && tum[i].kat !== "Yazarlar" && tum[i].kat !== "Fotoğraflar") tum.splice(i, 1);
+    // 2026-11-15 kullanıcı: takip edilen yazarların en son yazısı (sunucu yazar_oku.py TAKIP: Nokta Kıbrıs – Hasan Hastürer)
+    // takip edilen yazarın yazıları yalnızca takip edilen siteden gelir (aynı yazı başka gazetede de çıkıyorsa o kopya alınmaz)
+    { const takipAd = new Set(((yazarJson && yazarJson.ekstra) || []).map(x => (x.yz || "").toLocaleLowerCase("tr")));
+      for (let i = tum.length - 1; i >= 0; i--) if (tum[i].kat === "Yazarlar" && takipAd.has((tum[i].yz || "").trim().toLocaleLowerCase("tr"))) tum.splice(i, 1); }
+    for (const x of (yazarJson && yazarJson.ekstra) || []) tum.push({ b: x.b, o: x.m, g: x.g, t: x.t, l: x.l, gl: "yzr:" + x.id, k: x.gz, yz: x.yz, tur: "Yazarlar", kat: "Yazarlar", alt: null, tvy: true, tamYazi: true });
     tekle(tum);
     // TVplas Haber yazıları: haberin kaynağındaki kendi fotoğrafı (künyesiyle); kaynakta fotoğraf yoksa konuya uygun TVplas çizimi.
     // Kaynak adı ve bağlantısı pencerede
