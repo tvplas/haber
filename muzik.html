@@ -1249,7 +1249,9 @@ function tekle(liste) {
 // Kalan: TVplas Haber yazısı (fotoğraflı olan önce), sonra eski yazı, sonra video; eşitse en yenisi. Atılan videoluysa
 // videosu kalan habere geçer (haber tek, video kaybolmaz). Panelden eklenen kendi haberlerimize dokunulmaz.
 function tekleTum(liste) {
-  liste.forEach(h => { h._kb = kokler(h.b); h._kt = kokler(h.b + " " + String(h.o || "").slice(0, 300)); });
+  // kökler + kısaltmalar (GTA, PAR…) + 2+ haneli sayılar (34 parça, 19 Kasım…); metnin ilk 600 harfi
+  const K = s => { s = String(s || ""); const st = kokler(s); (s.match(/\b[\p{Lu}]{2,3}\b/gu) || []).forEach(a => st.add(a.toLocaleLowerCase("tr"))); (s.match(/\b\d{2,}\b/g) || []).forEach(d => st.add("#" + d)); return st; };
+  liste.forEach(h => { h._kb = K(h.b); h._kt = K(h.b + " " + String(h.o || "").slice(0, 600)); });
   const df = new Map();
   liste.forEach(h => h._kt.forEach(k => df.set(k, (df.get(k) || 0) + 1)));
   const w = k => Math.log(liste.length / (df.get(k) || 1));
@@ -1264,7 +1266,7 @@ function tekleTum(liste) {
     // eşik canlı veriyle ayarlandı: metin tek başına 0.33, metin 0.24 + başlık 0.3, ya da başlık 0.6 (farklı maç/festival karışmasın)
     // aynı haber fotoğrafı (genel görseller hariç) da aynı olay sayılır; metin 0.24 + başlık 0.15: başlığı farklı çevrilmiş aynı haber
     const foto = h => { const g = String(h.g || ""); return !/\.(jpe?g|png|webp)(\?|$)/i.test(g) || /bing\.com\/th|gstatic|googleusercontent|drive\.google/i.test(g) ? "" : g.replace(/[?#].*$/, "").replace(/-\d+x\d+(?=\.\w+$)/, "").replace(/^https?:\/\/(www\.)?/, ""); };
-    const ayni = (a, b) => { const m = benzer(a._kt, b._kt), t = benzer(a._kb, b._kb), fa = foto(a); return m >= 0.33 || (m >= 0.24 && t >= 0.15) || (m >= 0.2 && t >= 0.5) || t >= 0.6 || (fa && fa === foto(b)); };
+    const ayni = (a, b) => { const m = benzer(a._kt, b._kt), t = benzer(a._kb, b._kb), fa = foto(a); return m >= 0.33 || (m >= 0.24 && t >= 0.15) || (m >= 0.21 && t >= 0.36) || (m >= 0.2 && t >= 0.5) || t >= 0.6 || (fa && fa === foto(b)); };
     const x = kalan.find(x => ayni(h, x));
     if (!x) { kalan.push(h); return; }
     if (h.v && !x.v) { x.v = h.v; x.vh = true; }
