@@ -806,7 +806,8 @@ function kartYap(h) {
   const ust = el("div", "ust");
   ust.append(el("span", "etiket", "TVplas"));
   if (h.yz && h.kat === "Yazarlar") ust.append(el("span", "yazar", "✍ " + h.yz));   // yalnızca köşe yazılarında
-  ust.append(el("span", "", h.tvplas || !h.k || /^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k), el("span", "", kac(h.t)));
+  // 2026-11-15 kullanıcı: her haber (videolu ya da videosuz) "TVplas Haber" imzasıyla; kaynak adı yazılmaz. Köşe yazıları yazarınındır.
+  ust.append(el("span", "", h.kat !== "Yazarlar" ? "TVplas Haber" : h.tvplas || !h.k || /^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k), el("span", "", kac(h.t)));
   const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
   tik.hidden = !n; ust.append(tik);
   if (h.ob && !h.tvy) {
@@ -896,7 +897,7 @@ function detayAc(h) {
   d.querySelector("h2").textContent = h.b;
   d.querySelector(".govde .ust .etiket").textContent = "TVplas";
   d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz
-    : disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : h.thf ? h.k : "TVplas Portal";
+    : h.kat === "Yazarlar" && disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : "TVplas Haber";
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
@@ -1264,11 +1265,11 @@ async function yukle(sessiz) {
     const tvh = (veri.tvplasHaber || []).map(x => ({ b: x.b, o: x.o, t: x.t, l: x.l, gl: "tvh:" + x.id, k: "Kaynak: " + x.kaynak,
       g: x.g && x.g !== "-" ? x.g : "", gk: x.g && x.g !== "-" ? x.gk : "", gs: x.gs,
       ...(vh[x.id] ? { v: vh[x.id], vh: true } : {}),
-      kaynakYazi: "Kaynak: " + x.kaynak + " →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }));
+      kaynakYazi: "Haberin tamamı →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }));
     // Video haberler yalnızca bu menüdedir: bültene girip burada yazısı olmayan haberler de videosuyla eklenir
     const tvhVar = new Set((veri.tvplasHaber || []).map(x => x.id));
     const videoKarti = (id, b, o, t, l, k, g) => { tvhVar.add(id); tvh.push({ b, o, t, l, gl: "tvh:" + id, k: "Kaynak: " + k, g: g || "", gk: g ? "Fotoğraf: " + k : "", gs: l,
-      v: vh[id], vh: true, kaynakYazi: "Kaynak: " + k + " →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }); };
+      v: vh[id], vh: true, kaynakYazi: "Haberin tamamı →", tur: "TVplas Haber", kat: "TVplas Haber", alt: null, tvplas: true, th: true }); };
     (veri.videoKart || []).forEach(x => { if (vh[x.id] && !tvhVar.has(x.id)) videoKarti(x.id, x.b, x.o, x.t, x.l, x.k, x.g); });
     (veri.haberler || []).forEach(h => {
       const id = kimlik(h);
