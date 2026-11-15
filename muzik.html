@@ -169,20 +169,21 @@ footer{text-align:center;color:var(--soluk);font-size:13px;padding:0 16px 30px}
 /* ================= TVplas Müzik Portal görünümü =================
    2026-11-15 kullanıcı: "muzik.html portal arayüzünü daha sade ve daha güzel yapınız". Tek vurgu rengi, düz yüzeyler,
    parlama ve renk geçişleri yok; canlı yayın sahnesi koyu, haberler sakin kartlarda. (Eski görünüm: muzik_yedek_eski_tasarim.html) */
-:root{--bg:#f6f5f2;--kart:#fff;--yazi:#17151c;--soluk:#6e6a76;--vurgu:#d6265e;--vurgu2:#b81d4f;--cizgi:#e8e5ec;--yumusak:#fbe9ef;
-  --dolu:#d6265e;--dolu2:#b81d4f;--sahne:#121117;--sahne-yazi:#f3f1f6;--sahne-soluk:#a7a2b2;--sahne-cizgi:rgba(255,255,255,.09);--sahne-kart:rgba(255,255,255,.04);--grad:var(--vurgu)}
-@media (prefers-color-scheme:dark){:root{--bg:#0f0e13;--kart:#18171e;--yazi:#f1eff5;--soluk:#a19dab;--vurgu:#ff5c8a;--vurgu2:#ff7aa0;--cizgi:#27252e;--yumusak:#2a1820;--sahne:#0b0a0f}}
+:root{--bg:#f6f5f2;--kart:#fff;--yazi:#17151c;--soluk:#6e6a76;--vurgu:#bd1521;--vurgu2:#9e111b;--cizgi:#e8e5ec;--yumusak:#fbe8e9;
+  --dolu:#bd1521;--dolu2:#9e111b;--sahne-vurgu:#e5333d;--sahne:#121117;--sahne-yazi:#f3f1f6;--sahne-soluk:#a7a2b2;--sahne-cizgi:rgba(255,255,255,.09);--sahne-kart:rgba(255,255,255,.04);--grad:var(--vurgu)}
+@media (prefers-color-scheme:dark){:root{--bg:#0f0e13;--kart:#18171e;--yazi:#f1eff5;--soluk:#a19dab;--vurgu:#f0434e;--vurgu2:#ff6670;--cizgi:#27252e;--yumusak:#2b1517;--sahne:#0b0a0f}}
 [hidden]{display:none!important}
 body{font-family:Outfit,"Segoe UI",system-ui,-apple-system,sans-serif;font-size:15.5px;-webkit-font-smoothing:antialiased}
 /* Üst bölüm: düz koyu sahne */
 .vitrin{color:var(--sahne-yazi);background:var(--sahne);padding-bottom:28px;border-bottom:1px solid var(--sahne-cizgi)}
 .vitrin header{padding:20px 16px 18px}
 .vitrin h1{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;letter-spacing:-.4px;color:var(--sahne-yazi)}
-.vitrin h1 .marka{color:var(--vurgu)}
+/* 2026-11-15 kullanıcı: "TVplas" logosu ve benzer renkler TOP10 rozetindeki kırmızı (#bd1521) olsun */
+.vitrin h1 .marka{color:var(--dolu)}
 .vitrin .bilgi{color:var(--sahne-soluk);font-size:13.5px;margin-top:2px}
 .vitrin .sayac{color:var(--sahne-soluk)}.vitrin .sayac b{color:var(--sahne-yazi)}
 .eq{display:inline-flex;align-items:flex-end;gap:2px;height:18px}
-.eq i{width:3px;border-radius:2px;background:var(--vurgu)}
+.eq i{width:3px;border-radius:2px;background:var(--dolu)}
 .eq i:nth-child(1){height:45%}.eq i:nth-child(2){height:100%}.eq i:nth-child(3){height:65%}.eq i:nth-child(4){height:82%}
 /* Üst düğmeler: aynı boyda; yalnızca "Haber ve Duyuru Gönder" dolu, diğerleri çerçeveli */
 .wa,.haber-gonder,.yazar-giris{font-size:14px;font-weight:600;padding:7px 14px;border-radius:999px;gap:7px;transition:background .15s,border-color .15s}
@@ -215,8 +216,8 @@ body{font-family:Outfit,"Segoe UI",system-ui,-apple-system,sans-serif;font-size:
 .sahne-yan{display:flex;flex-direction:column;gap:12px}
 .akis{background:var(--sahne-kart);border:1px solid var(--sahne-cizgi);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .akis-baslik{font-weight:700;font-size:13px;letter-spacing:.6px;text-transform:uppercase;color:var(--sahne-soluk)}
-.simdi{padding:2px 0 2px 12px;border-left:3px solid var(--vurgu)}
-.simdi small{display:block;font-weight:700;letter-spacing:.8px;font-size:11px;color:var(--vurgu)}
+.simdi{padding:2px 0 2px 12px;border-left:3px solid var(--dolu)}
+.simdi small{display:block;font-weight:700;letter-spacing:.8px;font-size:11px;color:var(--sahne-vurgu)}
 .simdi b{display:block;font-size:19px;font-weight:700;line-height:1.25;color:var(--sahne-yazi)}
 .simdi span{font-size:13px;color:var(--sahne-soluk)}
 .sira{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
@@ -230,7 +231,7 @@ body{font-family:Outfit,"Segoe UI",system-ui,-apple-system,sans-serif;font-size:
 .sahne-yan .izin-bant .ikon{font-size:22px}
 .sahne-yan .izin-bant .yazi{font-size:13.5px;color:var(--sahne-soluk)}
 .sahne-yan .izin-bant .yazi b{font-size:15px;color:var(--sahne-yazi);margin-bottom:2px}
-.sahne-yan .izin-bant .dugme{background:transparent;color:var(--vurgu);border:1px solid var(--vurgu);font-weight:600;padding:7px 14px;border-radius:999px}
+.sahne-yan .izin-bant .dugme{background:transparent;color:var(--sahne-vurgu);border:1px solid var(--sahne-vurgu);font-weight:600;padding:7px 14px;border-radius:999px}
 .sahne-yan .izin-bant:hover{border-color:rgba(255,255,255,.2)}
 .sahne-yan .izin-bant:hover .dugme{background:var(--dolu);border-color:var(--dolu);color:#fff}
 @media (max-width:980px){.sahne-yan{display:grid;grid-template-columns:1fr 1fr}}
