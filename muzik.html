@@ -138,6 +138,8 @@ p.ozet{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;over
 dialog#detay{max-width:720px;width:calc(100% - 32px);max-height:calc(100% - 48px);padding:0;border:1px solid var(--cizgi);border-radius:14px;background:var(--kart);color:var(--yazi)}
 dialog#detay::backdrop{background:rgba(0,0,0,.65)}
 #detay img{width:100%;max-height:70vh;object-fit:contain;display:block;background:#000}
+#detay .d-gorsel.yazar-foto{background:radial-gradient(circle at 50% 40%,#3a1d5c,#140b22);padding:22px 0 14px}
+#detay .d-gorsel.yazar-foto img{width:auto;max-width:60%;max-height:240px;margin:0 auto;border-radius:12px;background:transparent;box-shadow:0 6px 24px rgba(0,0,0,.45)}
 #detay .d-gorsel .metafor{aspect-ratio:16/9;max-height:50vh}
 .metafor{position:relative;width:100%;height:100%;overflow:hidden;background:radial-gradient(circle at 28% 22%,rgba(255,255,255,.2),transparent 55%),linear-gradient(135deg,var(--r1),var(--r2))}
 .metafor .m-desen{position:absolute;inset:-30%;transform:rotate(-14deg);background:#fff;opacity:.09;-webkit-mask:var(--ikon) 0 0/58px 58px repeat;mask:var(--ikon) 0 0/58px 58px repeat}
@@ -762,7 +764,7 @@ function paylasAdres(h) {
 
 function ozetHaber(h) {
   // 2026-11-15 kullanıcı: "haberi kaynağından oku" olmayacak; haberleri TVplas Haber yazar. Yalnızca köşe yazıları kaynağına gider
-  return h.tvplas || h.kat !== "Yazarlar" ? h : { ...h, kaynakYazi: "Yazının tamamını gazetesinde oku →" };
+  return h;   // köşe yazıları da artık gazeteye gitmez (tam metin portalda)
 }
 
 function adSadele(s) {
@@ -822,7 +824,6 @@ function kartYap(h) {
   tik.hidden = !n; ust.append(tik);
   if (h.ob && !h.tvy) {
     const c = el("span", "ceviri", "çeviri"); c.title = "Orijinal: " + h.ob; ust.append(c);
-    if (adres !== h.l && h.kat === "Yazarlar") { const o = el("a", "orijinal", "orijinali"); baglanti(o, h.l); ust.append(o); }
   }
   const h2 = el("h2"), a = el("a", "", h.b);
   baglanti(a, adres); h2.append(a);
@@ -842,7 +843,6 @@ function kartYap(h) {
     devam.onclick = () => detayAc(ozetHaber(h));
     ic.append(devam);
   }
-  if (h.ob && !h.tvy && h.kat === "Yazarlar") ic.append(ceviriDugmeleri(h, el("div", "ceviri-dugmeler")));
   ic.append(pay);
   kart.append(resim, ic);
   // Habere giden her tıklama (fotoğraf, başlık, devamı, orijinali; Facebook paylaşımı hariç) sayılır
@@ -865,7 +865,7 @@ function googleCeviri(u, ozgun) {
 
 function ceviriDugmeleri(h, kutu) {
   kutu.replaceChildren();
-  if (h.tvplas || !h.ob || !h.l || h.kat !== "Yazarlar") return kutu;
+  if (h.tvplas || !h.ob || !h.l || h.kat) return kutu;
   const a = el("a", "dg-ana", "Haberin tamamını kaynağında oku →");
   baglanti(a, h.l); kutu.append(a);
   if (!/news\.google\.|reddit\.com/.test(h.l)) {
@@ -896,22 +896,24 @@ function detayAc(h) {
     img.src = h.g; img.alt = ""; img.referrerPolicy = "no-referrer";
     img.onerror = () => kutu.replaceChildren(metaforYap(h));
     kutu.replaceChildren(img);
+    kutu.classList.toggle("yazar-foto", h.kat === "Yazarlar");   // köşe yazısı: yazarın vesikalığı ortada, kırpılmadan
   } else {
     kutu.replaceChildren(metaforYap(h));
   }
   const disKaynak = !h.tvplas && h.k;
   const kunye = d.querySelector(".d-kunye");
   kunye.textContent = h.v && !h.vh ? "" : h.gk ? "📷 " + h.gk : disKaynak && h.g ? "📷 Fotoğraf: " + h.k : "";
-  const kunyeAdres = h.kat && h.kat !== "Yazarlar" ? "" : h.gs || (disKaynak && h.g ? h.l : "");
+  const kunyeAdres = h.kat ? "" : h.gs || (disKaynak && h.g ? h.l : "");
   if (kunyeAdres) kunye.href = kunyeAdres; else kunye.removeAttribute("href");
   d.querySelector("h2").textContent = h.b;
   d.querySelector(".govde .ust .etiket").textContent = "TVplas";
-  d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz
+  if (!h.g || h.v) kutu.classList.remove("yazar-foto");
+  d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz + (!h.tvplas && h.k ? " · " + h.k : "")
     : h.kat === "Yazarlar" && disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : "TVplas Haber";
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
-  kaynak.hidden = !h.l || (h.kat && h.kat !== "Yazarlar") || (!h.tvplas && h.ob && turkceAdres(h) === h.l);   // haberlerde kaynak bağlantısı yok   // Türkçe sayfası yoksa iki düğme yeter
+  kaynak.hidden = !h.l || !!h.kat || (!h.tvplas && h.ob && turkceAdres(h) === h.l);   // haberlerde kaynak bağlantısı yok   // Türkçe sayfası yoksa iki düğme yeter
   if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
   ceviriDugmeleri(h, d.querySelector(".ceviri-dugmeler"));
   d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasAdres(h));
@@ -1256,9 +1258,11 @@ async function yukle(sessiz) {
     });
     // Etkinlikler bölümü kaldırıldı: sunucunun önbelleğinden gelebilecek eski etkinlik haberleri atlanır
     const vh = veri.videoHaber || {};
-    const [elleYazi, sunucuJson] = await Promise.all([
+    const [elleYazi, sunucuJson, yazarJson] = await Promise.all([
       fetch("tvplas_haber.json?t=" + Date.now()).then(r => r.ok ? r.json() : []).catch(() => []),
-      fetch(CANLI_SUNUCU + "/haber/tvplas_tum.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+      fetch(CANLI_SUNUCU + "/haber/tvplas_tum.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+      fetch(CANLI_SUNUCU + "/haber/yazarlar.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+    const tamYazi = (yazarJson && yazarJson.yazilar) || {};   // 2026-11-15: köşe yazısının tam metni (kimlik → {m})
     const sunucuYazi = (sunucuJson && sunucuJson.haberler) || [];
     const kapsanan = new Set(sunucuYazi.flatMap(x => x.u || []));   // TVplas Haber olarak yazılmış kaynak haberler
     const tum = (veri.haberler || []).filter(h => h.tur !== "Etkinlikler" && !kapsanan.has(kimlik(h))).map(h => {
@@ -1266,6 +1270,8 @@ async function yukle(sessiz) {
       if (tur === "Müzik" && !MUZIK.test(h.b)) tur = "Magazin";
       const [kat, alt] = bolumBul(tur);
       // TVplas Haber biçiminde yeniden yazılmış haber (sunucu: tumunuYaz): başlık ve metin TVplas yazısıdır
+      // 2026-11-15 kullanıcı: köşe yazısı gazeteye gitmeden, yazarın fotoğrafıyla tam metin olarak portal penceresinde
+      if (kat === "Yazarlar") { const tm = tamYazi[kimlik(h)]; return { ...h, o: tm ? tm.m : (h.tm || h.o || ""), kat, alt, tvy: true, tamYazi: !!tm }; }
       if (h.tm) return { ...h, b: h.tb || h.b, o: h.tm, kat, alt, tvy: true };
       return { ...h, kat, alt };
     });
