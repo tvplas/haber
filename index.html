@@ -1056,7 +1056,13 @@ function basinVideoYap() {
   v.src = CANLI_SUNUCU + "/haber/basin.mp4?d=" + basinVideo;
   // izlenirken canlı yayının sesi kısılır (iki ses üst üste binmesin)
   v.addEventListener("play", () => { const c = canliKutu.querySelector("video"); if (c) c.muted = true; });
-  kutu.append(v, el("div", "", "🎙 Basında Bugün · Kıbrıs gazetelerinin manşetleri, sesli"));
+  const alt = el("div", "", "🎙 Basında Bugün · Kıbrıs gazetelerinin manşetleri, sesli  ");
+  // Facebook'ta günün kapağıyla paylaşılır (sunucudaki /p/basin-YYYY-MM-DD sayfası; tıklayan Gazeteler bölümüne gelir)
+  const [gun, ay, yil] = basinVideo.split("-"), fb = el("a", "", "📤 Facebook'ta paylaş");
+  fb.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://2.29.142.134.sslip.io/p/basin-" + yil + "-" + ay + "-" + gun);
+  fb.target = "_blank"; fb.rel = "noopener"; fb.style.cssText = "color:#ff5c6a;margin-left:8px;white-space:nowrap";
+  alt.append(fb);
+  kutu.append(v, alt);
   return kutu;
 }
 function basinBul() {
