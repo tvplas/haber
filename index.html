@@ -478,7 +478,18 @@ document.addEventListener("visibilitychange", canliDon);
 document.addEventListener("visibilitychange", () => {
   const v = canliKutu.querySelector("video:not(.yedek)");
   if (!document.hidden && v && !v.paused) setTimeout(() => { if (v.readyState > 2) v.currentTime = v.currentTime; }, 500);
+  if (!document.hidden) setTimeout(canliYakala, 800);
 });
+// 2026-11-16 kullanıcı: "Facebook'taki kapağa tıklayınca canlı yayının devreye girmesi gecikiyor". Kapaktan gelende
+// sayfa haberi açılır pencerede gösterirken yüklenme sırasında oynatıcı takılıp canlının ~20 sn gerisinde kalıyordu ve
+// farkı hiç kapatmıyordu. Pencere kapanınca / sekme öne gelince oynatıcı 10 sn'den fazla gerideyse canlı ana atlar ve oynar.
+function canliYakala() {
+  const v = canliKutu.querySelector("video:not(.yedek)");
+  if (!v) return;
+  let canli = canliHls ? canliHls.liveSyncPosition : (v.seekable.length ? v.seekable.end(v.seekable.length - 1) - 6 : null);
+  if (canli && canli - v.currentTime > 10) v.currentTime = canli;
+  if (v.paused) v.play().catch(() => {});
+}
 function hlsYukle() {
   if (window.Hls) return Promise.resolve();
   return new Promise(tamam => {
@@ -530,7 +541,8 @@ async function canliAc() {
     // (indirme 3-4 Mbit/sn), 720p'de görüntü geri kalıp ses kayıyordu (2026-11-15); masaüstü simgesi 480 ile açar.
     // Sınır varken "oynatıcı boyutuna göre kalite" kapalı: o da sınırı değiştiriyordu
     const kaliteSinir = parseInt(new URLSearchParams(location.search).get("kalite"), 10) || 0;
-    canliHls = new Hls({ liveDurationInfinity: true, liveSyncDurationCount: 4, maxBufferLength: 30,
+    // liveMaxLatencyDurationCount: oynatıcı canlının 16 sn'den fazla gerisine düşerse kendiliğinden canlı ana atlar (2026-11-16)
+    canliHls = new Hls({ liveDurationInfinity: true, liveSyncDurationCount: 4, liveMaxLatencyDurationCount: 8, maxBufferLength: 30,
       // bilgisayar görüntüyü yetiştiremeyip kare atlarsa (ses önde kalır) daha düşük kaliteye geçer; küçük oynatıcıya büyük kalite indirilmez
       capLevelOnFPSDrop: true, fpsDroppedMonitoringPeriod: 5000, fpsDroppedMonitoringThreshold: 0.1, capLevelToPlayerSize: !kaliteSinir,
       // kalite seçimi temkinli: ölçülen hızın daha küçük payıyla seçer, yükseğe geç çıkar (yavaş hatta takılıp kaymasın)
@@ -1150,7 +1162,7 @@ const detay = document.getElementById("detay");
 detay.querySelector(".kapat").onclick = () => detay.close();
 // Haber penceresinden TVplas Portal ana sayfasına (en üste) dönülür
 detay.querySelector(".anaDon").onclick = () => { detay.close(); window.scrollTo({ top: 0, behavior: "smooth" }); };
-detay.addEventListener("close", () => detay.querySelector("iframe")?.remove());   // kapanınca video da durur
+detay.addEventListener("close", () => { detay.querySelector("iframe")?.remove(); canliYakala(); });   // kapanınca video da durur; canlı yayın canlı ana döner
 detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
 // 2026-11-14 kullanıcı: Haber ve Duyuru Gönder, Yazar Girişi ve Yayın İzin Formu ana sayfadan AYRI PENCEREDE açılsın
 // (target=_blank Chrome'da yalnızca yeni sekme açıyordu). Pencere açılamazsa (engelleyici, telefon) bağlantı yeni sekmede açılır.
