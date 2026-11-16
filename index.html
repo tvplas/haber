@@ -11,6 +11,8 @@
 <meta property="og:title" content="TVplas Portal – Canlı yayın ve güncel haberler">
 <meta property="og:description" content="TVplas canlı yayını ve Kıbrıs, Türkiye ve dünyadan en güncel haberler tek sayfada.">
 <meta property="og:url" content="https://tvplas.github.io/haber/">
+<link rel="preconnect" href="https://2-29-142-134.sslip.io" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -492,8 +494,11 @@ function hlsYukle() {
 async function canliAc() {
   clearInterval(canliDeneme); canliDeneme = null;
   canliSayacDur();
-  const bilgi = await canliBilgi();
+  // 2026-11-16 kullanıcı: "iPhone'da canlı yayın hemen açılmıyor". Sabit sunucu varken izleyici sayacının (Google, 1,5–5 sn)
+  // yanıtı beklenmez; yayın listesi kontrolü ile oynatıcı kütüphanesi aynı anda indirilir.
+  const bilgi = CANLI_SUNUCU ? (canliBilgi(), {}) : await canliBilgi();
   const adres = CANLI_SUNUCU || bilgi.adres || "";
+  const kutuphane = hlsYukle();
   // İzleyici sayısı: sayfa açıkken yarım dakikada bir "buradayım" denir (sekme arkadaysa sayılmaz)
   canliSayac = setInterval(() => { if (!document.hidden) canliBilgi(); }, 30000);
   if (!adres) return canliYedek();
@@ -502,7 +507,7 @@ async function canliAc() {
     const yanit = await fetch(adres + "/tvplas/index.m3u8", { cache: "no-store", signal: window.AbortSignal && AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined });
     if (!yanit.ok) return canliYedek();
   } catch (e) { return canliYedek(); }
-  await hlsYukle();
+  await kutuphane;
   canliTemizle();
   const v = document.createElement("video");
   v.controls = true; v.playsInline = true; v.autoplay = true; v.muted = true;
