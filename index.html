@@ -1086,7 +1086,7 @@ function basinAc() {
   d.querySelector("h2").textContent = "🎙 Basında Bugün · " + new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
   d.querySelector(".govde .ust .etiket").textContent = "TVplas";
   d.querySelector(".govde .ust span:last-child").textContent = "TVplas Haber";
-  d.querySelector(".metin").textContent = "Kıbrıs gazetelerinin bugünkü manşetleri:\n\n" + j.gazeteler.map(g => "• " + g.ad + ": " + g.manset).join("\n");
+  d.querySelector(".metin").textContent = "Kıbrıs gazetelerinin bugünkü manşetleri:\n\n" + j.gazeteler.map(g => "• " + g.ad + ": " + g.manset + (g.aciklama ? "\n   " + g.aciklama : "")).join("\n\n");
   d.querySelector(".kaynakLink").hidden = true;
   d.querySelector(".ceviri-dugmeler").replaceChildren();
   d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://2.29.142.134.sslip.io/p/basin-" + yil + "-" + ay + "-" + gun);
