@@ -1065,11 +1065,43 @@ function basinVideoYap() {
   kutu.append(v, alt);
   return kutu;
 }
+// 2026-11-16 kullanıcı: Facebook'taki "Basında Bugün" paylaşımına tıklayan ana sayfaya gelir, video önünde pencerede açılır
+// (paylaşım sayfası /p/basin-… ziyaretçiyi ?basin=1 ile gönderir)
+let basinJson = null;
+const basinIste = new URLSearchParams(location.search).has("basin");
+if (basinIste) history.replaceState(null, "", location.pathname);
+function basinAc() {
+  const d = document.getElementById("detay"), kutu = d.querySelector(".d-gorsel"), j = basinJson;
+  const v = el("video");
+  v.controls = true; v.playsInline = true; v.preload = "auto";
+  v.poster = CANLI_SUNUCU + "/haber/basin.jpg?d=" + j.tarih;
+  v.src = CANLI_SUNUCU + "/haber/basin.mp4?d=" + j.tarih;
+  v.style.cssText = "width:100%;aspect-ratio:16/9;background:#000;display:block";
+  v.addEventListener("play", () => { const c = canliKutu.querySelector("video"); if (c) c.muted = true; });
+  kutu.classList.remove("yazar-foto");
+  kutu.replaceChildren(v);
+  const kunye = d.querySelector(".d-kunye");
+  kunye.textContent = ""; kunye.removeAttribute("href");
+  const [gun, ay, yil] = j.tarih.split("-");
+  d.querySelector("h2").textContent = "🎙 Basında Bugün · " + new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+  d.querySelector(".govde .ust .etiket").textContent = "TVplas";
+  d.querySelector(".govde .ust span:last-child").textContent = "TVplas Haber";
+  d.querySelector(".metin").textContent = "Kıbrıs gazetelerinin bugünkü manşetleri:\n\n" + j.gazeteler.map(g => "• " + g.ad + ": " + g.manset).join("\n");
+  d.querySelector(".kaynakLink").hidden = true;
+  d.querySelector(".ceviri-dugmeler").replaceChildren();
+  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://2.29.142.134.sslip.io/p/basin-" + yil + "-" + ay + "-" + gun);
+  d.showModal();
+  d.scrollTop = 0;
+  v.play().catch(() => {});   // tarayıcı sesli başlatmaya izin vermezse oynat düğmesiyle başlar
+}
 function basinBul() {
   fetch(CANLI_SUNUCU + "/haber/basin.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => {
     const bugun = new Date().toLocaleDateString("en-GB", { timeZone: "Asia/Famagusta" }).replace(/\//g, "-");
-    if (j.tarih !== bugun || !j.video) return;
-    basinVideo = j.tarih;
+    if (!j.video || !j.gazeteler) return;
+    // Facebook'tan gelen eski günün bağlantısında da o an sunucudaki en son video açılır
+    if (basinIste) { basinJson = j; basinAc(); }
+    if (j.tarih !== bugun) return;
+    basinJson = j; basinVideo = j.tarih;
     if (bolum === "Gazeteler" && !ara.value.trim()) ciz();
   }).catch(() => {});
 }
@@ -1194,7 +1226,7 @@ const detay = document.getElementById("detay");
 detay.querySelector(".kapat").onclick = () => detay.close();
 // Haber penceresinden TVplas Portal ana sayfasına (en üste) dönülür
 detay.querySelector(".anaDon").onclick = () => { detay.close(); window.scrollTo({ top: 0, behavior: "smooth" }); };
-detay.addEventListener("close", () => { detay.querySelector("iframe")?.remove(); canliYakala(); });   // kapanınca video da durur; canlı yayın canlı ana döner
+detay.addEventListener("close", () => { detay.querySelector("iframe")?.remove(); detay.querySelector(".d-gorsel video")?.remove(); canliYakala(); });   // kapanınca video da durur; canlı yayın canlı ana döner
 detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
 // 2026-11-14 kullanıcı: Haber ve Duyuru Gönder, Yazar Girişi ve Yayın İzin Formu ana sayfadan AYRI PENCEREDE açılsın
 // (target=_blank Chrome'da yalnızca yeni sekme açıyordu). Pencere açılamazsa (engelleyici, telefon) bağlantı yeni sekmede açılır.
