@@ -102,10 +102,19 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .gazete-kart .sayfa{display:block;aspect-ratio:3/4;background:var(--cizgi);overflow:hidden;cursor:pointer}
 .gazete-kart .sayfa img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
 .gazete-kart h2{cursor:pointer}
-.iletisim{grid-column:1/-1;display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start;background:var(--sahne,#121117);border-radius:16px;padding:16px}
-.iletisim .duyuru-kutu{color:var(--sahne-yazi)}
+.iletisim{grid-column:1/-1;display:flex;flex-direction:column;gap:16px;background:var(--sahne,#121117);border-radius:16px;padding:16px}
 .iletisim .basin-video{grid-column:auto}
-@media (max-width:820px){.iletisim{grid-template-columns:1fr;padding:12px}}
+.iletisim-kartlar.duyuru-kutu{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;background:none;border:0;padding:0}
+.il-kart{position:relative;display:flex;flex-direction:column;gap:4px;padding:18px 16px 16px;border-radius:14px;text-decoration:none;color:var(--sahne-yazi,#f3f1f6);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-top:4px solid var(--il,#e5333d);transition:background .15s,transform .15s}
+.il-kart:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+.il-kart .il-no{position:absolute;top:12px;right:14px;width:24px;height:24px;border-radius:50%;background:var(--il);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center}
+.il-kart .il-ikon{font-size:28px;line-height:1;margin-bottom:6px}
+.il-kart b{font-size:17px;letter-spacing:.4px}
+.il-kart .il-alt{font-size:14.5px;font-weight:600;color:var(--il)}
+.il-kart small{font-size:13px;color:var(--sahne-soluk,#a7a2b2);line-height:1.4}
+.il-ihbar{--il:#25d366}.il-haber{--il:#e5333d}.il-duyuru{--il:#f5a524}.il-yazar{--il:#a78bfa}
+@media (max-width:820px){.iletisim{padding:12px}.iletisim-kartlar.duyuru-kutu{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.iletisim-kartlar.duyuru-kutu{grid-template-columns:1fr}}
 .basin-video{grid-column:1/-1;background:#0e0e14;border-radius:14px;overflow:hidden}
 .basin-video video{width:100%;aspect-ratio:16/9;display:block;background:#000}
 .basin-video div{padding:10px 14px;color:#fff;font-weight:600;font-size:15px}
@@ -326,13 +335,12 @@ footer{padding-top:10px}
       <ul class="sira" id="sira"></ul>
     </div>
     <!-- 2026-11-15 kullanıcı: Haber ve Duyuru Gönder ile Yazar Girişi bu kartta (Yayın İzin Formu aynı gün kullanıcı isteğiyle kaldırıldı) -->
-    <div class="duyuru-kutu" aria-label="Haber gönderme ve yazar girişi">
-      <!-- 2026-11-15 kullanıcı: duyurulara "Reklamsız haberler" -->
-      <div class="duyuru-ust"><span class="ikon" aria-hidden="true">📢</span><div class="yazi"><b>Reklamsız haberler</b>Kıbrıs'tan ve dünyadan haberleri TVplas Portal'da reklamsız okuyun.</div></div>
-      <div class="duyuru-dugmeler">
-        <a class="haber-gonder" href="haber-gonder.html" target="_blank" rel="noopener" aria-label="Haber ya da duyuru gönderin">📰 HABER ve DUYURU GÖNDER</a>
-        <a class="yazar-giris" href="yazar.html" target="_blank" rel="noopener" aria-label="Köşe yazarları için yazar girişi">✍️ Yazar Girişi</a>
-      </div>
+    <!-- 2026-11-17 kullanıcı: İLETİŞİM menüsü kendi içinde 4 bölüm: İhbar Hattı, Haber Gönder, Duyuru Gönder, Yazar Girişi -->
+    <div class="duyuru-kutu iletisim-kartlar" aria-label="İletişim">
+      <a class="il-kart il-ihbar" href="https://wa.me/905338636819" target="_blank" rel="noopener"><span class="il-no">1</span><span class="il-ikon" aria-hidden="true">📲</span><b>İHBAR HATTI</b><span class="il-alt">WhatsApp: 0533 863 6819</span><small>Gördüğünüz olayı, fotoğraf ya da videosuyla bize hemen iletin.</small></a>
+      <a class="il-kart il-haber" href="haber-gonder.html" target="_blank" rel="noopener"><span class="il-no">2</span><span class="il-ikon" aria-hidden="true">📰</span><b>HABER GÖNDER</b><span class="il-alt">Haberinizi gönderin</span><small>Onaydan sonra portalın Kıbrıs bölümünde yayınlanır.</small></a>
+      <a class="il-kart il-duyuru" href="haber-gonder.html?tur=duyuru" target="_blank" rel="noopener"><span class="il-no">3</span><span class="il-ikon" aria-hidden="true">📢</span><b>DUYURU GÖNDER</b><span class="il-alt">Basın bülteni, etkinlik, toplantı</span><small>Kurumlar, dernekler, partiler ve belediyeler için.</small></a>
+      <a class="il-kart il-yazar" href="yazar.html" target="_blank" rel="noopener"><span class="il-no">4</span><span class="il-ikon" aria-hidden="true">✍️</span><b>YAZAR GİRİŞİ</b><span class="il-alt">Köşe yazarlarımız için</span><small>Yazınızı panelden gönderin.</small></a>
     </div>
   </aside>
 </section>
@@ -1200,7 +1208,7 @@ function ciz() {
   if (!q && bolum === "İletişim") {
     const kutu = el("section", "iletisim");
     kutu.append(...(basinVideo ? [basinVideoYap()] : []), duyuruKutu);
-    liste.replaceChildren(el("div", "bolum-baslik", "📞 İletişim · haber ve duyuru gönderin, yazar girişi" + (basinVideo ? " · 🎙 Basında Bugün" : "")), kutu);
+    liste.replaceChildren(el("div", "bolum-baslik", "📞 İletişim · İhbar hattı, haber ve duyuru gönderin, yazar girişi" + (basinVideo ? " · 🎙 Basında Bugün" : "")), kutu);
     return;
   }
   let secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
@@ -1245,7 +1253,7 @@ detay.addEventListener("close", () => { detay.querySelector("iframe")?.remove();
 detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
 // 2026-11-14 kullanıcı: Haber ve Duyuru Gönder, Yazar Girişi ve Yayın İzin Formu ana sayfadan AYRI PENCEREDE açılsın
 // (target=_blank Chrome'da yalnızca yeni sekme açıyordu). Pencere açılamazsa (engelleyici, telefon) bağlantı yeni sekmede açılır.
-document.querySelectorAll("a.haber-gonder, a.yazar-giris, a.izin-form").forEach(a => a.addEventListener("click", e => {
+document.querySelectorAll("a.haber-gonder, a.yazar-giris, a.izin-form, a.il-haber, a.il-duyuru, a.il-yazar").forEach(a => a.addEventListener("click", e => {
   if (e.ctrlKey || e.metaKey || e.shiftKey || e.button) return;
   const g = Math.min(680, screen.availWidth - 80), y = Math.min(720, Math.round(screen.availHeight * 0.8));   // küçük pencere: "çok büyük açılıyor, ekranı kapatıyor"
   const s = Math.max(0, (screen.availWidth - g) / 2 + (screen.availLeft || 0)), u = Math.max(0, (screen.availHeight - y) / 2 + (screen.availTop || 0));
