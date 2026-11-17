@@ -834,7 +834,7 @@ function kartYap(h) {
   // fotoğraf başka bir yazarın adını taşıyorsa yazının kendi sayfasındaki asıl fotoğraf (og:image) alınır
   if (h.kat === "Yazarlar" && h.g && baskaYazarFotosu(h)) { h.g = ""; dogruFotoBul(h, kart); }
   const portre = h.kat === "Yazarlar" && (h.tvplas && !!h.g || /_avatar|\/images\/yazarlar\/|\/author\//i.test(h.g || ""));   // kendi yazarlarımızın fotoğrafı da vesikalıktır
-  const resim = el("a", "resim" + (h.v ? " video" : "") + (portre ? " portre" : ""));
+  const resim = el("a", "resim" + (h.v || h.vu ? " video" : "") + (portre ? " portre" : ""));
   const adres = turkceAdres(h);
   baglanti(resim, adres);
   if (h.g) {
@@ -918,7 +918,15 @@ function aramaMetni(h) {
 function detayAc(h) {
   const d = document.getElementById("detay");
   const kutu = d.querySelector(".d-gorsel");
-  if (h.v) {
+  if (h.vu) {
+    // Haber Gönder formundan gelen video (sunucuda, portalın içinde oynar; açılınca canlı yayının sesi kısılır)
+    const v = el("video");
+    v.src = h.vu; v.poster = h.vp || ""; v.controls = true; v.playsInline = true; v.preload = "metadata";
+    v.style.cssText = "width:100%;aspect-ratio:16/9;max-height:70vh;background:#000;display:block";
+    v.addEventListener("play", () => { const c = canliKutu.querySelector("video"); if (c) c.muted = true; });
+    kutu.classList.remove("yazar-foto");
+    kutu.replaceChildren(v);
+  } else if (h.v) {
     // Panelden yüklenen video Drive oynatıcısıyla portalın içinde oynar
     const f = el("iframe");
     f.src = "https://drive.google.com/file/d/" + encodeURIComponent(h.v) + "/preview";
@@ -1419,6 +1427,13 @@ async function yukle(sessiz) {
     // Kendi haberlerimiz panelde seçilen bölümde (boşsa Kıbrıs; sabitler en üstte); diğerleri sunucudan tarihe göre dizili gelir
     const benim = (ekler.haberler || []).map(h => {
       const [kat, alt] = bolumBul(h.bolum);
+      // 2026-11-17: Haber/Duyuru Gönder formundan gelen video metnin sonunda "🎬 Video: <adres>" satırıdır; satır metinden
+      // çıkarılır, haber videolu gösterilir (fotoğraf yoksa kapak videonun ilk karesi)
+      const vid = (h.o || "").match(/\n*🎬 Video: (https:\/\/2-29-142-134\.sslip\.io\/gelen\/[\w-]+\.mp4)/);
+      if (vid) {
+        const poster = vid[1].replace(/\.mp4$/, ".jpg");
+        return { ...h, o: h.o.replace(vid[0], ""), vu: vid[1], g: h.g || poster, vp: poster, k: "TVplas Portal", tur: "TVplas", tvplas: true, kat, alt };
+      }
       return { ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true, kat, alt };
     });
     // Etkinlikler bölümü kaldırıldı: sunucunun önbelleğinden gelebilecek eski etkinlik haberleri atlanır
