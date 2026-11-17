@@ -40,7 +40,10 @@ input:focus,textarea:focus{outline:2px solid var(--vurgu);outline-offset:1px}
 .sayac{text-align:right;font-size:13px;color:var(--soluk);margin-top:4px}
 .foto-sec{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .foto-sec img{width:160px;height:90px;object-fit:cover;border-radius:9px;border:1px solid var(--cizgi);background:var(--alan)}
-.foto-sec img[hidden]{display:none}
+.foto-sec img[hidden],.foto-sec video[hidden]{display:none}
+.foto-sec video{width:240px;max-width:100%;aspect-ratio:16/9;border-radius:9px;border:1px solid var(--cizgi);background:#000}
+.ilerleme{height:10px;border-radius:99px;background:var(--alan);border:1px solid var(--cizgi);overflow:hidden;margin-top:10px}
+.ilerleme div{height:100%;width:0;background:var(--vurgu);transition:width .3s}
 button.ikinci{background:none;border:1px solid var(--cizgi);color:var(--yazi);border-radius:9px;padding:9px 14px;font:inherit;cursor:pointer}
 .onay label{display:flex;align-items:flex-start;gap:8px;font-weight:400;font-size:15px;margin:0 0 10px}
 .onay input{margin-top:4px;width:18px;height:18px;flex:none;accent-color:var(--vurgu)}
@@ -103,11 +106,21 @@ button.ana:disabled{opacity:.6;cursor:wait}
         <button type="button" class="ikinci" id="fotoSec">📷 Fotoğraf seç</button>
         <button type="button" class="ikinci gizli" id="fotoKaldir">Kaldır</button>
       </div>
+
+      <!-- 2026-11-17 kullanıcı: fotoğrafın yanında video da gönderilebilsin (sunucuya yüklenir: gelen_video.py) -->
+      <label>Video <small>(isteğe bağlı, tek video; en çok 150 MB ve 5 dakika)</small></label>
+      <div class="foto-sec">
+        <video id="vOnizleme" controls playsinline muted preload="metadata" hidden></video>
+        <input id="video" type="file" accept="video/*" hidden>
+        <button type="button" class="ikinci" id="videoSec">🎬 Video seç</button>
+        <button type="button" class="ikinci gizli" id="videoKaldir">Kaldır</button>
+      </div>
+      <div class="ilerleme gizli" id="ilerleme"><div></div></div>
       <div class="tuzak" aria-hidden="true"><label for="web">Web sitesi</label><input id="web" type="text" tabindex="-1" autocomplete="off"></div>
     </section>
 
     <section class="onay">
-      <label><input type="checkbox" id="beyan"><span>Gönderdiğim metnin ve fotoğrafın yayınlanmasına yetkiliyim. TVplas'ın gerektiğinde metni kısaltabileceğini, düzeltebileceğini ya da yayınlamayabileceğini kabul ediyorum.</span></label>
+      <label><input type="checkbox" id="beyan"><span>Gönderdiğim metnin, fotoğrafın ve videonun yayınlanmasına yetkiliyim. TVplas'ın gerektiğinde metni kısaltabileceğini, düzeltebileceğini ya da yayınlamayabileceğini kabul ediyorum.</span></label>
       <button class="ana" type="submit" id="gonderBtn">Gönder</button>
       <div class="durum" id="gonderDurum"></div>
       <p class="not">Taslağınız bu cihazda da saklanır; sayfa kapanırsa kaybolmaz. Sorularınız için WhatsApp: 0533 863 6839</p>
@@ -194,6 +207,47 @@ $("fotoKaldir").onclick = () => {
   $("fotoKaldir").classList.add("gizli"); $("fotoSec").textContent = "📷 Fotoğraf seç";
 };
 
+// ---- Video: gönderirken önce sunucuya yüklenir, adresi metnin sonuna "🎬 Video: …" satırı olarak eklenir ----
+const VIDEO_SUNUCU = "https://2-29-142-134.sslip.io/gelen/yukle";
+const VIDEO_SINIR = 150 * 1024 * 1024;
+let videoDosya = null, videoAdres = null;   // aynı video ikinci kez yüklenmesin (gönderim hata verirse)
+$("videoSec").onclick = () => $("video").click();
+$("video").onchange = () => {
+  const f = $("video").files[0];
+  if (!f) return;
+  if (f.size > VIDEO_SINIR) { $("video").value = ""; return durum($("gonderDurum"), "Video çok büyük (" + Math.round(f.size / 1048576) + " MB). En çok 150 MB olabilir; telefonda videoyu kısaltıp yeniden deneyin.", false); }
+  videoDosya = f; videoAdres = null;
+  const v = $("vOnizleme");
+  if (v.src) URL.revokeObjectURL(v.src);
+  v.src = URL.createObjectURL(f); v.hidden = false;
+  v.onloadedmetadata = () => { if (v.duration > 301) { $("videoKaldir").click(); durum($("gonderDurum"), "Video en çok 5 dakika olabilir.", false); } };
+  $("videoKaldir").classList.remove("gizli");
+  $("videoSec").textContent = "🎬 Başka video seç";
+  durum($("gonderDurum"), "", true);
+};
+$("videoKaldir").onclick = () => {
+  const v = $("vOnizleme");
+  if (v.src) URL.revokeObjectURL(v.src);
+  v.removeAttribute("src"); v.hidden = true; v.load();
+  videoDosya = null; videoAdres = null; $("video").value = "";
+  $("videoKaldir").classList.add("gizli"); $("videoSec").textContent = "🎬 Video seç";
+};
+function videoYukle(f, ilerle) {
+  return new Promise((tamam, hata) => {
+    const x = new XMLHttpRequest();
+    x.open("POST", VIDEO_SUNUCU);
+    x.setRequestHeader("Content-Type", /^video\//.test(f.type) ? f.type : "video/mp4");
+    x.upload.onprogress = e => { if (e.lengthComputable) ilerle(e.loaded / e.total); };
+    x.onload = () => {
+      let j = {};
+      try { j = JSON.parse(x.responseText); } catch (e) { }
+      x.status === 200 && j.video ? tamam(j) : hata(new Error(j.hata || "Video yüklenemedi (" + x.status + ")"));
+    };
+    x.onerror = () => hata(new Error("Video yüklenemedi: bağlantı kesildi"));
+    x.send(f);
+  });
+}
+
 ["kim", "tel", "eposta", "baslik", "metin"].forEach(id => $(id).addEventListener("input", taslakKaydet));
 
 $("form").onsubmit = async e => {
@@ -208,12 +262,21 @@ $("form").onsubmit = async e => {
   if (v.metin.length < 80) return durum(m, "Metin çok kısa (en az 80 karakter olmalı).", false);
   if (!$("beyan").checked) return durum(m, "Göndermek için yayınlama yetkisi beyanını işaretleyin.", false);
   $("gonderBtn").disabled = true;
-  durum(m, fotoVeri ? "Gönderiliyor (fotoğrafla birlikte, biraz sürebilir)…" : "Gönderiliyor…", true);
   try {
+    if (videoDosya && !videoAdres && !$("web").value) {
+      const cubuk = $("ilerleme");
+      cubuk.classList.remove("gizli");
+      const ilerle = o => { cubuk.firstElementChild.style.width = Math.round(o * 100) + "%";
+        durum(m, o < 1 ? "Video yükleniyor… %" + Math.round(o * 100) + " (sayfayı kapatmayın)" : "Video hazırlanıyor, lütfen bekleyin…", true); };
+      ilerle(0);
+      try { videoAdres = await videoYukle(videoDosya, ilerle); } finally { cubuk.classList.add("gizli"); }
+    }
+    durum(m, fotoVeri || videoAdres ? "Gönderiliyor (biraz sürebilir)…" : "Gönderiliyor…", true);
+    if (videoAdres) v.metin += "\n\n🎬 Video: " + videoAdres.video;
     const c = await istek({ islem: "haberGonder", tur: tur(), ...v, zaman: "", yer: "",
       foto: fotoVeri, web: $("web").value });
     if (!c.tamam) throw new Error(c.hata || "Gönderilemedi");
-    $("form").reset(); $("fotoKaldir").click(); sakla(TASLAK, null); taslakKaydet();
+    $("form").reset(); $("fotoKaldir").click(); $("videoKaldir").click(); sakla(TASLAK, null); taslakKaydet();
     durum(m, "✅ Gönderiniz alındı (kayıt no " + c.no + "). TVplas onayladıktan sonra portalın Kıbrıs bölümünde yayınlanacak.", true);
   } catch (err) {
     durum(m, "Olmadı: " + err.message, false);
@@ -241,6 +304,14 @@ async function onayAc(no, a) {
     satir("Durum", y.durum);
     $("onayBaslik").textContent = y.baslik;
     $("onayMetin").textContent = y.metin;
+    // gönderilen video (sunucudaki adres metnin sonundaki "🎬 Video:" satırında): onaydan önce izlenebilsin
+    const vid = (y.metin || "").match(/🎬 Video: (https:\/\/2-29-142-134\.sslip\.io\/gelen\/[\w-]+\.mp4)/);
+    if (vid) {
+      const o = document.createElement("video");
+      o.src = vid[1]; o.poster = vid[1].replace(/\.mp4$/, ".jpg"); o.controls = true; o.playsInline = true; o.preload = "metadata";
+      o.style.cssText = "width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;margin:10px 0";
+      $("onayMetin").before(o);
+    }
     $("onayFoto").textContent = y.foto ? "📷 Fotoğraf var: onay e-postasının ekinde görebilirsiniz; yayınlanırsa haberle birlikte çıkar." : "Fotoğraf gönderilmemiş.";
     $("onayIcerik").classList.remove("gizli");
     if (y.durum === "Bekliyor") { $("onayDurum").textContent = ""; $("onayDurum").className = "durum"; }
