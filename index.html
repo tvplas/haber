@@ -118,6 +118,15 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .basin-video{grid-column:1/-1;background:#0e0e14;border-radius:14px;overflow:hidden}
 .basin-video video{width:100%;aspect-ratio:16/9;display:block;background:#000}
 .basin-video div{padding:10px 14px;color:#fff;font-weight:600;font-size:15px}
+.basin-kapak{position:relative;display:block;width:100%;padding:0;border:0;background:#000;cursor:pointer;aspect-ratio:16/9}
+.basin-kapak img{width:100%;height:100%;object-fit:cover;display:block}
+.basin-kapak::after{content:"▶";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;background:rgba(0,0,0,.6);box-shadow:0 0 0 3px rgba(255,255,255,.85);color:#fff;font-size:22px;display:grid;place-items:center;padding-left:4px;box-sizing:border-box}
+.basin-kapak:hover::after{background:var(--dolu,#bd1521)}
+.basin-sahne{position:absolute;inset:0;z-index:8;background:#000}
+.basin-sahne video{position:absolute;inset:0;width:100%;height:100%;background:#000}
+.basin-etiket{position:absolute;left:12px;top:12px;z-index:2;padding:5px 12px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-size:13px;font-weight:700;pointer-events:none}
+.basin-kapat{position:absolute;right:12px;top:12px;z-index:3;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.65);color:#fff;font-size:20px;font-weight:700;line-height:1;cursor:pointer;display:grid;place-items:center}
+.basin-kapat:hover{background:var(--dolu,#bd1521);border-color:var(--dolu,#bd1521)}
 .sahne-yan .basin-video{border:1px solid var(--sahne-cizgi,rgba(255,255,255,.09));background:var(--sahne-kart,#16151c)}
 .sahne-yan .basin-video div{font-size:13.5px;line-height:1.45}
 .gazete-kart ul{margin:0 0 10px;padding-left:18px;color:var(--soluk);font-size:14px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
@@ -1070,13 +1079,37 @@ function gazeteAc(g) {
 // 2026-11-16 kullanıcı: her sabah "Basında Bugün" sesli videosu (gazetelerin manşetleri, TVplas Haber müziğiyle).
 // Yayın bilgisayarı videoyu yapar, sunucuya koyar (basin.mp4); en son video (bugünün ya da dünün) Gazeteler bölümünün en üstünde durur.
 let basinVideo = null;
-function basinVideoYap() {
-  const kutu = el("article", "basin-video"), v = el("video");
-  v.controls = true; v.playsInline = true; v.preload = "none";
+// 2026-11-17 kullanıcı: Basında Bugün yalnızca tıklanınca canlı yayın ekranında açılsın, köşesinde kapat düğmesi olsun.
+// Yan sütundaki kart kapak resmidir; tıklanınca video canlı yayının üzerinde oynar, ✕ ile kapanınca canlı yayın sürer.
+function basinSahnede() {
+  const cerceve = document.getElementById("canliCerceve");
+  if (cerceve.querySelector(".basin-sahne")) return;
+  const canli = canliKutu.querySelector("video:not(.yedek)"), sessizdi = canli ? canli.muted : true;
+  if (canli) canli.muted = true;
+  const kat = el("div", "basin-sahne"), v = el("video"), kapat = el("button", "basin-kapat", "✕");
+  v.controls = true; v.playsInline = true; v.autoplay = true; v.preload = "auto";
   v.poster = CANLI_SUNUCU + "/haber/basin.jpg?d=" + basinVideo;
   v.src = CANLI_SUNUCU + "/haber/basin.mp4?d=" + basinVideo;
-  // izlenirken canlı yayının sesi kısılır (iki ses üst üste binmesin)
-  v.addEventListener("play", () => { const c = canliKutu.querySelector("video"); if (c) c.muted = true; });
+  kapat.type = "button"; kapat.setAttribute("aria-label", "Basında Bugün'ü kapat, canlı yayına dön"); kapat.title = "Kapat, canlı yayına dön";
+  const kapa = () => {
+    v.pause(); v.removeAttribute("src"); v.load(); kat.remove();
+    const c = canliKutu.querySelector("video:not(.yedek)");
+    if (c) c.muted = sessizdi;
+    canliYakala();
+  };
+  kapat.onclick = kapa;
+  v.onended = kapa;
+  kat.append(v, el("span", "basin-etiket", "🎙 Basında Bugün"), kapat);
+  cerceve.append(kat);
+  v.play().catch(() => {});
+  if (cerceve.getBoundingClientRect().top < 0) cerceve.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function basinVideoYap() {
+  const kutu = el("article", "basin-video"), v = el("button", "basin-kapak");
+  v.type = "button"; v.setAttribute("aria-label", "Basında Bugün videosunu canlı yayın ekranında aç");
+  const img = el("img"); img.src = CANLI_SUNUCU + "/haber/basin.jpg?d=" + basinVideo; img.alt = "";
+  v.append(img);
+  v.onclick = basinSahnede;
   const [gun, ay, yil] = basinVideo.split("-");
   const alt = el("div", "", "🎙 Basında Bugün · " + new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" }) + " · Kıbrıs gazetelerinin manşetleri ");
   // Facebook'ta günün kapağıyla paylaşılır (sunucudaki /p/basin-YYYY-MM-DD sayfası; tıklayan Gazeteler bölümüne gelir)
