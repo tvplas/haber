@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>TikTok bağlantısı – TVplas Portal</title>
+<style>
+  body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: #111318; color: #eee; display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+  .kutu { max-width: 560px; width: 92%; background: #1c1f27; border-radius: 16px; padding: 28px; box-shadow: 0 10px 40px #0008; }
+  h1 { font-size: 22px; margin: 0 0 14px; } h1 b { color: #e5333d; }
+  .kod { background: #0b0c10; border: 1px solid #333; border-radius: 10px; padding: 14px; font-family: Consolas, monospace; font-size: 14px; word-break: break-all; margin: 14px 0; }
+  button { background: #e5333d; color: #fff; border: 0; border-radius: 10px; padding: 12px 22px; font-size: 16px; cursor: pointer; }
+  .not { color: #aaa; font-size: 14px; line-height: 1.5; } .hata { color: #ff8a8a; }
+</style>
+</head>
+<body>
+<div class="kutu">
+  <h1><b>TVplas</b> Portal · TikTok bağlantısı</h1>
+  <div id="icerik" class="not">Yükleniyor…</div>
+</div>
+<script>
+  // TikTok izin sayfası buraya ?code=...&state=... ile döner. Kod bu bilgisayardan hiçbir yere gönderilmez;
+  // yalnızca ekranda gösterilir, kullanıcı TVPLAS "TIKTOK BAGLA" penceresine kendisi yapıştırır.
+  const p = new URLSearchParams(location.search), d = document.getElementById("icerik");
+  const kod = p.get("code"), hata = p.get("error");
+  if (kod) {
+    d.innerHTML = '<p>İzin verildi. Aşağıdaki kodu kopyalayıp bilgisayardaki <b>TIKTOK BAGLA</b> penceresine yapıştırın ve <b>2) Bağla</b>’ya basın. Kodun süresi kısadır.</p><div class="kod" id="k"></div><button id="kopya">Kodu kopyala</button>';
+    document.getElementById("k").textContent = kod;
+    document.getElementById("kopya").onclick = async () => {
+      try { await navigator.clipboard.writeText(kod); document.getElementById("kopya").textContent = "Kopyalandı ✓"; }
+      catch (e) { getSelection().selectAllChildren(document.getElementById("k")); }
+    };
+    history.replaceState(null, "", location.pathname);   // kod adres çubuğunda kalmasın
+  } else if (hata) {
+    d.innerHTML = '<p class="hata">İzin verilmedi: </p>';
+    d.querySelector("p").append(p.get("error_description") || hata);
+  } else {
+    d.innerHTML = '<p>Bu sayfa TVplas Portal’ın kendi TikTok hesabına kısa video paylaşabilmesi için TikTok izin dönüş sayfasıdır.</p><p><a href="./" style="color:#e5333d">TVplas Portal’a git</a> · <a href="gizlilik.html" style="color:#aaa">Gizlilik</a> · <a href="kosullar.html" style="color:#aaa">Koşullar</a></p>';
+  }
+</script>
+</body>
+</html>
