@@ -118,6 +118,8 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .basin-video{grid-column:1/-1;background:#0e0e14;border-radius:14px;overflow:hidden}
 .basin-video video{width:100%;aspect-ratio:16/9;display:block;background:#000}
 .basin-video div{padding:10px 14px;color:#fff;font-weight:600;font-size:15px}
+.sahne-yan .basin-video{border:1px solid var(--sahne-cizgi,rgba(255,255,255,.09));background:var(--sahne-kart,#16151c)}
+.sahne-yan .basin-video div{font-size:13.5px;line-height:1.45}
 .gazete-kart ul{margin:0 0 10px;padding-left:18px;color:var(--soluk);font-size:14px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
 .resim{display:block;aspect-ratio:16/9;background:var(--cizgi)}
@@ -1068,7 +1070,7 @@ function basinVideoYap() {
   // izlenirken canlı yayının sesi kısılır (iki ses üst üste binmesin)
   v.addEventListener("play", () => { const c = canliKutu.querySelector("video"); if (c) c.muted = true; });
   const [gun, ay, yil] = basinVideo.split("-");
-  const alt = el("div", "", "🎙 Basında Bugün · " + new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" }) + " · Kıbrıs gazetelerinin manşetleri, sesli  ");
+  const alt = el("div", "", "🎙 Basında Bugün · " + new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" }) + " · Kıbrıs gazetelerinin manşetleri ");
   // Facebook'ta günün kapağıyla paylaşılır (sunucudaki /p/basin-YYYY-MM-DD sayfası; tıklayan Gazeteler bölümüne gelir)
   const fb = el("a", "", "📤 Facebook'ta paylaş");
   fb.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://2.29.142.134.sslip.io/p/basin-" + yil + "-" + ay + "-" + gun);
@@ -1116,7 +1118,10 @@ function basinBul() {
     const [g1, a1, y1] = j.tarih.split("-"), [g2, a2, y2] = bugun.split("-");
     if ((new Date(y2, a2 - 1, g2) - new Date(y1, a1 - 1, g1)) / 864e5 > 1) return;
     basinJson = j; basinVideo = j.tarih;
-    if (bolum === "İletişim" && !ara.value.trim()) ciz();
+    // 2026-11-17 kullanıcı: video canlı yayının yanında, Yayın Akışı'nın altındaki boş alanda
+    const yan = document.querySelector(".sahne-yan");
+    yan.querySelector(".basin-video")?.remove();
+    yan.append(basinVideoYap());
   }).catch(() => {});
 }
 basinBul();
@@ -1204,8 +1209,8 @@ function ciz() {
   }
   if (!q && bolum === "İletişim") {
     const kutu = el("section", "il-bolum");
-    kutu.append(...(basinVideo ? [basinVideoYap()] : []), duyuruKutu);
-    liste.replaceChildren(el("div", "bolum-baslik", "📞 İletişim · İhbar hattı, haber ve duyuru gönderin, yazar girişi" + (basinVideo ? " · 🎙 Basında Bugün" : "")), kutu);
+    kutu.append(duyuruKutu);
+    liste.replaceChildren(el("div", "bolum-baslik", "📞 İletişim · İhbar hattı, haber ve duyuru gönderin, yazar girişi"), kutu);
     return;
   }
   let secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
