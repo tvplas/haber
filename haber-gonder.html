@@ -266,6 +266,21 @@ async function onayAc(no, a) {
 }
 
 const q = new URLSearchParams(location.search);
+// 2026-11-17 kullanıcı: portalın İLETİŞİM menüsünde ayrı "Haber Gönder" ve "Duyuru Gönder" kartları var; sayfa başlığı
+// hangi karttan gelindiyse ona göre (?tur=duyuru). Gönderim türü sunucuya yine "haber" gider (onay akışı aynı).
+if (!q.get("no")) {
+  const duyuru = q.get("tur") === "duyuru";
+  const ad = duyuru ? "Duyuru Gönder" : "Haber Gönder";
+  document.title = ad + " – TVplas Portal";
+  document.querySelector("#panel h1").innerHTML = "<span>TVplas</span> " + ad;
+  document.querySelector("#panel .alt").innerHTML = (duyuru
+    ? "Kurumlar, dernekler, siyasi partiler ve belediyeler basın toplantısı, etkinlik ve diğer duyurularını buradan gönderebilir."
+    : "Okurlarımız ve kurumlar haberlerini buradan gönderebilir.")
+    + " Gönderiniz TVplas'ın onayından sonra portalın <b>Kıbrıs</b> bölümünde yayınlanır. <b>HABER DEĞERİ OLAN HER HABER İÇİN KAPIMIZ AÇIK.</b>";
+  const secenek = document.querySelector(".turler label span");
+  secenek.querySelector("b").textContent = duyuru ? "📢 Duyuru" : "📰 Haber";
+  secenek.querySelector(".not").textContent = duyuru ? "Basın toplantısı, etkinlik, basın bülteni, duyuru" : "Haber, açıklama, olay, etkinlik haberi";
+}
 if (q.get("no") && q.get("a")) {
   onayAc(q.get("no"), q.get("a"));
 } else {
