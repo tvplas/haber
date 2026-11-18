@@ -247,13 +247,18 @@ function rozet(metin, x, y, px, arka, sagdan = false) {
   ctx.textBaseline = "top";
   return h;
 }
+// 2026-11-19 kullanıcı: kapaklarda eski "TVplas Portal" yazısı yerine gönderdiği TVPLAS logosu (tvplas_logo.png),
+// arkası saydam; açık fotoğrafta da okunsun diye yalnızca hafif gölge
+const LOGO_RESIM = new Image();
+LOGO_RESIM.src = "tvplas_logo.png";
+LOGO_RESIM.onload = () => Promise.resolve().then(ciz).catch(() => {});   // logo geç yüklenirse kapak yeniden çizilir
 function logo(x, y, px = 46) {
-  yazi(px, 900);
-  // TOP10 kırmızısı (#bd1521); koyu zeminden ayrılsın diye hafif gölge
-  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = px * 0.18;
-  ctx.fillStyle = "#bd1521"; ctx.fillText("TVplas", x, y);
-  ctx.fillStyle = "#fff"; ctx.fillText(" Portal", x + ctx.measureText("TVplas").width, y);
+  const h = px * 1.25, w = LOGO_RESIM.naturalWidth ? h * LOGO_RESIM.naturalWidth / LOGO_RESIM.naturalHeight : h * 4.87;
+  if (!LOGO_RESIM.complete || !LOGO_RESIM.naturalWidth) return w;
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = px * 0.25;
+  ctx.drawImage(LOGO_RESIM, x, y - px * 0.1, w, h);
   ctx.restore();
+  return w;
 }
 function altBant(W, H, yuk, sagMetin) {
   ctx.fillStyle = renk()[0]; ctx.fillRect(0, H - yuk, W, yuk);
@@ -349,9 +354,6 @@ const TASARIMLAR = [
     img ? kapla(img, 0, 0, fw, fh) : renkliZemin(0, 0, fw, fh);
     const px = kare ? 0 : W * 0.5, py = kare ? H * 0.5 : 0, pw = kare ? W : W * 0.5, ph = kare ? H * 0.5 : H;
     renkliZemin(px, py, pw, ph);
-    yazi(44, 900);
-    const lw = ctx.measureText("TVplas Portal").width + 52;
-    ctx.fillStyle = "rgba(0,0,0,.78)"; yuvarlak(26, 26, lw, 80, 40); ctx.fill();
     logo(52, 41, 44);
     const gun = String(bugun.getDate());
     const ay = bugun.toLocaleDateString("tr-TR", { month: "long" }).toLocaleUpperCase("tr");
@@ -372,10 +374,7 @@ const TASARIMLAR = [
     const fw = kare ? W : Math.round(W * 0.55), fh = kare ? Math.round(H * 0.56) : H - bant;
     renkliZemin(0, 0, W, H);
     kolaj(resimler, 0, 0, fw, fh);
-    if (!resimler.length) { yazi(kare ? 120 : 90, 900); ctx.fillStyle = "rgba(255,255,255,.12)"; ctx.textAlign = "center"; ctx.fillText("TVplas", fw / 2, fh / 2 - 60); ctx.textAlign = "left"; }
-    yazi(44, 900);
-    const lw = ctx.measureText("TVplas Portal").width + 52;
-    ctx.fillStyle = "rgba(0,0,0,.72)"; yuvarlak(26, 26, lw, 80, 40); ctx.fill();
+    if (!resimler.length && LOGO_RESIM.naturalWidth) { ctx.save(); ctx.globalAlpha = .18; const lh = kare ? 120 : 90, lw2 = lh * LOGO_RESIM.naturalWidth / LOGO_RESIM.naturalHeight; ctx.drawImage(LOGO_RESIM, fw / 2 - lw2 / 2, fh / 2 - lh / 2 - 40, lw2, lh); ctx.restore(); }
     logo(52, 41, 44);
     rozet(tarihUzun.toLocaleUpperCase("tr"), W - 40, 40, 22, "rgba(0,0,0,.55)", true);
     const px = kare ? 48 : fw + 40, pw = kare ? W - 96 : W - fw - 80;
@@ -405,9 +404,6 @@ const TASARIMLAR = [
       if (r.v) oynatIsareti(gx + gw / 2, gy + gh / 2, Math.min(gw, gh) * 0.16);
     }
     if (kare) {
-      yazi(44, 900);
-      const lw = ctx.measureText("TVplas Portal").width + 52;
-      ctx.fillStyle = "rgba(0,0,0,.72)"; yuvarlak(26, 26, lw, 80, 40); ctx.fill();
       logo(52, 41, 44);
     }
     const px = kare ? 48 : Math.round(W * 0.5) + 30, pw = kare ? W - 96 : W - px - 40;
