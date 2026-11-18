@@ -449,7 +449,7 @@ h1.tv-marka{line-height:0}
     </div>
   </div>
 </header>
-<!-- 2026-11-18: bu sayfa (tvplas.html) TVplas Portal'ın (index.html) yedeğidir; index.html'den tvplas_yap.py ile üretilir.
+<!-- 2026-11-19: tvplas.html artık TVPLAS'ın ANA sayfası; doğrudan düzenlenir (eski index.html ileride silinecek, tvplas_yap.py emekli).
      Menüde Kültür-Sanat, Magazin, Bilim, Sağlık, Ekonomi, Spor ve TVplas Haber yok (kullanıcı isteği). -->
 <!-- Canlı yayın açılış sayfasında: sayfa açılınca sessiz başlar (tarayıcılar sesli başlatmaya izin vermez), dokununca ses açılır -->
 <section class="sahne" id="canliBolum" aria-label="TVplas canlı yayın">
@@ -928,7 +928,7 @@ function hedefAc(reklamlar) {
 }
 
 // Dış kaynaklı haber portalda önce TVplas Haber tarzı özet penceresinde açılır; tamamı oradan kaynağında okunur
-// 2026-11-15 kullanıcı: Facebook paylaşımı haberin görseliyle çıksın, görselin sol üstünde TVplas Portal logosu.
+// 2026-11-15 kullanıcı: Facebook paylaşımı haberin görseliyle çıksın, görselin sol üstünde TVPLAS logosu.
 // Sunucudaki paylaşım sayfası (paylas.py) Facebook'a haberin başlığını, özetini ve logolu görselini verir;
 // tıklayan okuyucuyu portaldaki habere getirir (?h=kimlik). Haber olmayanlar (reklam) eskisi gibi.
 function paylasAdres(h) {
@@ -1428,7 +1428,7 @@ function ciz() {
 ara.oninput = ciz;
 const detay = document.getElementById("detay");
 detay.querySelector(".kapat").onclick = () => detay.close();
-// Haber penceresinden TVplas Portal ana sayfasına (en üste) dönülür
+// Haber penceresinden TVPLAS ana sayfasına (en üste) dönülür
 detay.querySelector(".anaDon").onclick = () => { detay.close(); window.scrollTo({ top: 0, behavior: "smooth" }); };
 detay.addEventListener("close", () => { detay.querySelector("iframe")?.remove(); detay.querySelector(".d-gorsel video")?.remove(); canliYakala(); });   // kapanınca video da durur; canlı yayın canlı ana döner
 detay.addEventListener("click", e => { if (e.target === detay) detay.close(); });   // dışına tıklayınca kapanır
@@ -1603,9 +1603,9 @@ async function yukle(sessiz) {
       const vid = (h.o || "").match(/\n*🎬 Video: (https:\/\/2-29-142-134\.sslip\.io\/gelen\/[\w-]+\.mp4)/);
       if (vid) {
         const poster = vid[1].replace(/\.mp4$/, ".jpg");
-        return { ...h, o: h.o.replace(vid[0], ""), vu: vid[1], g: h.g || poster, vp: poster, k: "TVplas Portal", tur: "TVplas", tvplas: true, kat, alt };
+        return { ...h, o: h.o.replace(vid[0], ""), vu: vid[1], g: h.g || poster, vp: poster, k: "TVPLAS", tur: "TVplas", tvplas: true, kat, alt };
       }
-      return { ...h, k: "TVplas Portal", tur: "TVplas", tvplas: true, kat, alt };
+      return { ...h, k: "TVPLAS", tur: "TVplas", tvplas: true, kat, alt };
     });
     // Etkinlikler bölümü kaldırıldı: sunucunun önbelleğinden gelebilecek eski etkinlik haberleri atlanır
     const vh = veri.videoHaber || {};
