@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Haber Gönder – TVplas Portal</title>
-<meta name="description" content="Kurumlar, dernekler, partiler ve okurlar için: haberinizi ya da duyurunuzu TVplas Portal'ın Kıbrıs bölümünde yayınlanmak üzere gönderin.">
-<meta property="og:title" content="TVplas Portal – Haber ve Duyuru Gönder">
-<meta property="og:description" content="Haberinizi ya da duyurunuzu TVplas Portal'a gönderin.">
+<title>Haber Gönder – TVPLAS</title>
+<meta name="description" content="Kurumlar, dernekler, partiler ve okurlar için: haberinizi ya da duyurunuzu TVPLAS’ın Kıbrıs bölümünde yayınlanmak üzere gönderin.">
+<meta property="og:title" content="TVPLAS – Haber ve Duyuru Gönder">
+<meta property="og:description" content="Haberinizi ya da duyurunuzu TVPLAS'a gönderin.">
 <meta property="og:image" content="https://tvplas.github.io/haber/kapak.jpg">
 <style>
 /* 2026-11-13: Yazar Paneli'nin benzeri. Kurumlar ve okurlar Kıbrıs bölümü için haber ya da duyuru gönderir
@@ -64,7 +64,7 @@ button.ana:disabled{opacity:.6;cursor:wait}
 </head>
 <body>
 <main>
-<a class="geri" href="./">← TVplas Portal'a dön</a>
+<a class="geri" href="tvplas.html">← TVPLAS'a dön</a>
 
 <!-- Gönderme formu -->
 <div id="panel">
@@ -289,7 +289,7 @@ $("form").onsubmit = async e => {
 async function onayAc(no, a) {
   $("panel").classList.add("gizli");
   $("onay").classList.remove("gizli");
-  document.title = "Gelen Haber Onayı – TVplas Portal";
+  document.title = "Gelen Haber Onayı – TVPLAS";
   try {
     const c = await (await fetch(API + "?islem=gelenBilgi&no=" + encodeURIComponent(no) + "&a=" + encodeURIComponent(a))).json();
     if (!c.tamam) throw new Error(c.hata || "Kayıt bulunamadı");
@@ -342,7 +342,7 @@ const q = new URLSearchParams(location.search);
 if (!q.get("no")) {
   const duyuru = q.get("tur") === "duyuru";
   const ad = duyuru ? "Duyuru Gönder" : "Haber Gönder";
-  document.title = ad + " – TVplas Portal";
+  document.title = ad + " – TVPLAS";
   document.querySelector("#panel h1").innerHTML = "<span>TVplas</span> " + ad;
   document.querySelector("#panel .alt").innerHTML = (duyuru
     ? "Kurumlar, dernekler, siyasi partiler ve belediyeler basın toplantısı, etkinlik ve diğer duyurularını buradan gönderebilir."
