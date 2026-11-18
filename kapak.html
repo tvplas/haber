@@ -707,20 +707,15 @@ document.getElementById("adresKopyala").onclick = async () => {
 // [anahtar, listede görünen ad, Manşet tasarımındaki etiket, süzgeç]
 const SECIM_BOLUMLERI = [
   ["Kıbrıs", "Kıbrıs", "KIBRIS'TA BUGÜN", h => !h.tvplas && !h.th && !BOLUMLER.includes(h.tur)],
-  ["TVplas Haber", "📰 TVplas Haber", "TVPLAS HABER", h => h.th],
+  // 2026-11-19 kullanıcı: "yeni tasarıma göre şekillendir" -> bölümler TVPLAS (tvplas.html) menüsüyle aynı sırada;
+  // Kültür-Sanat, Magazin, Bilim, Sağlık, Ekonomi, Spor ve TVplas Haber yok. Kendi haberlerimiz ayrıca seçilebilir.
   ["Güney", "Güney", "GÜNEY KIBRIS", h => h.tur === "Güney"],
   ["Türkiye", "Türkiye", "TÜRKİYE", h => h.tur === "Türkiye"],
   ["Dünya", "Dünya", "DÜNYA", h => h.tur === "Dünya"],
   ["Müzik", "Müzik", "MÜZİK", h => h.tur === "Müzik"],
-  ["Kültür-Sanat", "Kültür-Sanat", "KÜLTÜR-SANAT", h => h.tur === "Kültür-Sanat"],
-  ["Magazin", "Magazin", "MAGAZİN", h => h.tur === "Magazin"],
-  ["Bilim", "Bilim", "BİLİM", h => h.tur === "Bilim"],
-  ["Sağlık", "Sağlık", "SAĞLIK", h => h.tur === "Sağlık"],
-  ["Ekonomi", "Ekonomi", "EKONOMİ", h => h.tur === "Ekonomi"],
-  ["Spor", "Spor", "SPOR", h => h.tur === "Spor"],
-  ["TVplas", "⭐ TVplas haberlerim", "TVplas ÖZEL", h => h.tvplas && h.bolum !== "Fotoğraflar" && h.bolum !== "Yazarlar"],
-  ["Fotoğraflar", "📷 Fotoğraflarım", "FOTOĞRAF", h => h.tvplas && h.bolum === "Fotoğraflar"],
-  ["Yazarlar", "✍️ Yazarlar", "KÖŞE YAZISI", h => h.tur === "Yazarlar" || h.tvplas && h.bolum === "Yazarlar"]
+  ["Fotoğraflar", "📷 Fotoğraflar", "FOTOĞRAF", h => h.tvplas && h.bolum === "Fotoğraflar"],
+  ["Yazarlar", "✍️ Yazarlar", "KÖŞE YAZISI", h => h.tur === "Yazarlar" || h.tvplas && h.bolum === "Yazarlar"],
+  ["TVplas", "⭐ Kendi haberlerim", "TVPLAS ÖZEL", h => h.tvplas && h.bolum !== "Fotoğraflar" && h.bolum !== "Yazarlar"]
 ];
 let tumHaberler = [], secimAnahtari = "Kıbrıs", secilenHaber = null;   // secilenHaber: 📌 kutusunda dokunulan haber/fotoğraf
 const sBolum = document.getElementById("sBolum"), sAra = document.getElementById("sAra"), sListe = document.getElementById("sListe");
