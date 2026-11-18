@@ -720,7 +720,7 @@ const SECIM_BOLUMLERI = [
 let tumHaberler = [], secimAnahtari = "Kıbrıs", secilenHaber = null;   // secilenHaber: 📌 kutusunda dokunulan haber/fotoğraf
 const sBolum = document.getElementById("sBolum"), sAra = document.getElementById("sAra"), sListe = document.getElementById("sListe");
 const secimBolumu = () => SECIM_BOLUMLERI.find(x => x[0] === secimAnahtari) || SECIM_BOLUMLERI[0];
-const bolumHaberleri = k => tumHaberler.filter((SECIM_BOLUMLERI.find(x => x[0] === k) || SECIM_BOLUMLERI[0])[3]);
+const bolumHaberleri = k => tumHaberler.filter((SECIM_BOLUMLERI.find(x => x[0] === k) || SECIM_BOLUMLERI[0])[3]).slice(0, 24);   // her bölümde en çok 24 (TVPLAS kuralı)
 // Haber kullanmayan tasarımdaysak (kendi içerik, reklam, gazeteler) seçilen haber Manşet tasarımıyla gösterilir
 function haberTasarimi() {
   const t = TASARIMLAR[tasarimSira];
