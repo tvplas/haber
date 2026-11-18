@@ -422,7 +422,11 @@ dialog#detay::backdrop{background:rgba(6,8,12,.72);-webkit-backdrop-filter:blur(
 footer{max-width:none;margin-top:10px;padding:40px 20px 50px;background:var(--sahne);color:var(--sahne-soluk);font-size:12.5px;letter-spacing:.04em;line-height:1.7}
 footer .tv-alt{display:block;width:200px;height:auto;margin:0 auto 14px}
 /* kart ve pencere rozeti: aynı logo görseli */
-.ust .etiket.tv-rozet,.kart.tvplas .ust .etiket.tv-rozet{display:inline-flex;align-items:center;background:#0a0d14!important;padding:3px 7px!important;border-radius:5px;line-height:0}
+/* 2026-11-19 kullanıcı: "bütün logoların arkasını transparan yapınız" -> zemin yok; açık temada beyaz PLAS kaybolmasın
+   diye harflere yalnızca ince koyu kontur gölgesi */
+.ust .etiket.tv-rozet,.kart.tvplas .ust .etiket.tv-rozet{display:inline-flex;align-items:center;background:transparent!important;padding:0!important;border-radius:0;line-height:0}
+.tv-rozet img{filter:drop-shadow(0 0 .6px rgba(0,0,0,.9)) drop-shadow(0 0 1px rgba(0,0,0,.5))}
+@media (prefers-color-scheme:dark){.tv-rozet img{filter:none}}
 .tv-rozet img{height:13px;width:auto;display:block}
 #detay .tv-rozet img{height:16px}
 /* logo: kullanıcının gönderdiği görsel (saydam PNG), birebir */
