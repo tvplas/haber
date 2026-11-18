@@ -1350,7 +1350,7 @@ function fotoKartYap(h) {
 // Seçili bölümün haberlerini çizer; arama yazılıysa tüm bölümlerde arar.
 // Reklamlar her bölümde numara sırasıyla REKLAM_ARALIGI haberde bir, birer kez girer (aramada reklam yok).
 // Kartları dizer; reklamlıysa REKLAM_ARALIGI kartta bir reklam afişi girer
-const MENU_SINIR = 12;
+const MENU_SINIR = 24;
 function diz(ogeler, yap, reklamli) {
   const kartlar = [];
   ogeler.forEach((x, i) => {
@@ -1381,7 +1381,7 @@ function ciz() {
     return;
   }
   let secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
-    : haberler.filter(h => h.kat === bolum || h.ekBolum.includes(bolum));
+    : haberler.filter(h => h.kat === bolum || (bolum === "Müzik" && h.ekBolum.includes(bolum) && MUZIK.test(h.b)));
   // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
   // Dünya'da sunucunun öncelikli saydığı büyük gazeteler (h.on) diğer kaynaklardan önce gelir
   if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
@@ -1404,7 +1404,7 @@ function ciz() {
     return;
   }
   // 2026-11-15 kullanıcı: her menüde en çok en son 12 haber (aramada sınır yok); bölüm içi sıra korunur
-  if (!q && bolum !== "Yazarlar" && secili.length > MENU_SINIR) {
+  if (!q && secili.length > MENU_SINIR) {
     const enYeni = new Set([...secili].sort((x, y) => (y.t || "").localeCompare(x.t || "")).slice(0, MENU_SINIR));
     secili = secili.filter(h => enYeni.has(h));
   }
