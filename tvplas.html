@@ -348,18 +348,23 @@ h1.tv-marka{justify-content:center;margin:0;font-family:var(--serif);font-weight
 .simdi b{font-family:var(--serif);font-weight:600;font-size:21px}
 .il-kart{border-radius:16px;border-top-width:3px}
 .il-kart b{font-family:var(--sans);letter-spacing:.08em;font-size:15px}
-/* Döviz ve hava: yayın akışının altında iki sade kart */
-.sahne-yan .kurlar{margin:0;flex-direction:column;align-items:stretch;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--sahne-yazi);box-shadow:none}
-.sahne-yan .kurlar[hidden]{display:none}
-.sahne-yan .kur-baslik,.sahne-yan .kurlar.hava .kur-baslik{background:none;border:0;border-bottom:1px solid rgba(255,255,255,.08);color:var(--sahne-soluk);font-size:11px;letter-spacing:.22em;padding:14px 18px 10px}
-.sahne-yan .kur-pencere{white-space:normal}
-.sahne-yan .kur-akis{animation:none;display:flex;flex-direction:column;gap:0;padding:4px 18px 10px;transform:none}
-.sahne-yan .kur{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;font-weight:500;color:var(--sahne-yazi)}
-.sahne-yan .kur:last-child{border-bottom:0}
-.sahne-yan .kur b{font-family:var(--serif);font-weight:600;font-size:17px;margin-left:auto}
-.sahne-yan .kur small{color:var(--sahne-soluk);font-size:12px}
-.sahne-yan .kurlar.hava .kur small{flex-basis:100%;margin-top:-4px}
-.sahne-yan .kurlar.hava .kur{flex-wrap:wrap}
+/* Döviz ve hava: yayın akışının altında iki ince kayan bant (2026-11-18 kullanıcı: canlı yayın ekranının alt
+   seviyesini geçmeyecek; sığmazsa kayan bant). Geniş ekranda yan sütun tam oynatıcı yüksekliğindedir:
+   contain:size ile sütunun kendi boyu satırı büyütmez, fazlası (İletişim kartları) sütun içinde kaydırılır. */
+.sahne-yan .kurlar{margin:0;flex:none;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--sahne-yazi);box-shadow:none}
+.sahne-yan .kur-baslik,.sahne-yan .kurlar.hava .kur-baslik{background:var(--dolu);border:0;color:#fff;font-size:10.5px;letter-spacing:.16em;padding:9px 12px}
+.sahne-yan .kurlar.hava .kur-baslik{background:#0369a1}
+.sahne-yan .kur-akis{padding:8px 14px;gap:26px;animation-duration:22s}
+.sahne-yan .kurlar.hava .kur-akis{animation-duration:38s}
+.sahne-yan .kur{font-size:13.5px;color:var(--sahne-yazi)}
+.sahne-yan .kur small{color:var(--sahne-soluk)}
+.sahne-yan .akis{flex:none;padding:14px 16px;gap:8px}
+.sahne-yan .sira li{padding:7px 0}
+@media (min-width:981px){
+  .sahne{align-items:stretch}
+  .sahne-yan{contain:size;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;padding-right:2px}
+  .sahne-yan .duyuru-kutu{flex:none}}
+.simdi b{overflow-wrap:anywhere}
 /* Arama */
 .ust-alt{max-width:1240px;padding:26px 20px 0}
 .kurlar{border-radius:999px;background:var(--kart);border:1px solid var(--cizgi);box-shadow:0 1px 0 rgba(0,0,0,.02)}
@@ -437,7 +442,7 @@ footer::before{content:"TVPLAS";display:block;font-family:var(--serif);font-weig
   <aside class="sahne-yan">
     <div class="akis">
       <div class="akis-baslik">📺 Yayın Akışı</div>
-      <div class="simdi" id="simdi"><small>ŞU AN YAYINDA</small><b>Müzik Videoları</b><span></span></div>
+      <div class="simdi" id="simdi"><small>ŞU AN YAYINDA</small><b>TVPLAS Canlı Yayın</b><span></span></div>
       <ul class="sira" id="sira"></ul>
     </div>
     <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
@@ -716,11 +721,23 @@ document.getElementById("tamEkran").onclick = () => {
 canliAc();
 
 // Yayın akışı: vMix düzeni sabit (haber bülteni :00/:30, reklam ve tanıtım :15/:45, arada müzik videoları)
+let SIMDI = null;
+function simdiAl() {
+  fetch(CANLI_SUNUCU + "/haber/simdi.json?t=" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.json() : null)
+    .then(j => { SIMDI = j; akisCiz(); }).catch(() => {});
+}
+// Bilgi 7 dakikadan eskiyse (yayın bilgisayarı kapalı vb.) saate göre genel akış gösterilir
+const simdiTaze = () => SIMDI && SIMDI.tur && Date.now() / 1000 - SIMDI.guncel < 420;
+function simdiBilgi() {
+  const kalan = SIMDI.bitis ? Math.ceil((SIMDI.bitis * 1000 - Date.now()) / 60000) : 0;
+  const ek = kalan > 0 ? " · " + kalan + " dk kaldı" : "";
+  return SIMDI.baslik ? [SIMDI.baslik, SIMDI.tur + ek] : [SIMDI.tur, "TVPLAS canlı yayın" + ek];
+}
 function akisCiz() {
   const iki = n => String(n).padStart(2, "0"), simdi = new Date(), m = simdi.getMinutes() % 30;
-  const [ad, alt] = m < 5 ? ["Haber Bülteni", "Kıbrıs, Güney, Türkiye ve dünyadan 6 haber"]
+  const [ad, alt] = simdiTaze() ? simdiBilgi() : m < 5 ? ["Haber Bülteni", "Kıbrıs, Güney, Türkiye ve dünyadan 6 haber"]
     : m >= 15 && m < 17 ? ["Reklam ve Tanıtımlar", "Kısa bir aradan sonra müziğe dönüyoruz"]
-    : ["Müzik Videoları", "Kıbrıs Türk sanatçıların klipleri"];
+    : ["TVPLAS Canlı Yayın", "Belgesel, müzik ve daha fazlası"];
   const s = document.getElementById("simdi");
   s.querySelector("b").textContent = ad; s.querySelector("span").textContent = alt;
   const t = new Date(simdi); t.setSeconds(0, 0); t.setMinutes(Math.floor(t.getMinutes() / 15) * 15 + 15);
@@ -734,7 +751,7 @@ function akisCiz() {
   }
   document.getElementById("sira").replaceChildren(...satirlar);
 }
-akisCiz(); setInterval(akisCiz, 20000);
+akisCiz(); setInterval(akisCiz, 20000); simdiAl(); setInterval(simdiAl, 30000);
 const REKLAM_ARALIGI = 3;   // kaç haberde bir reklam afişi girsin
 
 function baglanti(a, url) {
@@ -1672,11 +1689,6 @@ function otomatikYenile() {
 }
 setInterval(otomatikYenile, 60000);
 document.addEventListener("visibilitychange", otomatikYenile);
-
-document.querySelectorAll(".sahne-yan .kur-akis").forEach(a => new MutationObserver(() => {
-  const c = [...a.children], y = c.length / 2;
-  if (c.length && c.length % 2 === 0 && c.slice(0, y).every((x, i) => x.textContent === c[y + i].textContent)) c.slice(y).forEach(x => x.remove());
-}).observe(a, { childList: true }));
 </script>
 </body>
 </html>
