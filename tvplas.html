@@ -507,7 +507,7 @@ h1.tv-marka{line-height:0}
   <div class="d-gorsel"></div>
   <a class="d-kunye" target="_blank" rel="noopener"></a>
   <div class="govde">
-    <div class="ust"><span class="etiket tv-rozet"><img src="tvplas_logo.png" alt="TVPLAS"></span><span>TVplas Portal</span></div>
+    <div class="ust"><span class="etiket tv-rozet"><img src="tvplas_logo.png" alt="TVPLAS"></span><span>Haber</span></div>
     <h2></h2>
     <p class="metin"></p>
     <a class="kaynakLink" target="_blank" rel="noopener">Habere git →</a>
@@ -558,7 +558,7 @@ function el(etiket, sinif, metin) {
   return e;
 }
 
-const PORTAL = "https://tvplas.github.io/haber/";
+const PORTAL = "https://tvplas.github.io/haber/tvplas.html";
 // Canlı yayın açılış sayfasının üstünde, sayfayla birlikte açılır
 const canliPencere = document.getElementById("canliBolum");
 const canliKutu = canliPencere.querySelector(".canli-oynatici");
@@ -930,7 +930,7 @@ function hedefAc(reklamlar) {
 function paylasAdres(h) {
   if (!h.kat) return h.l || PORTAL;
   // Facebook eski adresin (2-29-142-134) robots.txt reddini hatırladığından paylaşım noktalı adresten
-  return "https://2.29.142.134.sslip.io/p/" + kimlik(h) + (/muzik\.html/.test(location.pathname) ? "?m=1" : "");
+  return "https://2.29.142.134.sslip.io/p/" + kimlik(h) + "?t=1";
 }
 
 function ozetHaber(h) {
@@ -990,7 +990,7 @@ function kartYap(h) {
   ust.append(logoRozet());
   if (h.yz && h.kat === "Yazarlar") ust.append(el("span", "yazar", "✍ " + h.yz));   // yalnızca köşe yazılarında
   // 2026-11-15 kullanıcı: her haber (videolu ya da videosuz) "TVplas Haber" imzasıyla; kaynak adı yazılmaz. Köşe yazıları yazarınındır.
-  ust.append(el("span", "", h.kat !== "Yazarlar" ? "TVplas Haber" : h.tvplas || !h.k || /^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k), el("span", "", kac(h.t)));
+  ust.append(el("span", "", h.kat !== "Yazarlar" ? "Haber" : h.tvplas || !h.k || /^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k), el("span", "", kac(h.t)));
   const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
   tik.hidden = !n; ust.append(tik);
   if (h.ob && !h.tvy) {
@@ -1088,7 +1088,7 @@ function detayAc(h) {
   d.querySelector(".govde .ust .etiket").replaceWith(logoRozet());
   if (!h.g || h.v) kutu.classList.remove("yazar-foto");
   d.querySelector(".govde .ust span:last-child").textContent = h.yz && h.kat === "Yazarlar" ? "✍ " + h.yz + (!h.tvplas && h.k ? " · " + h.k : "")
-    : h.kat === "Yazarlar" && disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : "TVplas Haber";
+    : h.kat === "Yazarlar" && disKaynak ? (/^Kaynak/.test(h.k) ? h.k : "Kaynak: " + h.k) : "Haber";
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
@@ -1190,7 +1190,7 @@ function gazeteAc(g) {
   img.style.cssText = "width:auto;max-width:100%;margin:0 auto";
   d.querySelector(".d-gorsel").replaceChildren(img);
   d.querySelector("h2").textContent = g.ad + (g.basliklar[0] ? ": " + g.basliklar[0] : "");
-  d.querySelector(".govde .ust span:last-child").textContent = "TVplas Portal";   // önceki köşe yazısının yazar adı kalmasın
+  d.querySelector(".govde .ust span:last-child").textContent = "Haber";   // önceki köşe yazısının yazar adı kalmasın
   d.querySelector(".metin").textContent = g.basliklar.slice(1).map(b => "• " + b).join("\n");
   d.querySelector(".ceviri-dugmeler").replaceChildren();
   const kaynak = d.querySelector(".kaynakLink");
