@@ -115,7 +115,7 @@ a.dugme{text-decoration:none;display:inline-block}
 
   <div class="tiklanir">
     <b>🔗 Tıklanınca portala giden Facebook paylaşımı</b>
-    <p>Kapağı portalda yayınlar ve Facebook'ta bağlantı olarak paylaşmanızı sağlar: gönderideki kapağa tıklayan kişi doğrudan TVplas Portal'a gider. Facebook bağlantı görsellerini yatay gösterdiği için kapak yatay biçimde hazırlanır.</p>
+    <p>Kapağı portalda yayınlar ve Facebook'ta bağlantı olarak paylaşmanızı sağlar: gönderideki kapağa tıklayan kişi doğrudan TVPLAS'a gider. Facebook bağlantı görsellerini yatay gösterdiği için kapak yatay biçimde hazırlanır.</p>
     <button class="dugme ana" id="tiklanirBtn">🔗 Tıklanabilir paylaşım hazırla</button>
     <div class="durum" id="tiklanirDurum"></div>
     <div class="eylem" id="tiklanirEylem" hidden>
@@ -159,12 +159,12 @@ a.dugme{text-decoration:none;display:inline-block}
       <li>İsterseniz kapak başlığını ve alt yazıyı (adres, telefon, kampanya) değiştirin; paylaşım metni bunlardan ve reklamın bağlantısından oluşur.</li>
       <li>Kapağı indirin ya da <b>Tıklanabilir paylaşım hazırla</b> ile Facebook'ta paylaşın.</li>
     </ol>
-    <a href="./">← TVplas Portal'a dön</a>
+    <a href="tvplas.html">← TVPLAS'a dön</a>
   </div>
 </main>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
-const PORTAL = "https://tvplas.github.io/haber/";
+const PORTAL = "https://tvplas.github.io/haber/tvplas.html";
 const BOLUMLER = ["Türkiye", "Dünya", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Güney", "Yazarlar"];
 // Her gün farklı renk teması: [canlı ton, koyu ton]
 // 2026-11-15 kullanıcı: kapaklarda da TVplas kırmızısı TOP10 rozetindeki gibi #bd1521 olsun
@@ -247,7 +247,7 @@ function rozet(metin, x, y, px, arka, sagdan = false) {
   ctx.textBaseline = "top";
   return h;
 }
-// 2026-11-19 kullanıcı: kapaklarda eski "TVplas Portal" yazısı yerine gönderdiği TVPLAS logosu (tvplas_logo.png),
+// 2026-11-19 kullanıcı: kapaklarda eski "TVPLAS" yazısı yerine gönderdiği TVPLAS logosu (tvplas_logo.png),
 // arkası saydam; açık fotoğrafta da okunsun diye yalnızca hafif gölge
 const LOGO_RESIM = new Image();
 LOGO_RESIM.src = "tvplas_logo.png";
@@ -263,7 +263,7 @@ function logo(x, y, px = 46) {
 function altBant(W, H, yuk, sagMetin) {
   ctx.fillStyle = renk()[0]; ctx.fillRect(0, H - yuk, W, yuk);
   yazi(Math.round(yuk * 0.36), 700); ctx.fillStyle = "#fff"; ctx.textBaseline = "middle";
-  ctx.fillText("🌐 tvplas.github.io/haber", 40, H - yuk / 2);
+  ctx.fillText("🌐 tvplas.github.io/haber/tvplas.html", 40, H - yuk / 2);
   ctx.textAlign = "right"; ctx.fillText(sagMetin, W - 40, H - yuk / 2);
   ctx.textAlign = "left"; ctx.textBaseline = "top";
 }
@@ -365,7 +365,7 @@ const TASARIMLAR = [
     ctx.fillStyle = "rgba(255,255,255,.65)"; ctx.fillRect(px + 44, py + 182, 96, 6);
     sigdir(haber().b, px + 44, py + 212, pw - 88, kare ? 46 : 40, 26, kare ? 4 : 6, "#fff");
     yazi(24, 700); ctx.fillStyle = "#fff"; ctx.textBaseline = "bottom";
-    ctx.fillText("🌐 tvplas.github.io/haber", px + 44, py + ph - 28); ctx.textBaseline = "top";
+    ctx.fillText("🌐 tvplas.github.io/haber/tvplas.html", px + 44, py + ph - 28); ctx.textBaseline = "top";
   } },
   // Kullanıcının kendi fotoğraf/videoları ve kendi başlığı (günlük döngüye girmez; dosya seçilince ya da başlık yazılınca açılır)
   { ad: "⭐ Benim Seçimim", kendi: true, ciz(W, H, resimler) {
@@ -598,26 +598,26 @@ function metniYaz() {
   if (TASARIMLAR[tasarimSira].kendi) {
     const e = kendi.etiket.trim(), b = kendi.baslik.trim(), g = kendi.giris.trim();
     document.getElementById("metin").value = (e ? "⭐ " + e.toLocaleUpperCase("tr") + "\n\n" : "") + (b ? b + "\n\n" : "") +
-      (g ? g + "\n\n" : "") + "👉 Daha fazlası TVplas Portal'da: " + PORTAL + etiketler;
+      (g ? g + "\n\n" : "") + "👉 Daha fazlası TVPLAS'ta: " + PORTAL + etiketler;
     return;
   }
   // Reklam kapağında paylaşım metni reklamın başlığı, alt yazısı ve adresinden kurulur
   if (TASARIMLAR[tasarimSira].reklam) {
     const r = secilenReklam() || {}, b = reklamBasligi(), g = document.getElementById("rGiris").value.trim();
     document.getElementById("metin").value = "📣 " + (b || "Tanıtım") + "\n\n" + (g ? g + "\n\n" : "") +
-      (r.l ? "👉 " + r.l + "\n" : "") + (r.v ? "🎬 Tanıtım videosunu TVplas Portal'da izleyin: " : "📍 TVplas Portal'da: ") + PORTAL + etiketler;
+      (r.l ? "👉 " + r.l + "\n" : "") + (r.v ? "🎬 Tanıtım videosunu TVPLAS'ta izleyin: " : "📍 TVPLAS'ta: ") + PORTAL + etiketler;
     return;
   }
   if (!haberler.length) return;
   const b = haber().b, n = gazeteler.length, ozp = ozetParagrafi(haber()), oz = ozp ? "\n\n" + ozp : "";
   const kaliplar = [
-    `📰 ${tarihUzun} | Kıbrıs'ın gündemi TVplas Portal'da!\n\nGünün öne çıkan haberi: ${b}${oz}\n\n✅ ${n} gazetenin birinci sayfası\n✅ Kıbrıs, Güney, Türkiye ve dünyadan haberler\n✅ Her 30 dakikada güncel\n\n👉 ${PORTAL}`,
+    `📰 ${tarihUzun} | Kıbrıs'ın gündemi TVPLAS'ta!\n\nGünün öne çıkan haberi: ${b}${oz}\n\n✅ ${n} gazetenin birinci sayfası\n✅ Kıbrıs, Güney, Türkiye ve dünyadan haberler\n✅ Her 30 dakikada güncel\n\n👉 ${PORTAL}`,
     `☕ Günaydın Kıbrıs! Bugün ${tarihUzun}.\n\nSabah kahvenizin yanına günün gazeteleri ve son dakika haberleri hazır. ${n} gazetenin manşeti tek sayfada!\n\n👉 ${PORTAL}`,
-    `🔴 GÜNDEM | ${tarihUzun}\n\n${b}${oz}\n\nAyrıntılar ve günün tüm gelişmeleri TVplas Portal'da 👇\n${PORTAL}`,
+    `🔴 GÜNDEM | ${tarihUzun}\n\n${b}${oz}\n\nAyrıntılar ve günün tüm gelişmeleri TVPLAS'ta 👇\n${PORTAL}`,
     `🗞️ Bugün gazeteler ne yazdı?\n\n${n} Kıbrıs gazetesinin birinci sayfası, Rum basınından Türkçe haberler ve dünyadan son gelişmeler tek adreste.\n\n👉 ${PORTAL}`,
     `📲 Kıbrıs'ın haberi cebinizde!\n\n${tarihUzun} · Öne çıkan: ${b}${oz}\n\nUygulama indirmeden, tek dokunuşla 👉 ${PORTAL}`,
     `🌍 Kıbrıs'tan ve dünyadan bugün neler oldu?\n\n${b}${oz}\n\nTüm haberler Türkçe, her 30 dakikada güncel. Takipte kalın!\n👉 ${PORTAL}`,
-    `✨ ${tarihUzun} — günün özeti hazır!\n\nGazete manşetleri, son dakika, spor, ekonomi, magazin… Hepsi TVplas Portal'da.\n\n👉 ${PORTAL}`
+    `✨ ${tarihUzun} — günün özeti hazır!\n\nGazete manşetleri, son dakika, spor, ekonomi, magazin… Hepsi TVPLAS'ta.\n\n👉 ${PORTAL}`
   ];
   document.getElementById("metin").value = kaliplar[metinSira % kaliplar.length] + etiketler;
 }
@@ -682,7 +682,7 @@ document.getElementById("tiklanirBtn").onclick = async () => {
     d.textContent = "Kapak portala yükleniyor…";
     const cevap = await fetch(API, { method: "POST", body: JSON.stringify({
       islem: "kapakYayinla", sifre, veri: tuval.toDataURL("image/jpeg", 0.9),
-      baslik: "TVplas Portal – " + tarihUzun,
+      baslik: "TVPLAS – " + tarihUzun,
       aciklama: TASARIMLAR[tasarimSira].kendi ? kendi.baslik : TASARIMLAR[tasarimSira].reklam ? reklamBasligi() : haber().b
     }) }).then(r => r.json());
     if (!cevap.tamam) throw new Error(cevap.hata || "Kapak yüklenemedi");
