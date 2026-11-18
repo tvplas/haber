@@ -1099,7 +1099,7 @@ function basinSahnede() {
   };
   kapat.onclick = kapa;
   v.onended = kapa;
-  kat.append(v, el("span", "basin-etiket", "🎙 Basında Bugün"), kapat);
+  kat.append(v, el("span", "basin-etiket", "🎙 Basında Bugün · her gün " + BASIN_SAAT + "'de yenilenir"), kapat);
   cerceve.append(kat);
   v.play().catch(() => {});
   if (cerceve.getBoundingClientRect().top < 0) cerceve.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1117,6 +1117,12 @@ function basinVideoYap() {
   fb.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://2.29.142.134.sslip.io/p/basin-" + yil + "-" + ay + "-" + gun);
   fb.target = "_blank"; fb.rel = "noopener"; fb.style.cssText = "color:#ff5c6a;margin-left:8px;white-space:nowrap";
   alt.append(fb);
+  const bugun = new Date().toLocaleDateString("en-GB", { timeZone: "Asia/Famagusta" }).replace(/\//g, "-");
+  const saatNot = el("small", "", basinVideo === bugun
+    ? "🕛 Her gün saat " + BASIN_SAAT + "'de yenilenir · sonraki: yarın " + BASIN_SAAT
+    : "🕛 Bugünün Basında Bugün'ü saat " + BASIN_SAAT + "'de yayında · her gün " + BASIN_SAAT + "'de yenilenir");
+  saatNot.style.cssText = "display:block;margin-top:6px;color:#ffd166;font-weight:600";
+  alt.append(saatNot);
   kutu.append(v, alt);
   return kutu;
 }
@@ -1141,7 +1147,8 @@ function basinAc() {
   d.querySelector("h2").textContent = "🎙 Basında Bugün · " + new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
   d.querySelector(".govde .ust .etiket").textContent = "TVplas";
   d.querySelector(".govde .ust span:last-child").textContent = "TVplas Haber";
-  d.querySelector(".metin").textContent = "Kıbrıs gazetelerinin bugünkü manşetleri:\n\n" + j.gazeteler.map(g => "• " + g.ad + ": " + g.manset + (g.aciklama ? "\n   " + g.aciklama : "")).join("\n\n");
+  d.querySelector(".metin").textContent = "🕛 Basında Bugün her gün saat " + BASIN_SAAT + "'de yenilenir.\n\n" +
+    (j.gazeteler.length ? "Kıbrıs gazetelerinin manşetleri:\n\n" : "") + j.gazeteler.map(g => "• " + g.ad + ": " + g.manset + (g.aciklama ? "\n   " + g.aciklama : "")).join("\n\n");
   d.querySelector(".kaynakLink").hidden = true;
   d.querySelector(".ceviri-dugmeler").replaceChildren();
   d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://2.29.142.134.sslip.io/p/basin-" + yil + "-" + ay + "-" + gun);
@@ -1149,15 +1156,15 @@ function basinAc() {
   d.scrollTop = 0;
   v.play().catch(() => {});   // tarayıcı sesli başlatmaya izin vermezse oynat düğmesiyle başlar
 }
+// 2026-11-18 kullanıcı: "basında bugün yenilene kadar eskisi yerinde kalsın ve saat kaçta yenileceğini belirtiniz".
+// Yayındaki baskı basin_yayin.json'da (basin.json sabah yeni günün okumasıyla değişir); yenisi her gün 12:00'de gelir.
+const BASIN_SAAT = "12:00";
 function basinBul() {
-  fetch(CANLI_SUNUCU + "/haber/basin.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => {
-    const bugun = new Date().toLocaleDateString("en-GB", { timeZone: "Asia/Famagusta" }).replace(/\//g, "-");
+  const al = ad => fetch(CANLI_SUNUCU + "/haber/" + ad, { cache: "no-store" }).then(r => r.ok ? r.json() : {});
+  al("basin_yayin.json").then(j => j.video ? j : al("basin.json")).then(j => {
     if (!j.video || !j.gazeteler) return;
     // Facebook'tan gelen eski günün bağlantısında da o an sunucudaki en son video açılır
     if (basinIste) { basinJson = j; basinAc(); }
-    // 2026-11-17 kullanıcı kartı göremedi (gece yarısından sonra): bugünün videosu hazırlanana kadar dünkü video durur
-    const [g1, a1, y1] = j.tarih.split("-"), [g2, a2, y2] = bugun.split("-");
-    if ((new Date(y2, a2 - 1, g2) - new Date(y1, a1 - 1, g1)) / 864e5 > 1) return;
     basinJson = j; basinVideo = j.tarih;
     // 2026-11-17 kullanıcı: video canlı yayının yanında, Yayın Akışı'nın altındaki boş alanda
     const yan = document.querySelector(".sahne-yan");
