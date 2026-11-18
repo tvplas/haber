@@ -360,6 +360,10 @@ h1.tv-marka,.tv-logo{justify-content:center;margin:0;font-family:Audiowide,"Russ
 .sahne-yan .kurlar.hava .kur-akis{animation-duration:38s}
 .sahne-yan .kur{font-size:13.5px;color:var(--sahne-yazi)}
 .sahne-yan .kur small{color:var(--sahne-soluk)}
+.sahne-yan .arac{margin:0;flex:none}
+.sahne-yan #ara{border-radius:999px;padding:10px 18px;font-size:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--sahne-yazi)}
+.sahne-yan #ara::placeholder{color:var(--sahne-soluk)}
+.ust-alt{padding-top:6px}
 .sahne-yan .akis{flex:none;padding:14px 16px;gap:8px}
 .sahne-yan .sira li{padding:7px 0}
 @media (min-width:981px){
@@ -416,7 +420,10 @@ dialog#detay{border-radius:24px;border:0;box-shadow:0 40px 120px rgba(0,0,0,.45)
 dialog#detay::backdrop{background:rgba(6,8,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 /* Alt bilgi */
 footer{max-width:none;margin-top:10px;padding:40px 20px 50px;background:var(--sahne);color:var(--sahne-soluk);font-size:12.5px;letter-spacing:.04em;line-height:1.7}
-footer .tv-alt{display:block;font-size:34px;margin-bottom:14px}
+footer .tv-alt{display:block;width:200px;height:auto;margin:0 auto 14px}
+/* logo: kullanıcının gönderdiği görsel (saydam PNG), birebir */
+h1.tv-marka{line-height:0}
+.tv-logo-img{display:block;width:clamp(240px,34vw,420px);height:auto;margin:0 auto}
 @media (max-width:640px){main{gap:26px}.kart h2{font-size:19px}.bolum-baslik{font-size:24px}}
 </style>
 </head>
@@ -425,7 +432,7 @@ footer .tv-alt{display:block;font-size:34px;margin-bottom:14px}
 <header>
   <div class="ust-satir">
     <div>
-      <h1 class="tv-marka" aria-label="TVPLAS"><span class="tv-r">TV</span><span class="tv-b">PLAS</span></h1>
+      <h1 class="tv-marka"><img class="tv-logo-img" src="tvplas_logo.png" alt="TVPLAS" width="759" height="156"></h1>
       <div class="bilgi">Canlı yayın · Kıbrıs, Türkiye ve dünyadan güncel haberler · <span id="zaman">yükleniyor…</span></div>
     </div>
     <div class="iletisim">
@@ -460,6 +467,9 @@ footer .tv-alt{display:block;font-size:34px;margin-bottom:14px}
       <span class="kur-baslik">🌤 HAVA</span>
       <div class="kur-pencere"><div class="kur-akis" id="havaAkis"></div></div>
     </div>
+    <div class="arac">
+      <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
+    </div>
     <!-- 2026-11-15 kullanıcı: Haber ve Duyuru Gönder ile Yazar Girişi bu kartta (Yayın İzin Formu aynı gün kullanıcı isteğiyle kaldırıldı) -->
     <!-- 2026-11-17 kullanıcı: İLETİŞİM menüsü kendi içinde 4 bölüm: İhbar Hattı, Haber Gönder, Duyuru Gönder, Yazar Girişi -->
     <div class="duyuru-kutu iletisim-kartlar" aria-label="İletişim">
@@ -472,9 +482,6 @@ footer .tv-alt{display:block;font-size:34px;margin-bottom:14px}
 </section>
 </div>
 <div class="ust-alt">
-  <div class="arac">
-    <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
-  </div>
   <nav class="menu" aria-label="Bölümler">
     <button data-k="Gazeteler">📰 GAZETELER</button>
     <button data-k="Kıbrıs" class="aktif">KIBRIS</button>
@@ -504,7 +511,7 @@ footer .tv-alt{display:block;font-size:34px;margin-bottom:14px}
     <a class="paylas" target="_blank" rel="noopener">Facebook'ta paylaş</a>
   </div>
 </dialog>
-<footer><div class="tv-logo tv-alt" aria-hidden="true"><span class="tv-r">TV</span><span class="tv-b">PLAS</span></div>Haberler TVplas Haber tarafından derlenip yazılmaktadır. Fotoğraflar künyelerinde belirtilen sahiplerine aittir; köşe yazıları yazarlarınındır.</footer>
+<footer><img class="tv-alt" src="tvplas_logo.png" alt="" width="759" height="156">Haberler TVplas Haber tarafından derlenip yazılmaktadır. Fotoğraflar künyelerinde belirtilen sahiplerine aittir; köşe yazıları yazarlarınındır.</footer>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
