@@ -348,7 +348,19 @@ h1.tv-marka{justify-content:center;margin:0;font-family:var(--serif);font-weight
 .simdi b{font-family:var(--serif);font-weight:600;font-size:21px}
 .il-kart{border-radius:16px;border-top-width:3px}
 .il-kart b{font-family:var(--sans);letter-spacing:.08em;font-size:15px}
-/* Döviz / hava / arama */
+/* Döviz ve hava: yayın akışının altında iki sade kart */
+.sahne-yan .kurlar{margin:0;flex-direction:column;align-items:stretch;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--sahne-yazi);box-shadow:none}
+.sahne-yan .kurlar[hidden]{display:none}
+.sahne-yan .kur-baslik,.sahne-yan .kurlar.hava .kur-baslik{background:none;border:0;border-bottom:1px solid rgba(255,255,255,.08);color:var(--sahne-soluk);font-size:11px;letter-spacing:.22em;padding:14px 18px 10px}
+.sahne-yan .kur-pencere{white-space:normal}
+.sahne-yan .kur-akis{animation:none;display:flex;flex-direction:column;gap:0;padding:4px 18px 10px;transform:none}
+.sahne-yan .kur{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;font-weight:500;color:var(--sahne-yazi)}
+.sahne-yan .kur:last-child{border-bottom:0}
+.sahne-yan .kur b{font-family:var(--serif);font-weight:600;font-size:17px;margin-left:auto}
+.sahne-yan .kur small{color:var(--sahne-soluk);font-size:12px}
+.sahne-yan .kurlar.hava .kur small{flex-basis:100%;margin-top:-4px}
+.sahne-yan .kurlar.hava .kur{flex-wrap:wrap}
+/* Arama */
 .ust-alt{max-width:1240px;padding:26px 20px 0}
 .kurlar{border-radius:999px;background:var(--kart);border:1px solid var(--cizgi);box-shadow:0 1px 0 rgba(0,0,0,.02)}
 .kur-baslik,.kurlar.hava .kur-baslik{letter-spacing:.18em;font-size:11px;color:var(--vurgu);border-right:1px solid var(--cizgi);padding:10px 18px}
@@ -428,6 +440,16 @@ footer::before{content:"TVPLAS";display:block;font-family:var(--serif);font-weig
       <div class="simdi" id="simdi"><small>ŞU AN YAYINDA</small><b>Müzik Videoları</b><span></span></div>
       <ul class="sira" id="sira"></ul>
     </div>
+    <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
+    <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
+      <span class="kur-baslik">💱 DÖVİZ</span>
+      <div class="kur-pencere"><div class="kur-akis" id="kurAkis"></div></div>
+    </div>
+    <!-- Kıbrıs'ta hava durumu (MET Norway, Norveç Meteoroloji Enstitüsü): sunucu yarım saatte bir alır -->
+    <div class="kurlar hava" id="hava" hidden aria-label="Kıbrıs'ta hava durumu">
+      <span class="kur-baslik">🌤 HAVA</span>
+      <div class="kur-pencere"><div class="kur-akis" id="havaAkis"></div></div>
+    </div>
     <!-- 2026-11-15 kullanıcı: Haber ve Duyuru Gönder ile Yazar Girişi bu kartta (Yayın İzin Formu aynı gün kullanıcı isteğiyle kaldırıldı) -->
     <!-- 2026-11-17 kullanıcı: İLETİŞİM menüsü kendi içinde 4 bölüm: İhbar Hattı, Haber Gönder, Duyuru Gönder, Yazar Girişi -->
     <div class="duyuru-kutu iletisim-kartlar" aria-label="İletişim">
@@ -440,16 +462,6 @@ footer::before{content:"TVPLAS";display:block;font-family:var(--serif);font-weig
 </section>
 </div>
 <div class="ust-alt">
-  <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
-  <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
-    <span class="kur-baslik">💱 DÖVİZ</span>
-    <div class="kur-pencere"><div class="kur-akis" id="kurAkis"></div></div>
-  </div>
-  <!-- Kıbrıs'ta hava durumu (MET Norway, Norveç Meteoroloji Enstitüsü): sunucu yarım saatte bir alır -->
-  <div class="kurlar hava" id="hava" hidden aria-label="Kıbrıs'ta hava durumu">
-    <span class="kur-baslik">🌤 HAVA</span>
-    <div class="kur-pencere"><div class="kur-akis" id="havaAkis"></div></div>
-  </div>
   <div class="arac">
     <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
   </div>
@@ -1251,7 +1263,7 @@ function basinBul() {
     yan.append(basinVideoYap());
   }).catch(() => {});
 }
-basinBul();
+// tvplas.html: Basında Bugün videosu yok (kullanıcı isteği)
 
 function gazeteleriYukle() {
   fetch(API + "?islem=gazeteler").then(r => r.json()).then(v => {
@@ -1660,6 +1672,11 @@ function otomatikYenile() {
 }
 setInterval(otomatikYenile, 60000);
 document.addEventListener("visibilitychange", otomatikYenile);
+
+document.querySelectorAll(".sahne-yan .kur-akis").forEach(a => new MutationObserver(() => {
+  const c = [...a.children], y = c.length / 2;
+  if (c.length && c.length % 2 === 0 && c.slice(0, y).every((x, i) => x.textContent === c[y + i].textContent)) c.slice(y).forEach(x => x.remove());
+}).observe(a, { childList: true }));
 </script>
 </body>
 </html>
