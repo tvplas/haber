@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700;800&family=Audiowide&family=Russo+One&display=swap" rel="stylesheet">
 <meta property="og:image" content="https://tvplas.github.io/haber/kapak.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -330,11 +330,13 @@ body{font-family:var(--sans);font-size:15.5px;letter-spacing:-.005em;background:
 .vitrin .ust-satir{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
 .vitrin .ust-satir>div:first-child{grid-column:2;text-align:center}
 .vitrin .iletisim{grid-column:3;justify-self:end;align-items:flex-end}
-h1.tv-marka{justify-content:center;margin:0;font-family:var(--serif);font-weight:700;font-size:clamp(40px,6vw,68px);letter-spacing:.14em;line-height:1;color:#fff;
-  font-variation-settings:"opsz" 144;padding-left:.14em}
-.tv-nokta{width:.2em;height:.2em;border-radius:50%;background:var(--dolu);box-shadow:0 0 0 .07em rgba(200,16,46,.25),0 0 22px rgba(200,16,46,.7);margin-right:.32em;align-self:center;animation:tvNabiz 2.4s ease-in-out infinite}
-@keyframes tvNabiz{50%{box-shadow:0 0 0 .14em rgba(200,16,46,.12),0 0 30px rgba(200,16,46,.9)}}
-@media (prefers-reduced-motion:reduce){.tv-nokta{animation:none}}
+/* 2026-11-18 kullanıcı: TVPLAS logosu gönderdiği görseldeki gibi: kalın kırmızı "TV", fütüristik beyaz "PLAS",
+   sağ-alta düşen gri gölge */
+h1.tv-marka,.tv-logo{justify-content:center;margin:0;font-family:Audiowide,"Russo One",var(--sans);font-weight:400;font-size:clamp(44px,6.4vw,76px);
+  letter-spacing:.02em;line-height:1;color:#fff;text-transform:uppercase}
+.tv-r,.tv-b{text-shadow:.07em .07em .03em rgba(110,110,115,.75),.09em .09em .12em rgba(0,0,0,.45)}
+.tv-r{color:#e8002d;-webkit-text-stroke:.035em #e8002d;font-family:"Russo One",Audiowide,var(--sans);letter-spacing:-.01em;margin-right:.04em}
+.tv-b{color:#fff}
 .vitrin .bilgi{margin-top:12px;font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--sahne-soluk)}
 .vitrin .sayac{font-size:12px;letter-spacing:.04em}
 @media (max-width:760px){.vitrin .ust-satir{grid-template-columns:1fr}.vitrin .ust-satir>div:first-child,.vitrin .iletisim{grid-column:1;justify-self:center;align-items:center}
@@ -379,7 +381,10 @@ h1.tv-marka{justify-content:center;margin:0;font-family:var(--serif);font-weight
 .menu button:hover{color:var(--yazi)}
 .menu button.aktif{color:var(--yazi)!important}
 .menu button.aktif::after,.menu button:hover::after{transform:scaleX(1)}
-@media (max-width:700px){.menu{justify-content:flex-start}}
+/* tek satır: sığmazsa yana kayar, alt satıra geçmez */
+.menu,.menu:is(*){flex-wrap:nowrap!important;overflow-x:auto!important;justify-content:safe center;scrollbar-width:none}
+.menu button{white-space:nowrap;padding:13px 12px}
+@media (min-width:1100px){.menu button{padding:13px 16px}}
 /* Haberler: dergi düzeni */
 main{max-width:1240px;padding:22px 20px 60px;gap:30px 26px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
 .bolum-baslik{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-.01em;text-transform:none;color:var(--yazi);padding-bottom:10px;border-bottom:1px solid var(--cizgi);margin:6px 0 0}
@@ -411,7 +416,7 @@ dialog#detay{border-radius:24px;border:0;box-shadow:0 40px 120px rgba(0,0,0,.45)
 dialog#detay::backdrop{background:rgba(6,8,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 /* Alt bilgi */
 footer{max-width:none;margin-top:10px;padding:40px 20px 50px;background:var(--sahne);color:var(--sahne-soluk);font-size:12.5px;letter-spacing:.04em;line-height:1.7}
-footer::before{content:"TVPLAS";display:block;font-family:var(--serif);font-weight:700;font-size:28px;letter-spacing:.14em;color:#fff;margin-bottom:10px}
+footer .tv-alt{display:block;font-size:34px;margin-bottom:14px}
 @media (max-width:640px){main{gap:26px}.kart h2{font-size:19px}.bolum-baslik{font-size:24px}}
 </style>
 </head>
@@ -420,7 +425,7 @@ footer::before{content:"TVPLAS";display:block;font-family:var(--serif);font-weig
 <header>
   <div class="ust-satir">
     <div>
-      <h1 class="tv-marka"><span class="tv-nokta" aria-hidden="true"></span>TVPLAS</h1>
+      <h1 class="tv-marka" aria-label="TVPLAS"><span class="tv-r">TV</span><span class="tv-b">PLAS</span></h1>
       <div class="bilgi">Canlı yayın · Kıbrıs, Türkiye ve dünyadan güncel haberler · <span id="zaman">yükleniyor…</span></div>
     </div>
     <div class="iletisim">
@@ -477,8 +482,6 @@ footer::before{content:"TVPLAS";display:block;font-family:var(--serif);font-weig
     <button data-k="Türkiye">TÜRKİYE</button>
     <button data-k="Dünya">DÜNYA</button>
     <button data-k="Müzik">MÜZİK</button>
-  </nav>
-  <nav class="menu ikinci" aria-label="Diğer bölümler">
     <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
     <button data-k="Yazarlar">✍️ YAZARLAR</button>
     <!-- 2026-11-17 kullanıcı: "Reklamsız haberler" kutusu ve Basında Bugün videosu İLETİŞİM menüsünde -->
@@ -501,7 +504,7 @@ footer::before{content:"TVPLAS";display:block;font-family:var(--serif);font-weig
     <a class="paylas" target="_blank" rel="noopener">Facebook'ta paylaş</a>
   </div>
 </dialog>
-<footer>Haberler TVplas Haber tarafından derlenip yazılmaktadır. Fotoğraflar künyelerinde belirtilen sahiplerine aittir; köşe yazıları yazarlarınındır.</footer>
+<footer><div class="tv-logo tv-alt" aria-hidden="true"><span class="tv-r">TV</span><span class="tv-b">PLAS</span></div>Haberler TVplas Haber tarafından derlenip yazılmaktadır. Fotoğraflar künyelerinde belirtilen sahiplerine aittir; köşe yazıları yazarlarınındır.</footer>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
