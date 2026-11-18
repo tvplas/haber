@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Yazar Paneli – TVplas Portal</title>
+<title>Yazar Paneli – TVPLAS</title>
 <meta name="robots" content="noindex">
 <style>
 /* 2026-11-11: Köşe yazarları kendi kodlarıyla yazı gönderir; yazı TVplas onayından sonra portalın Yazarlar bölümünde çıkar.
@@ -50,7 +50,7 @@ button.ikinci{background:none;border:1px solid var(--cizgi);color:var(--yazi);bo
 </head>
 <body>
 <main>
-<a class="geri" href="./">← TVplas Portal'a dön</a>
+<a class="geri" href="tvplas.html">← TVPLAS'a dön</a>
 
 <!-- Yazar paneli -->
 <div id="panel">
@@ -201,7 +201,7 @@ $("yazi").onsubmit = async e => {
 async function onayAc(no, a) {
   $("panel").classList.add("gizli");
   $("onay").classList.remove("gizli");
-  document.title = "Köşe Yazısı Onayı – TVplas Portal";
+  document.title = "Köşe Yazısı Onayı – TVPLAS";
   try {
     const c = await (await fetch(API + "?islem=yaziBilgi&no=" + encodeURIComponent(no) + "&a=" + encodeURIComponent(a))).json();
     if (!c.tamam) throw new Error(c.hata || "Yazı bulunamadı");
