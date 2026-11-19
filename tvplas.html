@@ -362,25 +362,50 @@ h1.tv-marka,.tv-logo{justify-content:center;margin:0;font-family:Audiowide,"Russ
 .sahne-yan .kurlar.eczane .kur-akis{animation-duration:var(--eczane-sure,120s)}
 .kurlar.eczane .kur a{color:inherit;text-decoration:none}
 .kurlar.eczane .kur i{font-style:normal;color:#4ade80;font-weight:700}
-.kurlar.eczane{cursor:pointer}
-.kurlar.eczane .kur-baslik::after{content:" ▸";opacity:.8}
+/* 2026-11-19 üç bant da tıklanınca kart açar (döviz kırmızı, hava mavi, eczane yeşil) */
+.sahne-yan .kurlar{cursor:pointer}
+.sahne-yan .kurlar .kur-baslik::after{content:" ▸";opacity:.8}
+.sahne-yan .kurlar:hover{border-color:rgba(255,255,255,.22)}
 .kurlar.eczane:hover .kur-baslik{background:#16a34a}
-dialog#eczaneKart{max-width:620px;width:calc(100% - 28px);max-height:calc(100% - 48px);padding:0;border:0;border-radius:22px;background:#12131a;color:#f1f1f4;box-shadow:0 40px 120px rgba(0,0,0,.5);overflow:hidden;display:none;flex-direction:column}
-dialog#eczaneKart[open]{display:flex}
-dialog#eczaneKart::backdrop{background:rgba(6,8,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-#eczaneKart .ek-ust{display:flex;align-items:center;gap:10px;padding:16px 18px;background:linear-gradient(100deg,#15803d,#166534)}
-#eczaneKart .ek-ust b{font-size:19px}
-#eczaneKart .ek-ust span{flex:1;font-size:13px;opacity:.9}
-#eczaneKart .ek-kapat{border:0;background:rgba(255,255,255,.18);color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer}
-#eczaneKart .ek-govde{overflow-y:auto;padding:6px 18px 10px}
-#eczaneKart h3{margin:16px 0 8px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#4ade80}
-#eczaneKart .ek-ecz{padding:12px 14px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
-#eczaneKart .ek-ecz b{display:block;font-size:16px;margin-bottom:4px}
-#eczaneKart .ek-ecz small{display:block;color:#a8a8b3;font-size:13px;line-height:1.4}
-#eczaneKart .ek-dugmeler{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-#eczaneKart .ek-dugmeler a{font-size:13.5px;font-weight:600;padding:6px 12px;border-radius:999px;text-decoration:none;color:#fff;background:#15803d}
-#eczaneKart .ek-dugmeler a.harita{background:rgba(255,255,255,.1)}
-#eczaneKart .ek-alt{padding:10px 18px 14px;font-size:12px;color:#8b8b96;border-top:1px solid rgba(255,255,255,.08)}
+dialog#bilgiKart{--r1:#15803d;--r2:#166534;--vurgu-k:#4ade80;max-width:620px;width:calc(100% - 28px);max-height:calc(100% - 48px);padding:0;border:0;border-radius:22px;background:#12131a;color:#f1f1f4;box-shadow:0 40px 120px rgba(0,0,0,.5);overflow:hidden;display:none;flex-direction:column}
+dialog#bilgiKart.k-doviz{--r1:#c8102e;--r2:#7f0a1d;--vurgu-k:#fb7185}
+dialog#bilgiKart.k-hava{--r1:#0369a1;--r2:#0c4a6e;--vurgu-k:#38bdf8}
+dialog#bilgiKart[open]{display:flex}
+dialog#bilgiKart::backdrop{background:rgba(6,8,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#bilgiKart .ek-ust{display:flex;align-items:center;gap:10px;padding:16px 18px;background:linear-gradient(100deg,var(--r1),var(--r2))}
+#bilgiKart .ek-ust b{font-size:19px}
+#bilgiKart .ek-ust span{flex:1;font-size:13px;opacity:.9}
+#bilgiKart .ek-kapat{border:0;background:rgba(255,255,255,.18);color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer}
+#bilgiKart .ek-govde{overflow-y:auto;padding:6px 18px 12px}
+#bilgiKart h3{margin:16px 0 8px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--vurgu-k)}
+#bilgiKart .ek-ecz{padding:12px 14px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+#bilgiKart .ek-ecz b{display:block;font-size:16px;margin-bottom:4px}
+#bilgiKart .ek-ecz small{display:block;color:#a8a8b3;font-size:13px;line-height:1.4}
+#bilgiKart .ek-dugmeler{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+#bilgiKart .ek-dugmeler a{font-size:13.5px;font-weight:600;padding:6px 12px;border-radius:999px;text-decoration:none;color:#fff;background:var(--r1)}
+#bilgiKart .ek-dugmeler a.harita{background:rgba(255,255,255,.1)}
+#bilgiKart .ek-alt{padding:10px 18px 14px;font-size:12px;color:#8b8b96;border-top:1px solid rgba(255,255,255,.08)}
+/* döviz kartı */
+#bilgiKart .dv-kutular{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+#bilgiKart .dv-kutu{padding:14px 12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);text-align:center}
+#bilgiKart .dv-kutu span{display:block;font-size:26px}
+#bilgiKart .dv-kutu small{display:block;color:#a8a8b3;font-size:12.5px;margin-top:2px}
+#bilgiKart .dv-kutu b{display:block;font-size:20px;margin-top:6px}
+#bilgiKart .dv-hesap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+#bilgiKart .dv-hesap input,#bilgiKart .dv-hesap select{font:inherit;font-size:16px;padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:#1c1d26;color:#fff}
+#bilgiKart .dv-hesap input{width:120px}
+#bilgiKart .dv-sonuc{flex-basis:100%;font-size:20px;font-weight:700;color:var(--vurgu-k)}
+#bilgiKart .dv-capraz{display:flex;flex-wrap:wrap;gap:8px}
+#bilgiKart .dv-capraz span{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.06);font-size:13.5px}
+@media (max-width:480px){#bilgiKart .dv-kutular{grid-template-columns:1fr}}
+/* hava kartı */
+#bilgiKart .hv-sehir{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 14px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+#bilgiKart .hv-sehir b{font-size:16px}
+#bilgiKart .hv-simdi{font-size:22px;font-weight:700;text-align:right}
+#bilgiKart .hv-simdi small{display:block;font-size:12px;font-weight:400;color:#a8a8b3}
+#bilgiKart .hv-gunler{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+#bilgiKart .hv-gun{flex:1 1 70px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.05);font-size:12.5px;text-align:center;color:#d4d4dc}
+#bilgiKart .hv-gun b{display:block;font-size:12px;color:#a8a8b3;font-weight:600}
 .sahne-yan .kur{font-size:13.5px;color:var(--sahne-yazi)}
 .sahne-yan .kur small{color:var(--sahne-soluk)}
 .sahne-yan .arac{margin:0;flex:none}
@@ -540,10 +565,11 @@ h1.tv-marka{line-height:0}
 <div id="reklamUst"></div>
 <main id="liste"><div class="durum">Haberler yükleniyor…</div></main>
 <!-- 2026-11-19 kullanıcı: nöbetçi eczane bandına tıklanınca açılan kart (bölge bölge eczane, telefon, adres, harita) -->
-<dialog id="eczaneKart" aria-label="Nöbetçi eczaneler">
-  <div class="ek-ust"><b>💊 Nöbetçi Eczaneler</b><span id="ekTarih"></span><button class="ek-kapat" aria-label="Kapat">✕</button></div>
+<!-- aynı kart döviz ve hava bantlarında da kullanılır (bilgiKartAc) -->
+<dialog id="bilgiKart" aria-label="Bilgi kartı">
+  <div class="ek-ust"><b id="ekBaslik"></b><span id="ekTarih"></span><button class="ek-kapat" aria-label="Kapat">✕</button></div>
   <div class="ek-govde" id="ekGovde"></div>
-  <div class="ek-alt">Kaynak: Kıbrıs Türk Eczacılar Birliği · Telefona dokunarak arayabilirsiniz.</div>
+  <div class="ek-alt" id="ekAlt"></div>
 </dialog>
 <dialog id="detay" aria-label="Haberin tamamı">
   <button class="kapat" aria-label="Kapat">✕</button>
@@ -1542,7 +1568,8 @@ function sayilacakMi() {
 // Kurlar bandı: Sterlin, Euro, Dolar (TCMB döviz satış). Kesintisiz akması için içerik iki kez yazılır
 function kurGoster(k) {
   if (!k || !k.USD || !k.EUR || !k.GBP) return;
-  const tl = n => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " TL";
+  kurVeri = k;   // döviz kartı için
+  const tl =n => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " TL";
   const ogeler = [["💷 Sterlin", k.GBP], ["💶 Euro", k.EUR], ["💵 Dolar", k.USD]];
   const kopya = () => [...ogeler.map(([ad, d]) => { const s = el("span", "kur", ad + " "); s.append(el("b", "", tl(d))); return s; }),
     el("span", "kur", "").appendChild(el("small", "", "TCMB · " + (k.tarih || ""))).parentNode];
@@ -1568,6 +1595,7 @@ function havaSimgesi(kod) {
 
 function havaGoster(h) {
   if (!h || !h.yerler || !h.yerler.length) return;
+  havaVeri = h;   // hava kartı için
   const kopya = () => h.yerler.map(y => {
     const [simge, ad] = havaSimgesi(y.d), s = el("span", "kur", y.ad + " " + simge + " ");
     s.append(el("b", "", Math.round(y.s) + "°C"));
@@ -1599,12 +1627,106 @@ function eczaneGoster(j) {
   document.getElementById("eczane").hidden = false;
   requestAnimationFrame(() => akis.style.setProperty("--eczane-sure", Math.max(40, Math.round(akis.scrollWidth / 2 / 45)) + "s"));
 }
-let eczaneVeri = null;
+let eczaneVeri = null, kurVeri = null, havaVeri = null;
+// Ortak kart: tür (renk), başlık, tarih, içerik, alt not
+function bilgiKartAc(tur, baslik, tarih, govde, alt) {
+  const d = document.getElementById("bilgiKart");
+  d.className = "k-" + tur;
+  document.getElementById("ekBaslik").textContent = baslik;
+  document.getElementById("ekTarih").textContent = tarih || "";
+  document.getElementById("ekGovde").replaceChildren(...govde);
+  document.getElementById("ekAlt").textContent = alt || "";
+  document.getElementById("ekGovde").scrollTop = 0;
+  if (!d.open) d.showModal();
+}
+
+// Döviz kartı: üç kur büyük kutularda, TL hesaplayıcı (iki yönlü) ve çapraz kurlar
+function dovizKartAc() {
+  const k = kurVeri;
+  if (!k || !k.USD) return;
+  const tl = (n, b = 2) => n.toLocaleString("tr-TR", { minimumFractionDigits: b, maximumFractionDigits: b });
+  const kurlar = [["GBP", "💷", "İngiliz Sterlini"], ["EUR", "💶", "Euro"], ["USD", "💵", "ABD Doları"]];
+  const kutular = el("div", "dv-kutular");
+  for (const [kod, simge, ad] of kurlar) {
+    const x = el("div", "dv-kutu");
+    x.append(el("span", "", simge), el("small", "", ad + " (" + kod + ")"), el("b", "", tl(k[kod], 4) + " TL"));
+    kutular.append(x);
+  }
+  // hesaplayıcı
+  const hesap = el("div", "dv-hesap"), miktar = el("input"), birim = el("select"), yon = el("select"), sonuc = el("div", "dv-sonuc");
+  miktar.type = "number"; miktar.min = "0"; miktar.step = "any"; miktar.value = "100"; miktar.inputMode = "decimal";
+  for (const [kod, , ad] of kurlar) { const o = el("option", "", ad); o.value = kod; birim.append(o); }
+  for (const [v, t] of [["tl", "→ Türk Lirası"], ["doviz", "← Türk Lirası ile kaç alınır"]]) { const o = el("option", "", t); o.value = v; yon.append(o); }
+  const hesapla = () => {
+    const m = parseFloat(String(miktar.value).replace(",", ".")) || 0, kur = k[birim.value];
+    sonuc.textContent = yon.value === "tl"
+      ? tl(m) + " " + birim.value + " = " + tl(m * kur) + " TL"
+      : tl(m) + " TL = " + tl(m / kur) + " " + birim.value;
+  };
+  [miktar, birim, yon].forEach(x => x.addEventListener("input", hesapla));
+  hesap.append(miktar, birim, yon, sonuc);
+  hesapla();
+  const capraz = el("div", "dv-capraz");
+  capraz.append(el("span", "", "1 EUR = " + tl(k.EUR / k.USD, 4) + " USD"), el("span", "", "1 GBP = " + tl(k.GBP / k.USD, 4) + " USD"),
+    el("span", "", "1 GBP = " + tl(k.GBP / k.EUR, 4) + " EUR"));
+  bilgiKartAc("doviz", "💱 Döviz Kurları", k.tarih || "", [kutular, el("h3", "", "Hesaplayıcı"), hesap, el("h3", "", "Çapraz kurlar"), capraz],
+    "Kaynak: TCMB döviz satış kuru · Bilgi amaçlıdır; bankalarda ve döviz bürolarında kur farklı olabilir.");
+}
+
+// Hava kartı: her yerin şu anki durumu + 3 günlük tahmin (Open-Meteo, anahtarsız; kart açılınca bir kez alınır)
+const HAVA_KONUM = { "Lefkoşa": [35.185, 33.382], "Mağusa": [35.125, 33.941], "Girne": [35.341, 33.319], "Güzelyurt": [35.198, 32.993],
+  "İskele": [35.287, 33.892], "Lefke": [35.111, 32.85], "Karpaz": [35.533, 34.183], "Limasol": [34.707, 33.022], "Baf": [34.772, 32.429],
+  "Larnaka": [34.916, 33.636] };
+let havaTahmin = null, havaTahminZaman = 0;
+function wmoSimge(c) {   // Open-Meteo hava kodu → simge, açıklama
+  if (c === 0) return ["☀️", "Açık"]; if (c <= 2) return ["🌤️", "Az bulutlu"]; if (c === 3) return ["☁️", "Bulutlu"];
+  if (c <= 48) return ["🌫️", "Sisli"]; if (c <= 57) return ["🌦️", "Çisenti"]; if (c <= 67) return ["🌧️", "Yağmurlu"];
+  if (c <= 77) return ["❄️", "Karlı"]; if (c <= 82) return ["🌦️", "Sağanak"]; if (c <= 86) return ["🌨️", "Kar sağanağı"]; return ["⛈️", "Gök gürültülü"];
+}
+async function havaKartAc() {
+  const h = havaVeri;
+  if (!h || !h.yerler) return;
+  const ciz = () => {
+    const gunAd = t => new Date(t + "T12:00:00").toLocaleDateString("tr-TR", { weekday: "short", day: "numeric" });
+    const kutular = h.yerler.map((y, i) => {
+      const [simge, ad] = havaSimgesi(y.d), k = el("div", "hv-sehir");
+      const sol = el("div"); sol.append(el("b", "", y.ad));
+      const sag = el("div", "hv-simdi", simge + " " + Math.round(y.s) + "°"); sag.append(el("small", "", ad || ""));
+      k.append(sol, sag);
+      const t = havaTahmin && havaTahmin[i];
+      if (t && t.daily) {
+        const g = el("div", "hv-gunler");
+        t.daily.time.slice(0, 3).forEach((gun, j) => {
+          const [s2] = wmoSimge(t.daily.weather_code[j]), x = el("div", "hv-gun");
+          x.append(el("b", "", j === 0 ? "Bugün" : gunAd(gun)), document.createTextNode(s2 + " " + Math.round(t.daily.temperature_2m_max[j]) + "° / " + Math.round(t.daily.temperature_2m_min[j]) + "°"));
+          if (t.daily.precipitation_probability_max) x.append(el("small", "", " 💧%" + (t.daily.precipitation_probability_max[j] ?? 0)));
+          g.append(x);
+        });
+        k.append(g);
+      }
+      return k;
+    });
+    const saat = h.t ? new Date(h.t).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }) : "";
+    bilgiKartAc("hava", "🌤 Hava Durumu", saat ? "Son ölçüm " + saat : "", kutular,
+      "Anlık: MET Norway (Norveç Meteoroloji Enstitüsü) · 3 günlük tahmin: Open-Meteo");
+  };
+  ciz();
+  if (!havaTahmin || Date.now() - havaTahminZaman > 30 * 60 * 1000) {
+    const yerler = h.yerler.map(y => HAVA_KONUM[y.ad]);
+    try {
+      const sonuc = await Promise.all(yerler.map(k => !k ? null : fetch("https://api.open-meteo.com/v1/forecast?latitude=" + k[0] + "&longitude=" + k[1] +
+        "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FNicosia&forecast_days=3")
+        .then(r => r.ok ? r.json() : null).catch(() => null)));
+      havaTahmin = sonuc; havaTahminZaman = Date.now();
+      if (document.getElementById("bilgiKart").open && document.getElementById("bilgiKart").className === "k-hava") ciz();
+    } catch (e) { }
+  }
+}
+
 // Banda tıklanınca kart: bölge bölge eczane adı, nöbet saati, adres, ara ve haritada göster düğmeleri
 function eczaneKartAc() {
-  const j = eczaneVeri, d = document.getElementById("eczaneKart");
+  const j = eczaneVeri;
   if (!j) return;
-  document.getElementById("ekTarih").textContent = j.tarih || "";
   const govde = [];
   for (const b of j.bolgeler) {
     govde.push(el("h3", "", b.bolge));
@@ -1626,17 +1748,21 @@ function eczaneKartAc() {
       govde.push(k);
     }
   }
-  document.getElementById("ekGovde").replaceChildren(...govde);
-  d.showModal();
+  bilgiKartAc("eczane", "💊 Nöbetçi Eczaneler", j.tarih || "", govde, "Kaynak: Kıbrıs Türk Eczacılar Birliği · Telefona dokunarak arayabilirsiniz.");
 }
 {
-  const d = document.getElementById("eczaneKart"), band = document.getElementById("eczane");
+  const d = document.getElementById("bilgiKart");
   d.querySelector(".ek-kapat").onclick = () => d.close();
   d.addEventListener("click", e => { if (e.target === d) d.close(); });
-  band.setAttribute("role", "button"); band.tabIndex = 0; band.title = "Tüm nöbetçi eczaneler için tıklayın";
-  // bant içindeki telefon bağlantısı doğrudan arar; bandın geri kalanı kartı açar
-  band.addEventListener("click", e => { if (!e.target.closest("a")) eczaneKartAc(); });
-  band.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); eczaneKartAc(); } });
+  for (const [id, ac, ipucu] of [["kurlar", dovizKartAc, "Döviz kurları ve hesaplayıcı için tıklayın"],
+                                 ["hava", havaKartAc, "Şehir şehir hava durumu ve 3 günlük tahmin için tıklayın"],
+                                 ["eczane", eczaneKartAc, "Tüm nöbetçi eczaneler için tıklayın"]]) {
+    const band = document.getElementById(id);
+    band.setAttribute("role", "button"); band.tabIndex = 0; band.title = ipucu;
+    // bant içindeki bağlantı (eczane telefonu) doğrudan çalışır; bandın geri kalanı kartı açar
+    band.addEventListener("click", e => { if (!e.target.closest("a")) ac(); });
+    band.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ac(); } });
+  }
 }
 fetch(CANLI_SUNUCU + "/haber/eczane.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null)
   .then(j => { eczaneVeri = j; eczaneGoster(j); }).catch(() => { });
