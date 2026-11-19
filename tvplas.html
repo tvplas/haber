@@ -1680,7 +1680,8 @@ async function yukle(sessiz) {
     { const at = tekleTum(haberler.filter(h => h.kat !== "Yazarlar" && h.kat !== "Fotoğraflar" && !(h.tvplas && !h.th))); if (at.size) haberler = haberler.filter(h => !at.has(h)); }
     // Her menüde en çok 24 haber (panelden eklenen kendi haberlerimiz önce sayılır ve her zaman kalır)
     const menuAdet = {};
-    benim.forEach(h => { menuAdet[h.kat] = (menuAdet[h.kat] || 0) + 1; });
+    // yalnızca listede kalan kendi haberlerimiz sayılır (Kıbrıs'tan çıkarılan videolular yer kaplamasın)
+    haberler.forEach(h => { if (h.tvplas && !h.th) menuAdet[h.kat] = (menuAdet[h.kat] || 0) + 1; });
     // sayım tarihe göre yapılır (en yeniler kalır; TVplas Haber yazıları listenin sonunda olduğu için kesilmesin)
     const kalan = new Set([...haberler].sort((x, y) => (y.t || "").localeCompare(x.t || ""))
       .filter(h => (h.tvplas && !h.th) || (menuAdet[h.kat] = (menuAdet[h.kat] || 0) + 1) <= 24));
