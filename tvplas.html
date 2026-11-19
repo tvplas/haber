@@ -433,6 +433,12 @@ footer .tv-alt{display:block;width:200px;height:auto;margin:0 auto 14px}
 h1.tv-marka{line-height:0}
 .tv-logo-img{display:block;width:clamp(240px,34vw,420px);height:auto;margin:0 auto}
 @media (max-width:640px){main{gap:26px}.kart h2{font-size:19px}.bolum-baslik{font-size:24px}}
+/* 2026-11-19 Facebook kutusu (Kıbrıs bölümünün başında, iki kart boyu) */
+.kart.fb-kutu{grid-row:span 2;background:var(--kart,#fff);border:1px solid var(--cizgi,#ddd)!important;border-radius:14px;overflow:hidden}
+.fb-ust{padding:10px 14px;background:#1877f2}
+.fb-ust a{color:#fff;font-weight:700;font-size:14.5px;text-decoration:none}
+.fb-govde{flex:1;display:flex;justify-content:center;background:#fff;min-height:720px}
+.fb-govde iframe{border:0;overflow:hidden;max-width:100%}
 </style>
 </head>
 <body>
@@ -1422,9 +1428,40 @@ function ciz() {
     secili = secili.filter(h => enYeni.has(h));
   }
   const kartlar = diz(secili, kartYap, !q);
+  // 2026-11-19 kullanıcı: "Facebook kutusu koyun" -> Kıbrıs bölümünün başında TVplas Production sayfasının paylaşımları
+  if (!q && bolum === "Kıbrıs") kartlar.unshift(fbKutuYap());
   liste.replaceChildren(...(kartlar.length ? kartlar
     : [el("div", "durum", q ? "Aramaya uyan haber yok." : "Bu bölümde şu an haber yok.")]));
+  if (!q && bolum === "Kıbrıs") fbKutuDoldur();
 }
+
+// Facebook'un Sayfa Eklentisi (anahtar gerekmez). Genişlik kutunun genişliğine göre (Facebook en çok 500 px verir).
+const FB_SAYFA = "https://www.facebook.com/profile.php?id=61583501331887";
+let fbKutu = null;
+function fbKutuYap() {
+  if (fbKutu) return fbKutu;
+  fbKutu = el("article", "kart fb-kutu");
+  const ust = el("div", "fb-ust");
+  const a = el("a", "", "📘 TVplas Production · Facebook'ta takip edin →");
+  baglanti(a, FB_SAYFA);
+  ust.append(a);
+  fbKutu.append(ust, el("div", "fb-govde"));
+  return fbKutu;
+}
+function fbKutuDoldur() {
+  const g = fbKutu.querySelector(".fb-govde");
+  const gen = Math.max(180, Math.min(500, Math.floor(g.clientWidth || 320)));
+  if (g.dataset.gen === String(gen)) return;   // aynı genişlikte yeniden yüklenmez
+  g.dataset.gen = gen;
+  const f = el("iframe");
+  f.title = "TVplas Production Facebook sayfası";
+  f.loading = "lazy"; f.allow = "encrypted-media; clipboard-write";
+  f.width = gen; f.height = 720;
+  f.src = "https://www.facebook.com/plugins/page.php?" + new URLSearchParams({ href: FB_SAYFA, tabs: "timeline", width: gen, height: 720,
+    small_header: "true", adapt_container_width: "true", hide_cover: "false", show_facepile: "false", locale: "tr_TR" });
+  g.replaceChildren(f);
+}
+window.addEventListener("resize", () => { if (fbKutu && fbKutu.isConnected) { clearTimeout(fbKutu.z); fbKutu.z = setTimeout(fbKutuDoldur, 400); } });
 
 ara.oninput = ciz;
 const detay = document.getElementById("detay");
