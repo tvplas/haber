@@ -2,6 +2,11 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
+<!-- 2026-11-19 kullanıcı: eski adrese (tvplas.github.io/haber/) tıklayanlar yeni TVPLAS sayfasına yönlendirilir.
+     ?h= (haber), ?basin= vb. bağlantı ekleri korunur. Geri almak için bu blok silinir (yedek: index_yedek_yonlendirme_oncesi.html). -->
+<script>location.replace("tvplas.html" + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="0; url=tvplas.html">
+<link rel="canonical" href="https://tvplas.github.io/haber/tvplas.html">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TVplas Portal – Canlı yayın ve Kıbrıs'tan güncel haberler</title>
 <meta name="description" content="TVplas canlı yayını ve Kıbrıs, Türkiye ve dünyadan en güncel haberler tek sayfada. Haberler her 30 dakikada bir yenilenir.">
