@@ -1429,14 +1429,17 @@ function ciz() {
   }
   const kartlar = diz(secili, kartYap, !q);
   // 2026-11-19 kullanıcı: "Facebook kutusu koyun" -> Kıbrıs bölümünün başında TVplas Production sayfasının paylaşımları
-  if (!q && bolum === "Kıbrıs") kartlar.unshift(fbKutuYap());
+  // 2026-11-19: KAPALI. Facebook kutusu bu sayfa için paylaşımları yüklemiyor (hata 1357032). Sayfanın son paylaşımı da
+  // Şubat 2026 tarihli ve Kıbrıs haberi değil. Açmak için FB_KUTU_ACIK = true.
+  if (FB_KUTU_ACIK && !q && bolum === "Kıbrıs") kartlar.unshift(fbKutuYap());
   liste.replaceChildren(...(kartlar.length ? kartlar
     : [el("div", "durum", q ? "Aramaya uyan haber yok." : "Bu bölümde şu an haber yok.")]));
-  if (!q && bolum === "Kıbrıs") fbKutuDoldur();
+  if (FB_KUTU_ACIK && !q && bolum === "Kıbrıs") fbKutuDoldur();
 }
 
 // Facebook'un Sayfa Eklentisi (anahtar gerekmez). Genişlik kutunun genişliğine göre (Facebook en çok 500 px verir).
 const FB_SAYFA = "https://www.facebook.com/profile.php?id=61583501331887";
+var FB_KUTU_ACIK = false;   // var: ciz() bu satırdan önce çağrılsa da hata vermez
 let fbKutu = null;
 function fbKutuYap() {
   if (fbKutu) return fbKutu;
