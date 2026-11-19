@@ -521,15 +521,16 @@ h1.tv-marka{line-height:0}
       <div class="simdi" id="simdi"><small>ŞU AN YAYINDA</small><b>TVPLAS Canlı Yayın</b><span></span></div>
       <ul class="sira" id="sira"></ul>
     </div>
-    <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
-    <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
-      <span class="kur-baslik">💱 DÖVİZ</span>
-      <div class="kur-pencere"><div class="kur-akis" id="kurAkis"></div></div>
-    </div>
+    <!-- 2026-11-19 kullanıcı: "dövizle hava durumu yer değişsin" -> önce hava, sonra döviz -->
     <!-- Kıbrıs'ta hava durumu (MET Norway, Norveç Meteoroloji Enstitüsü): sunucu yarım saatte bir alır -->
     <div class="kurlar hava" id="hava" hidden aria-label="Kıbrıs'ta hava durumu">
       <span class="kur-baslik">🌤 HAVA</span>
       <div class="kur-pencere"><div class="kur-akis" id="havaAkis"></div></div>
+    </div>
+    <!-- Günlük döviz kurları (TCMB döviz satış): sunucu günde birkaç kez alır, band sağdan sola akar -->
+    <div class="kurlar" id="kurlar" hidden aria-label="Günlük döviz kurları">
+      <span class="kur-baslik">💱 DÖVİZ</span>
+      <div class="kur-pencere"><div class="kur-akis" id="kurAkis"></div></div>
     </div>
     <!-- 2026-11-19 kullanıcı: KKTC nöbetçi eczaneler kayan bandı (Kıbrıs Türk Eczacılar Birliği; sunucu yarım saatte bir alır) -->
     <div class="kurlar eczane" id="eczane" hidden aria-label="KKTC nöbetçi eczaneler">
