@@ -680,11 +680,23 @@ document.getElementById("tiklanirBtn").onclick = async () => {
   try {
     if (boyut !== "yatay") { boyut = "yatay"; d.textContent = "Kapak yatay biçimde hazırlanıyor…"; await ciz(); }
     d.textContent = "Kapak portala yükleniyor…";
-    const cevap = await fetch(API, { method: "POST", body: JSON.stringify({
+    const govde = JSON.stringify({
       islem: "kapakYayinla", sifre, veri: tuval.toDataURL("image/jpeg", 0.9),
       baslik: "TVPLAS – " + tarihUzun,
       aciklama: TASARIMLAR[tasarimSira].kendi ? kendi.baslik : TASARIMLAR[tasarimSira].reklam ? reklamBasligi() : haber().b
-    }) }).then(r => r.json());
+    });
+    // 2026-11-19 kullanıcı: "Olmadı: Lock timeout: another process was holding the lock for too long." — sunucu (Apps Script)
+    // o sırada başka bir işi (haber güncellemesi) yaparken kilitli kalıyor. Kilit ya da ağ hatasında birkaç kez kendiliğinden yeniden denenir.
+    let cevap;
+    for (let deneme = 1; ; deneme++) {
+      try { cevap = await fetch(API, { method: "POST", body: govde }).then(r => r.json()); }
+      catch (e) { cevap = { hata: "Bağlantı hatası: " + e.message, gecici: true }; }
+      const gecici = cevap.gecici || /lock|kilit|timeout|zaman aşımı|service invoked too many|try again/i.test(cevap.hata || "");
+      if (cevap.tamam || !gecici || deneme >= 6) break;
+      d.textContent = "Sunucu şu an meşgul (haberler güncelleniyor); " + deneme * 20 + " sn sonra yeniden deneniyor… (" + deneme + "/5)";
+      await new Promise(r => setTimeout(r, deneme * 20000));
+      d.textContent = "Kapak portala yükleniyor… (yeniden deneme " + deneme + ")";
+    }
     if (!cevap.tamam) throw new Error(cevap.hata || "Kapak yüklenemedi");
     if (!kayitliSifre()) try { localStorage.setItem("tvplas_sifre", sifre); } catch (e) { }
     paylasimAdresi = cevap.adres + hedefKodu();
