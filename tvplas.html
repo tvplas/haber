@@ -933,6 +933,7 @@ function hedefAc(reklamlar) {
 // tıklayan okuyucuyu portaldaki habere getirir (?h=kimlik). Haber olmayanlar (reklam) eskisi gibi.
 function paylasAdres(h) {
   if (!h.kat) return h.l || PORTAL;
+  if (h.fb) return h.l || PORTAL;   // Facebook Sayfamızın paylaşımı: Facebook'taki asıl paylaşım paylaşılır
   // Facebook eski adresin (2-29-142-134) robots.txt reddini hatırladığından paylaşım noktalı adresten
   return "https://2.29.142.134.sslip.io/p/" + kimlik(h) + "?t=1";
 }
@@ -1096,7 +1097,7 @@ function detayAc(h) {
   d.querySelector(".metin").textContent = h.o || "";
   const kaynak = d.querySelector(".kaynakLink");
   kaynak.textContent = !h.tvplas && h.ob ? "Türkçe çevirisini oku →" : h.kaynakYazi || "Habere git →";
-  kaynak.hidden = !h.l || !!h.kat || (!h.tvplas && h.ob && turkceAdres(h) === h.l);   // haberlerde kaynak bağlantısı yok   // Türkçe sayfası yoksa iki düğme yeter
+  kaynak.hidden = !h.l || (!!h.kat && !h.fb) ||(!h.tvplas && h.ob && turkceAdres(h) === h.l);   // haberlerde kaynak bağlantısı yok   // Türkçe sayfası yoksa iki düğme yeter
   if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
   ceviriDugmeleri(h, d.querySelector(".ceviri-dugmeler"));
   d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasAdres(h));
@@ -1617,10 +1618,16 @@ async function yukle(sessiz) {
     }
     // Etkinlikler bölümü kaldırıldı: sunucunun önbelleğinden gelebilecek eski etkinlik haberleri atlanır
     const vh = veri.videoHaber || {};
-    const [elleYazi, sunucuJson, yazarJson] = await Promise.all([
+    const [elleYazi, sunucuJson, yazarJson, fbJson] = await Promise.all([
       fetch("tvplas_haber.json?t=" + Date.now()).then(r => r.ok ? r.json() : []).catch(() => []),
       fetch(CANLI_SUNUCU + "/haber/tvplas_tum.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
-      fetch(CANLI_SUNUCU + "/haber/yazarlar.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+      fetch(CANLI_SUNUCU + "/haber/yazarlar.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).catch(() => ({})),
+      fetch(CANLI_SUNUCU + "/haber/fb_sayfa.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))]);
+    // 2026-11-19 kullanıcı: Facebook Sayfamızdaki (TVplas Production) Kıbrıs paylaşımları Kıbrıs bölümünde.
+    // Sunucu (fb_sayfa.py) 20 dakikada bir okur, videolu paylaşımları almaz. Tıklanınca metin portal penceresinde,
+    // "Facebook'taki paylaşımı aç" ile asıl paylaşım açılır.
+    const fbHaber = ((fbJson && fbJson.haberler) || []).map(x => ({ b: x.b, o: x.o, g: x.g || "", t: x.t, l: x.l, gl: "fb:" + x.id,
+      k: "TVPLAS", kaynakYazi: "Facebook'taki paylaşımı aç →", tur: "Kıbrıs", kat: "Kıbrıs", alt: null, tvplas: true, th: true, fb: true, ekBolum: [] }));
     const tamYazi = (yazarJson && yazarJson.yazilar) || {};   // 2026-11-15: köşe yazısının tam metni (kimlik → {m})
     const sunucuYazi = (sunucuJson && sunucuJson.haberler) || [];
     const kapsanan = new Set(sunucuYazi.flatMap(x => x.u || []));   // TVplas Haber olarak yazılmış kaynak haberler
@@ -1679,7 +1686,7 @@ async function yukle(sessiz) {
       if (h.thf && h.kat !== "TVplas Haber") h.ekBolum.push("TVplas Haber");
     });
     haberler = [...benim.filter(h => h.sabit),
-      ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs"), ...thYazi.filter(h => h.kat === "Kıbrıs")].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
+      ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs"), ...thYazi.filter(h => h.kat === "Kıbrıs"), ...fbHaber].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
       ...tum.filter(h => h.kat !== "Kıbrıs"), ...thYazi.filter(h => h.kat !== "Kıbrıs"), ...tvh.filter(h => h.v)];   // TVplas Haber menüsünde yalnızca video haberler
     // 2026-11-19 kullanıcı: "kıbrıs haberleri içine video haber koyma" -> videolu haberler Kıbrıs menüsünde yok
     haberler = haberler.filter(h => !(h.kat === "Kıbrıs" && (h.v || h.vu)));
