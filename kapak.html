@@ -609,6 +609,14 @@ function metniYaz() {
     return;
   }
   if (!haberler.length) return;
+  // UK kapağı: paylaşım metni İngiltere haberine göre; Open Government Licence kaynak gösterilmesini şart koşar
+  if (haber().tur === "UK") {
+    const ozp = ozetParagrafi(haber());
+    document.getElementById("metin").value = "🇬🇧 BİRLEŞİK KRALLIK | " + tarihUzun + "\n\n" + haber().b + (ozp ? "\n\n" + ozp : "") +
+      "\n\n👉 İngiltere'den haberler Türkçe olarak TVPLAS'ta: " + PORTAL +
+      "\n\nKaynak: GOV.UK (Open Government Licence v3.0)" + etiketler;
+    return;
+  }
   const b = haber().b, n = gazeteler.length, ozp = ozetParagrafi(haber()), oz = ozp ? "\n\n" + ozp : "";
   const kaliplar = [
     `📰 ${tarihUzun} | Kıbrıs'ın gündemi TVPLAS'ta!\n\nGünün öne çıkan haberi: ${b}${oz}\n\n✅ ${n} gazetenin birinci sayfası\n✅ Kıbrıs, Güney, Türkiye ve dünyadan haberler\n✅ Her 30 dakikada güncel\n\n👉 ${PORTAL}`,
@@ -724,6 +732,8 @@ const SECIM_BOLUMLERI = [
   ["Güney", "Güney", "GÜNEY KIBRIS", h => h.tur === "Güney"],
   ["Türkiye", "Türkiye", "TÜRKİYE", h => h.tur === "Türkiye"],
   ["Dünya", "Dünya", "DÜNYA", h => h.tur === "Dünya"],
+  // 2026-11-19 kullanıcı: "YÖNETİM PANELİNDE UK FACEBOOK KAPAK YAPIMI İÇİN SEÇENEK" -> GOV.UK haberleri (Türkçeleştirilmiş)
+  ["UK", "🇬🇧 UK", "BİRLEŞİK KRALLIK", h => h.tur === "UK"],
   ["Müzik", "Müzik", "MÜZİK", h => h.tur === "Müzik"],
   ["Fotoğraflar", "📷 Fotoğraflar", "FOTOĞRAF", h => h.tvplas && h.bolum === "Fotoğraflar"],
   ["Yazarlar", "✍️ Yazarlar", "KÖŞE YAZISI", h => h.tur === "Yazarlar" || h.tvplas && h.bolum === "Yazarlar"],
@@ -778,8 +788,13 @@ sAra.oninput = secimListesi;
 // ---- Veriler: fotoğraflı en yeni Kıbrıs haberleri ve günün gazeteleri ----
 Promise.all([
   fetch(API + "?ziyaret=0").then(r => r.json()),
-  fetch(API + "?islem=gazeteler").then(r => r.json()).catch(() => ({}))
-]).then(([v, gz]) => {
+  fetch(API + "?islem=gazeteler").then(r => r.json()).catch(() => ({})),
+  // UK haberleri yalnızca sunucudaki TVplas Haber yazılarında (tvplas_tum.json) var
+  fetch("https://2-29-142-134.sslip.io/haber/tvplas_tum.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+]).then(([v, gz, tum]) => {
+  // TVPLAS'taki UK kartlarıyla aynı kimlik (thf:<id>): kapağa tıklayan o habere gider
+  const ukHaber = ((tum && tum.haberler) || []).filter(x => x.kat === "UK" && x.g).map(x => ({
+    b: x.b, o: x.s, s: x.s, t: x.t, g: x.g, gk: x.gk, gl: "thf:" + x.id, tur: "UK", th: true, tvy: true }));
   reklamlar = ((v.ekler || {}).reklamlar || []).filter(r => r.g);
   reklamlariListele();
   haberler = (v.haberler || []).map(tvYazisi).filter(h => h.g && !BOLUMLER.includes(h.tur)).slice(0, 30);
@@ -788,7 +803,7 @@ Promise.all([
   // TVplas Haber menüsünün yazıları (kimlik portaldakiyle aynı: kapağa tıklayan o yazıya gider)
   const tvh = (v.tvplasHaber || []).filter(x => x.g && x.g !== "-").map(x => ({ b: x.b, o: x.o, t: x.t, l: x.l, gl: "tvh:" + x.id, g: x.g,
     tur: "TVplas Haber", th: true, tvy: true }));
-  tumHaberler = [...benim, ...tvh, ...(v.haberler || []).map(tvYazisi).filter(h => h.g)].sort((x, y) => (y.t || "").localeCompare(x.t || ""));
+  tumHaberler = [...benim, ...tvh, ...ukHaber, ...(v.haberler || []).map(tvYazisi).filter(h => h.g)].sort((x, y) => (y.t || "").localeCompare(x.t || ""));
   sBolum.replaceChildren(...SECIM_BOLUMLERI.map(([k, ad]) => new Option(ad + " (" + bolumHaberleri(k).length + ")", k)));
   secimListesi();
   gazeteler = (gz.gazeteler || []).filter(g => g.g);
