@@ -1607,6 +1607,14 @@ async function yukle(sessiz) {
       }
       return { ...h, k: "TVPLAS", tur: "TVplas", tvplas: true, kat, alt };
     });
+    // 2026-11-19 kullanıcı: "HABERLER BÖLÜMÜNDE YAZAR YAZILARI OLMAYACAK" -> panelden haber bölümüne girilmiş köşe yazıları
+    // Yazarlar'a taşınır (yazar adı girilmiş her yazı da Yazarlar'dadır)
+    const KOSE_YAZISI = { "GECİKEN ADALET, ADALET DEĞİLDİR": "", "Anılarda yolculuk… “Demokrasi lafla olmuyor.”": "", "DAVETE PROTESTO!": "Bülent Fevzioğlu" };
+    for (const h of benim) {
+      const b = (h.b || "").trim();
+      if (h.kat === "Fotoğraflar" || h.kat === "Yazarlar") continue;
+      if (b in KOSE_YAZISI || (h.yz || "").trim()) { h.kat = "Yazarlar"; h.alt = null; if (!h.yz && KOSE_YAZISI[b]) h.yz = KOSE_YAZISI[b]; }
+    }
     // Etkinlikler bölümü kaldırıldı: sunucunun önbelleğinden gelebilecek eski etkinlik haberleri atlanır
     const vh = veri.videoHaber || {};
     const [elleYazi, sunucuJson, yazarJson] = await Promise.all([
