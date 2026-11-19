@@ -1585,7 +1585,7 @@ function havaSimgesi(kod) {
   if (/sleet/.test(k)) return ["🌨️", "Karla karışık yağmur"];
   if (/showers/.test(k)) return ["🌦️", "Sağanak"];
   if (/rain/.test(k)) return ["🌧️", "Yağmurlu"];
-  if (/fog/.test(k)) return ["🌫️", "Sisli"];
+  if (/fog/.test(k)) return ["☁️", "Sisli"];
   if (/cloudy/.test(k) && !/partly/.test(k)) return ["☁️", "Bulutlu"];
   if (/partlycloudy/.test(k)) return [gece ? "☁️" : "⛅", "Parçalı bulutlu"];
   if (/fair/.test(k)) return [gece ? "🌙" : "🌤️", "Az bulutlu"];
@@ -1680,7 +1680,7 @@ const HAVA_KONUM = { "Lefkoşa": [35.185, 33.382], "Mağusa": [35.125, 33.941], 
 let havaTahmin = null, havaTahminZaman = 0;
 function wmoSimge(c) {   // Open-Meteo hava kodu → simge, açıklama
   if (c === 0) return ["☀️", "Açık"]; if (c <= 2) return ["🌤️", "Az bulutlu"]; if (c === 3) return ["☁️", "Bulutlu"];
-  if (c <= 48) return ["🌫️", "Sisli"]; if (c <= 57) return ["🌦️", "Çisenti"]; if (c <= 67) return ["🌧️", "Yağmurlu"];
+  if (c <= 48) return ["☁️", "Sisli"];   // 🌫️ bazı Windows/Android sürümlerinde boş kare çıkıyor if (c <= 57) return ["🌦️", "Çisenti"]; if (c <= 67) return ["🌧️", "Yağmurlu"];
   if (c <= 77) return ["❄️", "Karlı"]; if (c <= 82) return ["🌦️", "Sağanak"]; if (c <= 86) return ["🌨️", "Kar sağanağı"]; return ["⛈️", "Gök gürültülü"];
 }
 async function havaKartAc() {
