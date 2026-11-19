@@ -1471,13 +1471,20 @@ function ciz() {
   if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
   // Yazarlar'da önce kendi yazarlarımızın yazıları, sonra gazetelerin köşe yazıları
   if (!q && bolum === "Yazarlar") {
-    // Her yazarın yalnızca en son yazısı gösterilir; önceki yazıları listeye alınmaz
+    // Her yazarın yalnızca en son yazısı gösterilir; önceki yazıları listeye alınmaz.
+    // 2026-11-19 kullanıcı: "AYNI YAZAR BİRDEN FAZLA ÇIKARSA EN SON YAZISINI DİKKATE ALINIZ" -> yazar adı büyük/küçük harf,
+    // Türkçe harf (ü/u, ı/i…) ve boşluk farkı gözetmeden karşılaştırılır; adı girilmemiş kendi yazılarımız tek yazar sayılır
+    const yazarAnahtar = h => {
+      const ad = (h.yz || "").toLocaleLowerCase("tr").normalize("NFD").replace(/[̀-ͯ]/g, "")
+        .replace(/ı/g, "i").replace(/[^a-z0-9]+/g, " ").trim();
+      return ad || (h.tvplas ? "~tvplas" : "~" + (h.k || "") + "|" + h.b);
+    };
     const enSon = new Map();
     for (const h of secili) {
-      const ad = (h.yz || "").trim().toLocaleLowerCase("tr");
-      if (ad && (!enSon.has(ad) || (h.t || "") > (enSon.get(ad).t || ""))) enSon.set(ad, h);
+      const ad = yazarAnahtar(h);
+      if (!enSon.has(ad) || (h.t || "") > (enSon.get(ad).t || "")) enSon.set(ad, h);
     }
-    secili = secili.filter(h => { const ad = (h.yz || "").trim().toLocaleLowerCase("tr"); return !ad || enSon.get(ad) === h; });
+    secili = secili.filter(h => enSon.get(yazarAnahtar(h)) === h);
     secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
   }
   if (!q && bolum === "Fotoğraflar") {
