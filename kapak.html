@@ -183,6 +183,18 @@ const gorselOnbellek = {};
 // Görseller sunucu üzerinden alınır: başka sitelerin görselleri tuvale çizilince kapak indirilemez (CORS)
 function gorselAl(url) {
   if (!url) return Promise.resolve(null);
+  // 2026-11-19 UK kapakları: GOV.UK fotoğrafları kendi sunucumuzdan (Hetzner /ukgorsel/, CORS izinli) gelir;
+  // Apps Script görsel aktarıcısı yalnızca portal akışındaki görsellere izin verir
+  const GOVUK = "https://assets.publishing.service.gov.uk/";
+  if (url.startsWith(GOVUK) && !gorselOnbellek[url]) {
+    gorselOnbellek[url] = new Promise(coz => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => coz(img);
+      img.onerror = () => coz(null);
+      img.src = "https://2-29-142-134.sslip.io/ukgorsel/" + url.slice(GOVUK.length);
+    });
+  }
   if (!gorselOnbellek[url]) {
     gorselOnbellek[url] = fetch(API + "?islem=gorsel&u=" + encodeURIComponent(url)).then(r => r.json()).then(v => new Promise(coz => {
       if (!v.veri) return coz(null);
