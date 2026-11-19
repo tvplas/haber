@@ -358,6 +358,10 @@ h1.tv-marka,.tv-logo{justify-content:center;margin:0;font-family:Audiowide,"Russ
 .sahne-yan .kurlar.hava .kur-baslik{background:#0369a1}
 .sahne-yan .kur-akis{padding:8px 14px;gap:26px;animation-duration:22s}
 .sahne-yan .kurlar.hava .kur-akis{animation-duration:38s}
+.sahne-yan .kurlar.eczane .kur-baslik{background:#15803d;white-space:nowrap}
+.sahne-yan .kurlar.eczane .kur-akis{animation-duration:var(--eczane-sure,120s)}
+.kurlar.eczane .kur a{color:inherit;text-decoration:none}
+.kurlar.eczane .kur i{font-style:normal;color:#4ade80;font-weight:700}
 .sahne-yan .kur{font-size:13.5px;color:var(--sahne-yazi)}
 .sahne-yan .kur small{color:var(--sahne-soluk)}
 .sahne-yan .arac{margin:0;flex:none}
@@ -480,6 +484,11 @@ h1.tv-marka{line-height:0}
     <div class="kurlar hava" id="hava" hidden aria-label="Kıbrıs'ta hava durumu">
       <span class="kur-baslik">🌤 HAVA</span>
       <div class="kur-pencere"><div class="kur-akis" id="havaAkis"></div></div>
+    </div>
+    <!-- 2026-11-19 kullanıcı: KKTC nöbetçi eczaneler kayan bandı (Kıbrıs Türk Eczacılar Birliği; sunucu yarım saatte bir alır) -->
+    <div class="kurlar eczane" id="eczane" hidden aria-label="KKTC nöbetçi eczaneler">
+      <span class="kur-baslik">💊 NÖBETÇİ ECZANE</span>
+      <div class="kur-pencere"><div class="kur-akis" id="eczaneAkis"></div></div>
     </div>
     <div class="arac">
       <input id="ara" placeholder="Tüm bölümlerde ara (ör. Ercan, seçim, Mağusa)…">
@@ -1543,6 +1552,29 @@ function havaGoster(h) {
   document.getElementById("havaAkis").replaceChildren(...kopya(), ...kopya());
   document.getElementById("hava").hidden = false;
 }
+
+// 2026-11-19 nöbetçi eczaneler bandı: bölge, eczane adı ve telefonu (telefona dokununca arar). Sunucu: /haber/eczane.json
+function eczaneGoster(j) {
+  if (!j || !j.bolgeler || !j.bolgeler.length) return;
+  const kopya = () => {
+    const ogeler = [el("span", "kur", "").appendChild(el("small", "", (j.tarih || "") + " · KTEB")).parentNode];
+    for (const b of j.bolgeler) for (const e of b.eczaneler) {
+      const s = el("span", "kur", "");
+      s.append(el("i", "", b.bolge + ": "), el("b", "", e.ad + " "));
+      if (e.tel) { const a = el("a", "", "📞 " + e.tel.split(" / ")[0]); a.href = "tel:" + e.tel.split(" / ")[0].replace(/[^\d+]/g, ""); s.append(a); }
+      if (e.saat) s.append(el("small", "", " (" + e.saat + ")"));
+      s.title = e.adres || "";
+      ogeler.push(s);
+    }
+    return ogeler;
+  };
+  const akis = document.getElementById("eczaneAkis");
+  akis.replaceChildren(...kopya(), ...kopya());
+  // eczane sayısı arttıkça bant yavaşlamasın diye süre içerik uzunluğuna göre (yaklaşık saniyede 45 px)
+  document.getElementById("eczane").hidden = false;
+  requestAnimationFrame(() => akis.style.setProperty("--eczane-sure", Math.max(40, Math.round(akis.scrollWidth / 2 / 45)) + "s"));
+}
+fetch(CANLI_SUNUCU + "/haber/eczane.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(eczaneGoster).catch(() => { });
 
 function sayacGoster(s) {
   if (!s) return;
