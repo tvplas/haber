@@ -384,6 +384,8 @@ dialog#bilgiKart::backdrop{background:rgba(6,8,12,.72);-webkit-backdrop-filter:b
 #bilgiKart .ek-dugmeler{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 #bilgiKart .ek-dugmeler a{font-size:13.5px;font-weight:600;padding:6px 12px;border-radius:999px;text-decoration:none;color:#fff;background:var(--r1)}
 #bilgiKart .ek-dugmeler a.harita{background:rgba(255,255,255,.1)}
+#bilgiKart .ek-paylas-kutu{margin:12px 0 2px}
+#bilgiKart .ek-dugmeler a.ek-paylas{background:#1877f2;font-size:15px;padding:9px 18px}
 #bilgiKart .ek-alt{padding:10px 18px 14px;font-size:12px;color:#8b8b96;border-top:1px solid rgba(255,255,255,.08)}
 /* döviz kartı */
 #bilgiKart .dv-kutular{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
@@ -1728,6 +1730,15 @@ function eczaneKartAc() {
   const j = eczaneVeri;
   if (!j) return;
   const govde = [];
+  // 2026-11-19 kullanıcı: yalnızca eczane kartında "Facebook'ta paylaş". Paylaşım adresi her gün yenidir ve o günün
+  // listesiyle hazırlanmış, her gün farklı tasarımlı görseli taşır (sunucu eczane.py)
+  if (j.paylas) {
+    const p = el("a", "ek-paylas", "📘 Facebook'ta paylaş");
+    p.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(j.paylas);
+    p.target = "_blank"; p.rel = "noopener";
+    const kutu = el("div", "ek-dugmeler ek-paylas-kutu"); kutu.append(p);
+    govde.push(kutu);
+  }
   for (const b of j.bolgeler) {
     govde.push(el("h3", "", b.bolge));
     for (const e of b.eczaneler) {
@@ -1765,7 +1776,11 @@ function eczaneKartAc() {
   }
 }
 fetch(CANLI_SUNUCU + "/haber/eczane.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null)
-  .then(j => { eczaneVeri = j; eczaneGoster(j); }).catch(() => { });
+  .then(j => {
+    eczaneVeri = j; eczaneGoster(j);
+    // Facebook'taki eczane paylaşımından gelen (?eczane=1) doğrudan eczane kartını görür
+    if (new URLSearchParams(location.search).has("eczane")) eczaneKartAc();
+  }).catch(() => { });
 
 function sayacGoster(s) {
   if (!s) return;
