@@ -530,6 +530,15 @@ h1.tv-marka{line-height:0}
 .canli-sayfa .canli-cerceve:fullscreen .canli-oynatici{width:100%;max-height:100%}
 .canli-sayfa .canli-not{margin:12px 4px 0;font-size:13.5px;color:var(--soluk)}
 .simdi.tikla{cursor:pointer}.simdi.tikla:hover b{color:#ff4d5e}
+/* 2026-11-21 kullanıcı: "menülerdeki ara zemin siyah olacak" -> menü bandı ve haberlerin arasındaki zemin üst bölümle
+   aynı koyu renkte; beyaz haber kartları aynen kalır, zemini saydam kartların (fotoğraf, gazete) yazıları açık renk */
+body{background:var(--sahne)}
+.menu{background:var(--sahne);border-top-color:rgba(255,255,255,.18);border-bottom-color:rgba(255,255,255,.08)}
+.menu button{color:var(--sahne-soluk)}
+.menu button:hover,.menu button.aktif{color:#fff!important}
+.bolum-baslik{color:var(--sahne-yazi);border-bottom-color:rgba(255,255,255,.12)}
+.durum{color:var(--sahne-soluk)}
+main>.kart:not(.tvplas):not(.reklam-kart){--yazi:var(--sahne-yazi);--soluk:var(--sahne-soluk);color:var(--sahne-yazi)}
 </style>
 </head>
 <body>
