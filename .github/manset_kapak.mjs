@@ -17,14 +17,14 @@ fs.mkdirSync(SAYFA, { recursive: true });
 const kayitYolu = path.join(KAPAK, "kayit.json");
 let kayit = {};
 try { kayit = JSON.parse(fs.readFileSync(kayitYolu, "utf8")); } catch (e) { }
-const SURUM = 2; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
+const SURUM = 3; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
 const kacis = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const tarayici = await chromium.launch();
 const sayfa = await tarayici.newPage({ viewport: { width: 1000, height: 1000 }, deviceScaleFactor: 2, locale: "tr-TR", timezoneId: "Asia/Famagusta" });
 await sayfa.goto(SITE + "tvplas.html?kapakcek=1", { waitUntil: "load", timeout: 120000 });
 await sayfa.waitForFunction(() => typeof mansetler !== "undefined" && mansetler.length > 0, null, { timeout: 120000 });
-await sayfa.addStyleTag({ content: "*,*::before,*::after{transition:none!important;animation-play-state:paused!important}" });
+await sayfa.addStyleTag({ content: "*,*::before,*::after{transition:none!important;animation:none!important}" });
 await sayfa.evaluate(() => document.fonts.ready);
 await sayfa.waitForTimeout(5000);   // hava, döviz, eczane ve yayın akışı dolsun
 
