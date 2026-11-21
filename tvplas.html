@@ -559,6 +559,11 @@ dialog#gazeteGoster::backdrop{background:rgba(0,0,0,.85);-webkit-backdrop-filter
 .gz-basliklar .bt{font:700 12px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:#9aa0ad;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.14)}
 .gz-basliklar h2{font-family:var(--serif);font-weight:700;font-size:clamp(22px,3.4vw,32px);line-height:1.2;margin:16px 0 8px;color:#fff}
 .gz-basliklar h3{font-family:var(--serif);font-weight:600;font-size:clamp(17px,2.4vw,21px);line-height:1.35;margin:0;padding:12px 0;border-top:1px solid rgba(255,255,255,.08);color:#fff}
+.gz-yazi{padding:14px 0 6px;border-top:1px solid rgba(255,255,255,.08)}
+.gz-yazi.manset{border-top:0;padding-top:4px}
+.gz-yazi h3{border-top:0;padding:0 0 6px}
+.gz-yazi p{margin:0 0 8px;font-size:16.5px;line-height:1.7;color:#ececf0}
+.gz-not{margin-top:18px;padding-top:12px;border-top:1px solid rgba(255,255,255,.14);font-size:12.5px;color:#9aa0ad}
 @media (max-width:640px){.gz-govde{padding:14px 12px 24px}.gz-kapat{height:38px;padding:0 14px;font-size:14px}}
 </style>
 </head>
@@ -1462,6 +1467,20 @@ function gazeteAc(g) {
     if (!ix || no !== gazeteAcNo || (gazeteGun && ix.tarih !== gazeteGun)) return;
     const b = (ix.gazeteler || []).find(x => x.anahtar === gzAnahtar(g.ad));
     if (!b) return;
+    // 2026-11-21 kullanıcı: "ön sayfadaki manşet ve bütün yazılar aynen, başlıklarıyla görselin altında" -> günlük görev
+    // sayfayı okuyup (OCR) yazıları çıkarır; varsa başlık listesinin yerine manşet ve yazıların tamamı gelir
+    const yazilar = (b.yazilar || []).filter(y => y.b || y.m);
+    if (yazilar.length) {
+      const parca = [el("div", "bt", "Birinci sayfadaki haberler")];
+      yazilar.forEach((y, i) => {
+        const kutu = el("article", "gz-yazi" + (i === 0 ? " manset" : ""));
+        if (y.b) kutu.append(el(i === 0 ? "h2" : "h3", "", y.b));
+        if (y.m) kutu.append(el("p", "", y.m));
+        parca.push(kutu);
+      });
+      parca.push(el("div", "gz-not", "Kaynak: " + g.ad + " birinci sayfası. Yazılar sayfa görüntüsünden otomatik okunmuştur, küçük okuma hataları olabilir."));
+      d.querySelector(".gz-basliklar").replaceChildren(...parca);
+    }
     const buyuk = new Image();
     buyuk.onload = () => { if (no === gazeteAcNo) img.src = buyuk.src; };
     buyuk.src = GAZETE_BUYUK + b.dosya + "?d=" + encodeURIComponent(ix.guncelleme || ix.tarih);
