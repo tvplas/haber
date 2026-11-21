@@ -1,6 +1,7 @@
 // 2026-11-21 kullanıcı: "görseldeki bu bölüm olduğu gibi eksiksiz Facebook paylaşımında çıksın, düğme herkese açık olsun".
-// Portal (tvplas.html?kapakcek=1) gerçek bir tarayıcıda açılır; her manşet için sayfanın üst bölümünün (TVPLAS logosu,
-// manşet, sayfa numaraları, yayın akışı, hava, döviz, eczane) ekran görüntüsü alınır ve 1200x630 Facebook kapağı yapılır.
+// 2026-11-22 kullanıcı: "manşet kapağının sadece bu kısmı Facebook'ta çıksın": yalnızca manşet kartı (#manset: fotoğraf,
+// başlık, oklar ve sayfa numaraları) çekilir; logo, yayın akışı, hava, döviz ve eczane kapağa girmez.
+// Portal (tvplas.html?kapakcek=1) gerçek bir tarayıcıda açılır; her manşetin kartı çekilir ve 1200x630 Facebook kapağı yapılır.
 // Kapaklar "manset-kapak" dalına (tek commit, depo büyümez), her haberin paylaşım sayfası m/<kimlik>.html ana dala yazılır.
 // Kullanım: node manset_kapak.mjs <kapak dizini> <sayfa dizini>
 import { chromium } from "playwright";
@@ -17,7 +18,7 @@ fs.mkdirSync(SAYFA, { recursive: true });
 const kayitYolu = path.join(KAPAK, "kayit.json");
 let kayit = {};
 try { kayit = JSON.parse(fs.readFileSync(kayitYolu, "utf8")); } catch (e) { }
-const SURUM = 6; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
+const SURUM = 7; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
 const kacis = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const tarayici = await chromium.launch();
@@ -40,7 +41,7 @@ for (let i = 0; i < liste.length; i++) {
     return !im || !im.isConnected || (im.complete && im.naturalWidth > 0);
   }, i, { timeout: 30000 }).catch(() => { });
   await sayfa.waitForTimeout(700);
-  const kes = await sayfa.evaluate(() => { const m = document.getElementById("manset").getBoundingClientRect(), y = document.querySelector(".sahne-yan")?.getBoundingClientRect(); const x0 = Math.max(0, Math.floor(m.left - 40)), x1 = Math.min(innerWidth, Math.ceil((y ? y.right : m.right) + 40)); return { x: x0, y: 0, width: x1 - x0, height: Math.ceil(m.bottom + scrollY + 44) }; });   // logo, manşet ve sağ sütun (kenar boşlukları kırpılır)
+  const kes = await sayfa.evaluate(() => { const r = document.getElementById("manset").getBoundingClientRect(); return { x: Math.max(0, Math.floor(r.left + scrollX)), y: Math.max(0, Math.floor(r.top + scrollY)), width: Math.ceil(r.width), height: Math.ceil(r.height) }; });   // yalnızca manşet kartı
   const png = (await sayfa.screenshot({ clip: kes })).toString("base64");
   // Facebook bağlantı görselini 1200x630 gösterir: ekran görüntüsü kesilmeden ortalanır, kenarlar aynı görüntünün bulanık hâliyle dolar
   await birlestir.setContent(`<body style="margin:0;width:1200px;height:630px;overflow:hidden;background:#0a0d14;position:relative">
