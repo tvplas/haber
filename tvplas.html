@@ -538,7 +538,12 @@ body{background:var(--sahne)}
 .menu button:hover,.menu button.aktif{color:#fff!important}
 .bolum-baslik{color:var(--sahne-yazi);border-bottom-color:rgba(255,255,255,.12)}
 .durum{color:var(--sahne-soluk)}
-main>.kart:not(.tvplas):not(.reklam-kart){--yazi:var(--sahne-yazi);--soluk:var(--sahne-soluk);color:var(--sahne-yazi)}
+/* 2026-11-21 kullanıcı: "menülerde her şey siyah olacak, yazılar hariç" + "yazılar beyaz olacak" -> kartlar da siyah
+   zeminde, bütün yazılar beyaz (yalnızca kırmızı "Devamını oku" ve CANLI YAYIN vurguları kırmızı kalır) */
+main{--yazi:#fff;--soluk:#fff;--kart:var(--sahne);--cizgi:rgba(255,255,255,.1);color:#fff}
+.menu button,.bolum-baslik,.durum{color:#fff}
+main .kart,main .kart.tvplas{background:transparent!important;border-color:transparent!important}
+main .tv-rozet img{filter:none}
 </style>
 </head>
 <body>
