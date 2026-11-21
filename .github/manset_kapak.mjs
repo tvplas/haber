@@ -17,11 +17,11 @@ fs.mkdirSync(SAYFA, { recursive: true });
 const kayitYolu = path.join(KAPAK, "kayit.json");
 let kayit = {};
 try { kayit = JSON.parse(fs.readFileSync(kayitYolu, "utf8")); } catch (e) { }
-const SURUM = 3; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
+const SURUM = 4; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
 const kacis = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const tarayici = await chromium.launch();
-const sayfa = await tarayici.newPage({ viewport: { width: 1000, height: 1000 }, deviceScaleFactor: 2, locale: "tr-TR", timezoneId: "Asia/Famagusta" });
+const sayfa = await tarayici.newPage({ viewport: { width: 1366, height: 900 }, deviceScaleFactor: 2, locale: "tr-TR", timezoneId: "Asia/Famagusta" });
 await sayfa.goto(SITE + "tvplas.html?kapakcek=1", { waitUntil: "load", timeout: 120000 });
 await sayfa.waitForFunction(() => typeof mansetler !== "undefined" && mansetler.length > 0, null, { timeout: 120000 });
 await sayfa.addStyleTag({ content: "*,*::before,*::after{transition:none!important;animation:none!important}" });
@@ -40,8 +40,8 @@ for (let i = 0; i < liste.length; i++) {
     return !im || !im.isConnected || (im.complete && im.naturalWidth > 0);
   }, i, { timeout: 30000 }).catch(() => { });
   await sayfa.waitForTimeout(700);
-  const alt = await sayfa.evaluate(() => Math.ceil(Math.max(document.getElementById("manset").getBoundingClientRect().bottom, document.querySelector('input[placeholder^="Tüm bölümlerde ara"]')?.getBoundingClientRect().bottom || 0) + scrollY + 40));   // sağ sütundaki arama kutusu da girsin
-  const png = (await sayfa.screenshot({ clip: { x: 0, y: 0, width: 1000, height: alt } })).toString("base64");
+  const kes = await sayfa.evaluate(() => { const m = document.getElementById("manset").getBoundingClientRect(), y = document.querySelector(".sahne-yan")?.getBoundingClientRect(); const x0 = Math.max(0, Math.floor(m.left - 40)), x1 = Math.min(innerWidth, Math.ceil((y ? y.right : m.right) + 40)); return { x: x0, y: 0, width: x1 - x0, height: Math.ceil(m.bottom + scrollY + 44) }; });   // logo, manşet ve sağ sütun (kenar boşlukları kırpılır)
+  const png = (await sayfa.screenshot({ clip: kes })).toString("base64");
   // Facebook bağlantı görselini 1200x630 gösterir: ekran görüntüsü kesilmeden ortalanır, kenarlar aynı görüntünün bulanık hâliyle dolar
   await birlestir.setContent(`<body style="margin:0;width:1200px;height:630px;overflow:hidden;background:#0a0d14;position:relative">
     <img src="data:image/png;base64,${png}" style="position:absolute;inset:-40px;width:1280px;height:710px;object-fit:cover;filter:blur(28px) brightness(.55)">
