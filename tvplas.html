@@ -489,6 +489,47 @@ h1.tv-marka{line-height:0}
 .fb-ust a{color:#fff;font-weight:700;font-size:14.5px;text-decoration:none}
 .fb-govde{flex:1;display:flex;justify-content:center;background:#fff;min-height:720px}
 .fb-govde iframe{border:0;overflow:hidden;max-width:100%}
+/* 2026-11-21 Manşet slider'ı (canlı yayın kapağının yerinde): büyük fotoğraf, üstte sarı üst başlık, ortada kalın
+   büyük manşet (ikinci satır kırmızı), altta numaralı sayfalar; 6 sn'de bir kendiliğinden geçer */
+.manset{position:relative;border-radius:22px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 80px -20px rgba(0,0,0,.75),0 0 0 6px rgba(255,255,255,.025);display:flex;flex-direction:column}
+.manset-sahne{position:relative;aspect-ratio:16/9;overflow:hidden;background:#111}
+.manset-bos{position:absolute;inset:0;display:grid;place-items:center;color:var(--sahne-soluk);font-weight:500}
+.manset-kare{position:absolute;inset:0;display:block;color:#fff;text-decoration:none;opacity:0;visibility:hidden;transition:opacity .6s ease,visibility .6s}
+.manset-kare.aktif{opacity:1;visibility:visible}
+.manset-kare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.04);transition:transform 7s ease-out}
+.manset-kare.aktif img{transform:scale(1)}
+.manset-kare::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.15) 38%,rgba(0,0,0,.1) 55%,rgba(0,0,0,.85) 100%)}
+.manset-ust{position:absolute;z-index:2;left:0;right:0;top:0;padding:14px 20px 0;text-align:center;font-family:var(--sans);font-weight:800;font-size:clamp(13px,1.9vw,20px);line-height:1.25;color:#ffd400;text-shadow:0 2px 6px rgba(0,0,0,.8);text-transform:uppercase;letter-spacing:.01em}
+.manset-baslik{position:absolute;z-index:2;left:0;right:0;top:15%;padding:0 6%;text-align:center;font-family:"Inter Tight",Outfit,var(--sans);font-weight:900;font-size:clamp(22px,4.4vw,50px);line-height:1.05;text-transform:uppercase;letter-spacing:-.01em;text-shadow:0 3px 0 rgba(0,0,0,.55),0 6px 18px rgba(0,0,0,.6);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.manset-baslik .kirmizi{color:#ff1f3d}
+.manset-alt{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:0 20px 14px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:clamp(13px,1.8vw,19px);text-shadow:0 2px 6px rgba(0,0,0,.9)}
+.manset-alt .rozet{flex:none;background:#e8002d;color:#fff;font-size:.7em;letter-spacing:.12em;padding:4px 9px;border-radius:4px;text-shadow:none}
+.manset-alt .ozet{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.manset-kare .kunye{position:absolute;z-index:2;right:10px;bottom:3px;font-size:10px;color:rgba(255,255,255,.7)}
+.manset-ok{position:absolute;z-index:3;top:calc(50% - 46px);width:44px;height:64px;border:0;background:rgba(0,0,0,.35);color:#fff;font-size:40px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .15s}
+.manset-ok:hover{background:rgba(232,0,45,.85)}
+.manset-ok.sol{left:0;border-radius:0 8px 8px 0}.manset-ok.sag{right:0;border-radius:8px 0 0 8px}
+.manset-sayfalar{display:flex;justify-content:center;gap:8px;padding:12px 10px;background:#fff;overflow-x:auto;scrollbar-width:none}
+.manset-sayfalar::-webkit-scrollbar{display:none}
+.manset-sayfalar button{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid #e3e3e3;background:#fff;color:#222;font:700 13px var(--sans);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.manset-sayfalar button:hover{border-color:#e8002d;color:#e8002d}
+.manset-sayfalar button.aktif{background:#e8002d;border-color:#e8002d;color:#fff}
+@media (prefers-color-scheme:dark){.manset-sayfalar{background:#15171c}.manset-sayfalar button{background:#1f2229;border-color:#2c3039;color:#eee}}
+@media (max-width:640px){.manset-ok{width:34px;height:52px;font-size:30px;top:calc(50% - 40px)}.manset-sayfalar{justify-content:flex-start;gap:6px}.manset-sayfalar button{width:30px;height:30px;font-size:12px}.manset-ust{padding-top:10px}}
+@media (prefers-reduced-motion:reduce){.manset-kare,.manset-kare img{transition:none}}
+/* Canlı yayın artık kendi menüsünde: menüde kırmızı yanıp sönen noktalı düğme, açılınca oynatıcı haber alanında */
+.menu button.menu-canli{color:#e8002d;display:inline-flex;align-items:center;gap:7px}
+.menu button.menu-canli .canli-nokta{width:8px;height:8px;background:#e8002d}
+.menu button.menu-canli.aktif{color:#e8002d!important}
+.canli-sayfa{grid-column:1/-1;width:100%;max-width:980px;margin:0 auto}
+.canli-sayfa .canli-cerceve{position:relative;border-radius:22px;overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 80px -20px rgba(0,0,0,.45)}
+.canli-sayfa .canli-oynatici{position:relative;aspect-ratio:16/9;background:#000}
+.canli-sayfa .canli-oynatici video,.canli-sayfa .canli-oynatici iframe{position:absolute;inset:0;width:100%;height:100%}
+.canli-sayfa .tam{position:absolute;right:12px;top:12px;z-index:5;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.5);color:#fff;font-size:17px;cursor:pointer}
+.canli-sayfa .canli-cerceve:fullscreen{border-radius:0;border:0;display:flex;align-items:center}
+.canli-sayfa .canli-cerceve:fullscreen .canli-oynatici{width:100%;max-height:100%}
+.canli-sayfa .canli-not{margin:12px 4px 0;font-size:13.5px;color:var(--soluk)}
+.simdi.tikla{cursor:pointer}.simdi.tikla:hover b{color:#ff4d5e}
 </style>
 </head>
 <body>
@@ -508,7 +549,14 @@ h1.tv-marka{line-height:0}
 <!-- 2026-11-19: tvplas.html artık TVPLAS'ın ANA sayfası; doğrudan düzenlenir (eski index.html ileride silinecek, tvplas_yap.py emekli).
      Menüde Kültür-Sanat, Magazin, Bilim, Sağlık, Ekonomi, Spor ve TVplas Haber yok (kullanıcı isteği). -->
 <!-- Canlı yayın açılış sayfasında: sayfa açılınca sessiz başlar (tarayıcılar sesli başlatmaya izin vermez), dokununca ses açılır -->
-<section class="sahne" id="canliBolum" aria-label="TVplas canlı yayın">
+<!-- 2026-11-21 kullanıcı: canlı yayın kapağı yerine güncel Kıbrıs haberlerinden manşet slider'ı; canlı yayın ayrı menüde (CANLI YAYIN) -->
+<section class="sahne" id="canliBolum" aria-label="TVplas manşetler">
+  <div class="manset" id="manset" aria-roledescription="carousel" aria-label="Kıbrıs manşetleri">
+    <div class="manset-sahne" id="mansetSahne"><div class="manset-bos">Manşetler yükleniyor…</div></div>
+    <button class="manset-ok sol" id="mansetGeri" type="button" aria-label="Önceki haber">‹</button>
+    <button class="manset-ok sag" id="mansetIleri" type="button" aria-label="Sonraki haber">›</button>
+    <div class="manset-sayfalar" id="mansetSayfalar" role="tablist" aria-label="Manşet seç"></div>
+  </div>
   <div class="canli-cerceve" id="canliCerceve">
     <div class="canli-oynatici"><div class="canli-yukleniyor">Canlı yayın açılıyor…</div></div>
     <div class="canli-rozet"><span class="etiket"><span class="canli-nokta"></span>CANLI</span><span class="sayi" hidden></span></div>
@@ -553,6 +601,7 @@ h1.tv-marka{line-height:0}
 </div>
 <div class="ust-alt">
   <nav class="menu" aria-label="Bölümler">
+    <button data-k="Canlı" class="menu-canli"><span class="canli-nokta"></span>CANLI YAYIN</button>
     <button data-k="Kıbrıs" class="aktif">KIBRIS</button>
     <button data-k="Güney">GÜNEY</button>
     <button data-k="Türkiye">TÜRKİYE</button>
@@ -681,7 +730,7 @@ async function canliDon() {
   if (!adres) return;
   try { if ((await fetch(adres + "/tvplas/index.m3u8", { cache: "no-store" })).ok) canliAc(); } catch (e) {}
 }
-document.addEventListener("visibilitychange", canliDon);
+document.addEventListener("visibilitychange", () => { if (canliAcik) canliDon(); });
 // 2026-11-14 kullanıcı: "portal yayınlarında görüntü ve sesler birbirini tutmuyor, kalıcı çözün". Sunucudan çıkan yayın
 // her kalitede uyumlu ölçüldü (≤0,08 sn); kayma izleyicinin tarayıcısında oluşuyor. Sekme arkadayken Chrome görüntüyü
 // çözmeyi bırakıp sesi sürdürebiliyor: sekme öne gelince oynatıcı aynı ana yeniden konumlanır, ses ve görüntü hizalanır.
@@ -801,13 +850,115 @@ function sesiAc() {
 sesAc.onclick = sesiAc;
 // Tam ekran: bilgisayar ve Android'de rozetle birlikte büyür; iPhone yalnızca videoyu kendi oynatıcısında büyütebilir
 document.getElementById("tamEkran").onclick = () => {
-  const cerceve = document.getElementById("canliCerceve");
+  const cerceve = canliCerceve;
   const v = canliKutu.querySelector("video");
   if (cerceve.requestFullscreen) cerceve.requestFullscreen().catch(() => { if (v && v.webkitEnterFullscreen) v.webkitEnterFullscreen(); });
   else if (cerceve.webkitRequestFullscreen) cerceve.webkitRequestFullscreen();
   else if (v && v.webkitEnterFullscreen) v.webkitEnterFullscreen();
 };
-canliAc();
+// 2026-11-21 kullanıcı: "canlı yayın kapağı yerine güncel Kıbrıs haberleri, canlı yayın için ayrı menü".
+// Oynatıcı sahneden alınır; yalnızca CANLI YAYIN menüsü açıkken haber alanında durur ve yayın o zaman başlar.
+// Menüden çıkılınca yayın durur (izleyici olmayan sayfada boşuna yayın indirilmez).
+const canliCerceve = document.getElementById("canliCerceve");
+canliCerceve.remove();
+let canliAcik = false, canliSayfa = null;
+function canliSayfaYap() {
+  const kutu = el("section", "canli-sayfa");
+  kutu.append(canliCerceve, el("p", "canli-not", "📺 TVPLAS canlı yayın · Haber bültenleri her saat başı ve buçukta. Ses kapalı başlarsa oynatıcıdaki “Sesi açmak için dokunun” düğmesine basın."));
+  return kutu;
+}
+function canliBaslat() {
+  if (canliAcik) return;
+  canliAcik = true;
+  canliSesli = true;   // menüye tıklamak kullanıcı hareketi: tarayıcı izin verirse sesli başlar, vermezse sessiz
+  canliAc();
+}
+function canliDurdur() {
+  if (!canliAcik) return;
+  canliAcik = false;
+  clearInterval(canliDeneme); canliDeneme = null;
+  canliSayacDur();
+  canliCerceve.querySelector(".basin-sahne .basin-kapat")?.click();
+  if (document.fullscreenElement === canliCerceve) document.exitFullscreen().catch(() => {});
+  canliTemizle();
+  sesAc.hidden = true;
+}
+
+// ================= Manşet slider'ı: en yeni fotoğraflı Kıbrıs haberleri =================
+const MANSET_SAYI = 14, MANSET_SURE = 6000;
+const mansetSahne = document.getElementById("mansetSahne"), mansetSayfalar = document.getElementById("mansetSayfalar");
+let mansetler = [], mansetNo = 0, mansetZaman = null, mansetDur = false;
+function mansetBaslik(b) {
+  // Uzun başlık iki parçaya bölünür: ilk kısmı beyaz, ikinci kısmı kırmızı (örnekteki gibi)
+  const s = String(b || "").replace(/\s+/g, " ").trim(), h = el("div", "manset-baslik");
+  const kelime = s.split(" ");
+  if (kelime.length < 4) { h.textContent = s; return h; }
+  const yari = Math.ceil(kelime.length / 2);
+  h.append(kelime.slice(0, yari).join(" ") + " ", el("span", "kirmizi", kelime.slice(yari).join(" ")));
+  return h;
+}
+function mansetKareYap(h, i) {
+  const a = el("a", "manset-kare");
+  a.href = "#"; a.setAttribute("role", "tabpanel"); a.setAttribute("aria-label", (i + 1) + ". manşet: " + h.b);
+  a.onclick = e => { e.preventDefault(); tiklandi(h, el("span")); detayAc(ozetHaber(h)); };
+  const img = el("img");
+  img.src = h.g; img.alt = ""; img.referrerPolicy = "no-referrer"; img.decoding = "async";
+  if (i > 1) img.loading = "lazy";
+  img.onerror = () => { mansetler = mansetler.filter(x => x !== h); mansetCiz(true); };   // fotoğrafı açılmayan manşetten çıkar
+  const ust = el("div", "manset-ust", "Kıbrıs'tan son dakika · " + kac(h.t));
+  const alt = el("div", "manset-alt");
+  alt.append(el("span", "rozet", "TVPLAS"), el("span", "ozet", String(h.o || "Haberin tamamı için dokunun").replace(/\s+/g, " ").slice(0, 140)));
+  a.append(img, ust, mansetBaslik(h.b), alt);
+  return a;
+}
+function mansetGoster(n) {
+  if (!mansetler.length) return;
+  mansetNo = (n + mansetler.length) % mansetler.length;
+  mansetSahne.querySelectorAll(".manset-kare").forEach((k, i) => { k.classList.toggle("aktif", i === mansetNo); k.inert = i !== mansetNo; });
+  mansetSayfalar.querySelectorAll("button").forEach((b, i) => { b.classList.toggle("aktif", i === mansetNo); b.setAttribute("aria-selected", i === mansetNo); });
+  const d = mansetSayfalar.children[mansetNo];
+  if (d) mansetSayfalar.scrollTo({ left: d.offsetLeft - mansetSayfalar.clientWidth / 2 + d.offsetWidth / 2, behavior: "smooth" });
+  mansetSay();
+}
+function mansetSay() {
+  clearTimeout(mansetZaman);
+  if (mansetler.length > 1) mansetZaman = setTimeout(() => { if (!mansetDur && !document.hidden && !detay.open) mansetGoster(mansetNo + 1); else mansetSay(); }, MANSET_SURE);
+}
+function mansetCiz(yeniden) {
+  if (!yeniden) {
+    const onceki = mansetler[mansetNo];
+    mansetler = haberler.filter(h => h.kat === "Kıbrıs" && h.g && !h.v && /^https?:/i.test(h.g))
+      .sort((x, y) => (y.t || "").localeCompare(x.t || "")).slice(0, MANSET_SAYI);
+    const ayni = onceki && mansetler.findIndex(h => kimlik(h) === kimlik(onceki));
+    mansetNo = ayni > 0 ? ayni : 0;
+  }
+  if (mansetNo >= mansetler.length) mansetNo = 0;
+  if (!mansetler.length) { mansetSahne.replaceChildren(el("div", "manset-bos", "Şu an manşet yok")); mansetSayfalar.replaceChildren(); return; }
+  mansetSahne.replaceChildren(...mansetler.map(mansetKareYap));
+  mansetSayfalar.replaceChildren(...mansetler.map((h, i) => {
+    const b = el("button", "", String(i + 1));
+    b.type = "button"; b.setAttribute("role", "tab"); b.title = h.b;
+    b.onclick = () => mansetGoster(i);
+    return b;
+  }));
+  mansetGoster(mansetNo);
+}
+document.getElementById("mansetGeri").onclick = () => mansetGoster(mansetNo - 1);
+document.getElementById("mansetIleri").onclick = () => mansetGoster(mansetNo + 1);
+const mansetKutu = document.getElementById("manset");
+mansetKutu.addEventListener("mouseenter", () => mansetDur = true);
+mansetKutu.addEventListener("mouseleave", () => mansetDur = false);
+mansetKutu.addEventListener("focusin", () => mansetDur = true);
+mansetKutu.addEventListener("focusout", () => mansetDur = false);
+// Telefonda parmakla sağa/sola kaydırınca haber değişir
+let mansetX = null;
+mansetSahne.addEventListener("touchstart", e => { mansetX = e.touches[0].clientX; }, { passive: true });
+mansetSahne.addEventListener("touchend", e => {
+  if (mansetX == null) return;
+  const fark = e.changedTouches[0].clientX - mansetX; mansetX = null;
+  if (Math.abs(fark) > 40) mansetGoster(mansetNo + (fark < 0 ? 1 : -1));
+});
+mansetKutu.addEventListener("keydown", e => { if (e.key === "ArrowLeft") mansetGoster(mansetNo - 1); if (e.key === "ArrowRight") mansetGoster(mansetNo + 1); });
 
 // Yayın akışı: vMix düzeni sabit (haber bülteni :00/:30, reklam ve tanıtım :15/:45, arada müzik videoları)
 function logoRozet() {
@@ -974,7 +1125,7 @@ function kapakHedefi() {
   } catch (e) { }
   const p = new URLSearchParams(q), kim = s => /^[0-9a-z]{1,8}$/.test(s || "") ? s : "";
   const b = p.get("b");
-  return { h: kim(p.get("h")), r: kim(p.get("r")), b: b === "Gazeteler" || BOLUMLER.includes(b) ? b : "" };
+  return { h: kim(p.get("h")), r: kim(p.get("r")), b: b === "Gazeteler" || b === "Canlı" || BOLUMLER.includes(b) ? b : "" };
 }
 
 function hedefAc(reklamlar) {
@@ -1284,7 +1435,9 @@ let basinVideo = null;
 // 2026-11-17 kullanıcı: Basında Bugün yalnızca tıklanınca canlı yayın ekranında açılsın, köşesinde kapat düğmesi olsun.
 // Yan sütundaki kart kapak resmidir; tıklanınca video canlı yayının üzerinde oynar, ✕ ile kapanınca canlı yayın sürer.
 function basinSahnede() {
-  const cerceve = document.getElementById("canliCerceve");
+  // 2026-11-21: oynatıcı CANLI YAYIN menüsünde; Basında Bugün açılınca önce o menüye geçilir
+  if (bolum !== "Canlı") canliMenuAc();
+  const cerceve = canliCerceve;
   if (cerceve.querySelector(".basin-sahne")) return;
   const canli = canliKutu.querySelector("video:not(.yedek)"), sessizdi = canli ? canli.muted : true;
   if (canli) canli.muted = true;
@@ -1451,6 +1604,14 @@ function diz(ogeler, yap, reklamli) {
 
 function ciz() {
   const q = ara.value.trim().toLocaleLowerCase("tr");
+  if (bolum === "Canlı") {
+    // aramaya yazılınca oynatıcı yerinde kalır, sonuçlar altında listelenir
+    const ust = [el("div", "bolum-baslik", "🔴 TVPLAS Canlı Yayın"), canliSayfa || (canliSayfa = canliSayfaYap())];
+    if (!q) { liste.replaceChildren(...ust); return; }
+    const bulunan = haberler.filter(h => aramaMetni(h).includes(q));
+    liste.replaceChildren(...ust, ...(bulunan.length ? diz(bulunan, kartYap, false) : [el("div", "durum", "Aramaya uyan haber yok.")]));
+    return;
+  }
   if (!q && bolum === "Gazeteler") {
     if (!gazeteler) { liste.replaceChildren(el("div", "durum", "Gazeteler yükleniyor…")); return; }
     if (!gazeteler.length) { liste.replaceChildren(el("div", "durum", "Bugünün gazeteleri henüz hazırlanıyor, haberler için menüden bir bölüm seçin.")); return; }
@@ -1564,8 +1725,15 @@ document.querySelectorAll(".menu button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".menu button").forEach(x => x.classList.toggle("aktif", x === b));
   bolum = b.dataset.k;
   ara.value = "";
+  if (bolum === "Canlı") canliBaslat(); else canliDurdur();
   ciz();
+  if (bolum === "Canlı") canliCerceve.scrollIntoView({ behavior: "smooth", block: "center" });
 });
+// Yayın akışındaki "Şu an yayında" da canlı yayını açar; portal.../tvplas.html#canli bağlantısı doğrudan canlı yayınla açılır
+const canliMenuAc = () => document.querySelector('.menu button[data-k="Canlı"]').click();
+const simdiKutu = document.getElementById("simdi");
+simdiKutu.classList.add("tikla"); simdiKutu.title = "Canlı yayını izle"; simdiKutu.onclick = canliMenuAc;
+if (/^#canli$/i.test(location.hash)) canliMenuAc();
 
 // Ziyaretçi sayacı (2026-11-13 kullanıcı isteği): her sayfa açılışı sayılır. Sayfa açıkken yapılan otomatik
 // haber yenilemeleri yeniden saymaz (aynı açılışta yalnızca ilk istek ziyaret=1 gönderir)
@@ -2003,7 +2171,9 @@ async function yukle(sessiz) {
     const ust = reklamlar.find(r => r.yer === "ust");
     document.getElementById("reklamUst").replaceChildren(...(ust ? [reklamYap(ust)] : []));
     araReklam = reklamlar.filter(r => r !== ust);
-    ciz();
+    mansetCiz();
+    // CANLI YAYIN açıkken otomatik yenileme oynatıcıyı yeniden çizmez (yayın kesilmesin)
+    if (bolum !== "Canlı" || ara.value.trim()) ciz();
     document.getElementById("zaman").textContent =
       haberler.length + " haber · son güncelleme " + kac(veri.guncelleme);
     sonYukleme = Date.now();
