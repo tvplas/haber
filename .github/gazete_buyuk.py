@@ -40,7 +40,8 @@ def temiz_satir(s):
 def oku(resim):
     """Sayfayı Tesseract ile okur; [{b: başlık, m: metin, y: başlık yüksekliği}] döner (okuma sırasıyla)."""
     gri = ImageOps.grayscale(resim)
-    gri = gri.resize((round(gri.width * 1.6), round(gri.height * 1.6)), Image.LANCZOS)   # küçük gövde yazısı için büyütülür
+    gri = gri.resize((round(gri.width * 2), round(gri.height * 2)), Image.LANCZOS)   # küçük gövde yazısı için büyütülür
+    gri = ImageOps.autocontrast(gri, cutoff=1)
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         gri.save(f.name)
         yol = f.name
@@ -51,6 +52,8 @@ def oku(resim):
                              env={**os.environ, "OMP_THREAD_LIMIT": "1"}).stdout
     finally:
         os.unlink(yol)
+    # 1) Kelimeler Tesseract'ın satırlarına toplanır; satır, sütun arasındaki boşluktan bölünür (Tesseract bazen
+    #    yan yana iki sütunun satırını tek satır sayıyor, metin karışıyordu)
     satirlar, sira = {}, []
     for s in tsv.splitlines()[1:]:
         p = s.split("\t")
@@ -58,53 +61,103 @@ def oku(resim):
             continue
         k = (int(p[2]), int(p[3]), int(p[4]))   # blok, paragraf, satır
         if k not in satirlar:
-            satirlar[k] = {"k": [], "h": [], "c": [], "blok": int(p[2])}
+            satirlar[k] = []
             sira.append(k)
-        satirlar[k]["k"].append(p[11])
-        satirlar[k]["h"].append(int(p[9]))
-        satirlar[k]["c"].append(float(p[10]))
-    liste = []
+        satirlar[k].append({"x": int(p[6]), "y": int(p[7]), "w": int(p[8]), "h": int(p[9]), "c": float(p[10]), "t": p[11]})
+    parcalar = []
     for k in sira:
-        s = satirlar[k]
-        metin = temiz_satir(" ".join(s["k"]))
+        kel = sorted(satirlar[k], key=lambda w: w["x"])
+        hs = statistics.median([w["h"] for w in kel])
+        grup = [kel[0]]
+        for w in kel[1:]:
+            onceki = grup[-1]
+            if w["x"] - (onceki["x"] + onceki["w"]) > 0.85 * hs:   # normal kelime arası ≈ 0,3 harf boyu
+                parcalar.append(grup)
+                grup = []
+            grup.append(w)
+        parcalar.append(grup)
+    seg = []
+    for g in parcalar:
+        metin = temiz_satir(" ".join(w["t"] for w in g))
         harf = len(HARF.findall(metin))
-        if len(metin) < 3 or harf < 0.5 * len(metin.replace(" ", "")) or statistics.mean(s["c"]) < 35:
+        if len(metin) < 2 or harf < 0.5 * len(metin.replace(" ", "")) or statistics.mean(w["c"] for w in g) < 35:
             continue
-        liste.append({"t": metin, "h": statistics.median(s["h"]), "blok": s["blok"]})
-    if not liste:
+        x0, y0 = min(w["x"] for w in g), min(w["y"] for w in g)
+        x1, y1 = max(w["x"] + w["w"] for w in g), max(w["y"] + w["h"] for w in g)
+        seg.append({"t": metin, "x0": x0, "y0": y0, "x1": x1, "y1": y1, "h": statistics.median(w["h"] for w in g)})
+    if not seg:
         return []
-    govde = statistics.median([x["h"] for x in liste])
-    yazilar, cur = [], None
-    for x in liste:
-        baslik = x["h"] >= 1.45 * govde and len(x["t"]) >= 4
-        if baslik:
-            if cur and not cur["m"] and cur["b"] and abs(cur["y"] - x["h"]) < 0.35 * x["h"]:
-                cur["b"].append(x["t"])          # çok satırlı başlık
+    govde = statistics.median(s["h"] for s in seg)
+    for s in seg:
+        s["bas"] = s["h"] >= 1.45 * govde and len(s["t"]) >= 3
+
+    # 2) Alt alta, aynı hizadaki satırlar "sütun parçası" olur (başlıklar ayrı toplanır)
+    def ortusme(a, b):
+        return max(0, min(a["x1"], b["x1"]) - max(a["x0"], b["x0"]))
+
+    kosular = []
+    for s in sorted(seg, key=lambda s: (s["y0"], s["x0"])):
+        en, enfark = None, None
+        for k in kosular:
+            if k["bas"] != s["bas"]:
                 continue
-            if cur:
-                yazilar.append(cur)
-            cur = {"b": [x["t"]], "m": [], "y": x["h"]}
-        else:
-            if cur is None:
-                cur = {"b": [], "m": [], "y": 0}
-            cur["m"].append(x["t"])
-    if cur:
-        yazilar.append(cur)
-    sonuc = []
-    for y in yazilar:
-        metin = ""
-        for s in y["m"]:   # satır sonundaki tirelerle bölünmüş kelimeler birleştirilir
-            if metin.endswith("-") and s[:1].islower():
-                metin = metin[:-1] + s
+            son = k["s"][-1]
+            fark = s["y0"] - son["y1"]
+            if s["bas"]:
+                uygun = -0.3 * s["h"] <= fark < 0.9 * s["h"] and ortusme(son, s) > 0.3 * min(son["x1"] - son["x0"], s["x1"] - s["x0"])
             else:
-                metin = (metin + " " + s).strip()
-        b = " ".join(y["b"]).strip()
-        if not b and len(metin) < 60:
+                uygun = (-0.3 * govde <= fark < 2.2 * govde and abs(s["x0"] - k["x0"]) < 1.6 * govde
+                         and s["x1"] < k["x1"] + 2 * govde)
+            if uygun and (enfark is None or fark < enfark):
+                en, enfark = k, fark
+        if en is None:
+            kosular.append({"bas": s["bas"], "s": [s], "x0": s["x0"], "x1": s["x1"]})
+        else:
+            en["s"].append(s)
+            en["x0"], en["x1"] = min(en["x0"], s["x0"]), max(en["x1"], s["x1"])
+    for k in kosular:
+        k["y0"], k["y1"] = k["s"][0]["y0"], k["s"][-1]["y1"]
+        k["h"] = statistics.median(s["h"] for s in k["s"])
+    basliklar = [k for k in kosular if k["bas"]]
+    govdeler = [k for k in kosular if not k["bas"]]
+
+    # 3) Her sütun parçası, üstündeki ve yatayda örtüşen en yakın başlığın haberine eklenir
+    haber = {id(b): {"bas": b, "parca": []} for b in basliklar}
+    sahipsiz = []
+    for g in govdeler:
+        gen = g["x1"] - g["x0"]
+        aday = [b for b in basliklar if b["y1"] <= g["y0"] + 0.5 * govde and ortusme(b, g) >= 0.5 * gen]
+        if aday:
+            haber[id(max(aday, key=lambda b: b["y1"]))]["parca"].append(g)
+        else:
+            sahipsiz.append(g)
+
+    def birlestir(parcalar):
+        # sütunlar soldan sağa, her sütun yukarıdan aşağıya; satır sonu tireleri birleştirilir
+        metin = ""
+        for p in sorted(parcalar, key=lambda k: (round(k["x0"] / (3 * govde)), k["y0"])):
+            for s in p["s"]:
+                t = s["t"]
+                if metin.endswith("-") and t[:1].islower():
+                    metin = metin[:-1] + t
+                else:
+                    metin = (metin + " " + t).strip()
+        return metin
+
+    sonuc = []
+    for b in sorted(basliklar, key=lambda b: (b["y0"], b["x0"])):
+        h = haber[id(b)]
+        bas = " ".join(s["t"] for s in b["s"]).strip()
+        metin = birlestir(h["parca"])
+        if not metin and len(bas) < 8:
             continue
-        if b and not metin and len(b) < 8:
-            continue
-        sonuc.append({"b": b, "m": metin, "y": round(y["y"] / govde, 2)})
-    print(f"    okuma: {len(liste)} satır, gövde {govde}px, {sum(1 for y in yazilar if y['b'])} başlık, {len(sonuc)} yazı", flush=True)
+        sonuc.append({"b": bas, "m": metin, "y": round(b["h"] / govde, 2)})
+    for g in sahipsiz:   # başlıksız ama uzun metin parçaları (ör. sürmanşet, köşe yazısı girişi) da kaybolmasın
+        metin = birlestir([g])
+        if len(metin) >= 120:
+            sonuc.append({"b": "", "m": metin, "y": 0})
+    print(f"    okuma: {len(seg)} satır, gövde {govde}px, {len(basliklar)} başlık, {len(govdeler)} sütun parçası, "
+          f"{len(sahipsiz)} sahipsiz, {len(sonuc)} yazı", flush=True)
     return sonuc
 
 
