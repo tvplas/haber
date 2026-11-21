@@ -498,7 +498,7 @@ h1.tv-marka{line-height:0}
 .manset-kare.aktif{opacity:1;visibility:visible}
 .manset-kare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.04);transition:transform 7s ease-out}
 .manset-kare.aktif img{transform:scale(1)}
-.manset-kare::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.15) 38%,rgba(0,0,0,.1) 55%,rgba(0,0,0,.85) 100%)}
+.manset-kare::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 60%,rgba(0,0,0,.85) 100%)}   /* üstte yazı kalmadı: yalnız alt kısım karartılır */
 .manset-ust{position:absolute;z-index:2;left:0;right:0;top:0;padding:14px 20px 0;text-align:center;font-family:var(--sans);font-weight:800;font-size:clamp(13px,1.9vw,20px);line-height:1.25;color:#ffd400;text-shadow:0 2px 6px rgba(0,0,0,.8);text-transform:uppercase;letter-spacing:.01em}
 .manset-baslik{position:absolute;z-index:2;left:0;right:0;top:15%;padding:0 6%;text-align:center;font-family:"Inter Tight",Outfit,var(--sans);font-weight:900;font-size:clamp(22px,4.4vw,50px);line-height:1.05;text-transform:uppercase;letter-spacing:-.01em;text-shadow:0 3px 0 rgba(0,0,0,.55),0 6px 18px rgba(0,0,0,.6);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .manset-baslik .kirmizi{color:#ff1f3d}
@@ -949,7 +949,7 @@ function mansetKareYap(h, i) {
   const alt = el("div", "manset-alt");
   const logo = el("img", "rozet"); logo.src = "tvplas_logo.png"; logo.alt = "TVPLAS";
   alt.append(logo, el("span", "ozet", String(h.o || "Haberin tamamı için dokunun").replace(/\s+/g, " ").slice(0, 140)));
-  a.append(img, ust, alt);   // 2026-11-21: ortadaki büyük manşet kaldırıldı
+  a.append(img, alt);   // 2026-11-21: ortadaki manşet ve üstteki son dakika yazısı kaldırıldı
   return a;
 }
 function mansetGoster(n) {
