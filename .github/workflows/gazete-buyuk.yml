@@ -1,0 +1,35 @@
+# Günün gazetelerinin birinci sayfalarını büyük boy indirip "gazete-buyuk" dalına koyar.
+# Portal (tvplas.html) Gazeteler penceresinde bu büyük görselleri gösterir; yoksa eski küçük görsele döner.
+# Dal her çalışmada tek bir commit olarak yeniden yazılır: depo büyümez.
+name: Gazeteler büyük boy
+on:
+  schedule:
+    - cron: "20 3,5,7,9,12,15 * * *"   # Kıbrıs saatiyle yaklaşık 05:20-18:20 arası, 6 kez
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: gazete-buyuk
+  cancel-in-progress: false
+jobs:
+  indir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet pillow
+      - run: python .github/gazete_buyuk.py cikti
+      - name: gazete-buyuk dalına koy
+        working-directory: cikti
+        run: |
+          git init -q -b gazete-buyuk
+          git config user.name "tvplas-bot"
+          git config user.email "tvplas-bot@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Gazeteler $(date -u +%Y-%m-%d\ %H:%M)"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gazete-buyuk
