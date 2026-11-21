@@ -180,6 +180,19 @@ button:disabled{opacity:.6;cursor:wait}
         <button id="aiSil">Anahtarı sil (yazımı durdur)</button>
       </div>
       <div class="mesaj" id="aiMesaj"></div>
+
+      <!-- 2026-11-22: Facebook manşet kapakları. GitHub kendi zamanlamasını çalıştırmadığı için kapak görevini Apps Script her 15 dakikada başlatır -->
+      <h3 style="margin:26px 0 6px;font-size:17px">📘 Facebook manşet kapakları</h3>
+      <p style="margin:0 0 6px">Manşetteki “📘 Paylaş” düğmesinin Facebook görselleri her 15 dakikada kendiliğinden hazırlanır. Bunun için bir kez GitHub anahtarı girilir.</p>
+      <div class="mesaj iyi" id="ghDurum">Durum yükleniyor…</div>
+      <label for="ghAnahtar">GitHub anahtarı <small>(github_pat_ ile başlar; yalnızca tvplas/haber deposu, “Actions: Read and write” yetkisi. Yalnızca sunucuda saklanır, bir daha gösterilmez)</small></label>
+      <input id="ghAnahtar" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+      <button class="ana" id="ghKaydet">Anahtarı kaydet ve dene</button>
+      <div class="satir" style="margin-top:10px">
+        <button id="ghSimdi">📘 Kapakları şimdi çek</button>
+        <button id="ghSil">Anahtarı sil</button>
+      </div>
+      <div class="mesaj" id="ghMesaj"></div>
     </div>
 
     <!-- 2026-11-11 Köşe yazarları: her yazara bir kod verilir; yazar tvplas.github.io/haber/yazar.html'den yazı gönderir,
@@ -343,7 +356,7 @@ document.querySelectorAll(".sekmeler [data-s]").forEach(b => b.onclick = () => {
   document.querySelectorAll(".sekmeler [data-s]").forEach(x => x.classList.toggle("aktif", x === b));
   document.querySelectorAll(".sekme").forEach(s => s.classList.toggle("gizli", s.id !== b.dataset.s));
   if (b.dataset.s === "liste") listele();
-  if (b.dataset.s === "ai") aiDurumGoster();
+  if (b.dataset.s === "ai") { aiDurumGoster(); ghDurumGoster(); }
   if (b.dataset.s === "yazarlar") yazarListele();
 });
 
@@ -423,6 +436,36 @@ $("aiKaydet").onclick = () => {
 };
 $("aiSimdi").onclick = () => aiIslem($("aiSimdi"), { islem: "aiSimdi" }, "Haberler yazılıyor… (bir dakika kadar sürebilir)");
 $("aiSil").onclick = () => { if (confirm("Anahtar silinsin ve TVplas Haber yazımı dursun mu?")) aiIslem($("aiSil"), { islem: "aiAnahtar", anahtar: "" }, "Siliniyor…"); };
+
+// ---- Facebook manşet kapakları (GitHub anahtarı) ----
+async function ghDurumGoster() {
+  try {
+    const c = await istek({ islem: "ghDurum" });
+    if (!c.tamam) throw new Error(c.hata || "Durum alınamadı");
+    const yazi = !c.anahtar ? "⏸ GitHub anahtarı girilmedi: kapaklar kendiliğinden çekilmiyor"
+      : "✅ Kapaklar her 15 dakikada kendiliğinden çekiliyor" + (c.son ? " · son başlatma " + c.son + (c.sonTamam ? "" : " (olmadı: " + c.sonHata + ")") : "");
+    mesaj($("ghDurum"), yazi, c.anahtar && (c.sonTamam || !c.son));
+  } catch (e) { mesaj($("ghDurum"), "Olmadı: " + e.message, false); }
+}
+async function ghIslem(btn, veri, bekleme) {
+  btn.disabled = true;
+  mesaj($("ghMesaj"), bekleme, true);
+  try {
+    const c = await istek(veri);
+    if (!c.tamam) throw new Error(c.hata || "Olmadı");
+    mesaj($("ghMesaj"), c.mesaj || "✅ Tamam", true);
+    ghDurumGoster();
+    return true;
+  } catch (e) { mesaj($("ghMesaj"), "Olmadı: " + e.message, false); return false; }
+  finally { btn.disabled = false; }
+}
+$("ghKaydet").onclick = async () => {
+  const a = $("ghAnahtar").value.trim();
+  if (!a) return mesaj($("ghMesaj"), "Önce anahtarı yapıştırın.", false);
+  if (await ghIslem($("ghKaydet"), { islem: "ghAnahtar", anahtar: a }, "Anahtar deneniyor…")) $("ghAnahtar").value = "";
+};
+$("ghSimdi").onclick = () => ghIslem($("ghSimdi"), { islem: "ghSimdi" }, "Kapak görevi başlatılıyor…");
+$("ghSil").onclick = () => { if (confirm("GitHub anahtarı silinsin mi? Kapaklar kendiliğinden çekilmez.")) ghIslem($("ghSil"), { islem: "ghAnahtar", anahtar: "" }, "Siliniyor…"); };
 
 async function gonder(form, veri) {
   const btn = form.querySelector("button.ana"), m = form.querySelector(".mesaj");
