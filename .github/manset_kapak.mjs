@@ -17,7 +17,7 @@ fs.mkdirSync(SAYFA, { recursive: true });
 const kayitYolu = path.join(KAPAK, "kayit.json");
 let kayit = {};
 try { kayit = JSON.parse(fs.readFileSync(kayitYolu, "utf8")); } catch (e) { }
-const SURUM = 5; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
+const SURUM = 6; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
 const kacis = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const tarayici = await chromium.launch();
