@@ -544,6 +544,9 @@ main{--yazi:#fff;--soluk:#fff;--kart:var(--sahne);--cizgi:rgba(255,255,255,.1);c
 .menu button,.bolum-baslik,.durum{color:#fff}
 main .kart,main .kart.tvplas{background:transparent!important;border-color:transparent!important}
 main .tv-rozet img{filter:none}
+/* 2026-11-21 kullanıcı: haber penceresindeki TVPLAS logosu şeffaf olacak -> pencere de siyah zemin, beyaz yazı; logoda kontur yok */
+dialog#detay{--kart:var(--sahne);--yazi:#fff;--soluk:#fff;--cizgi:rgba(255,255,255,.12);background:var(--sahne);color:#fff;border:1px solid rgba(255,255,255,.12)}
+#detay .tv-rozet img{filter:none}
 </style>
 </head>
 <body>
