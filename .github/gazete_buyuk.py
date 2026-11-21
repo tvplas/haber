@@ -200,6 +200,7 @@ def isle(oge):
     if yazilar:
         en = max(range(len(yazilar)), key=lambda i: (yazilar[i]["y"] if yazilar[i]["b"] else 0))
         yazilar.insert(0, yazilar.pop(en))
+        yazilar = yazilar[:1] + [y for y in yazilar[1:] if len(y["m"]) >= 25]   # metni olmayan başlık kırıntıları atılır
     print(" ", dosya, resim.width, "x", resim.height, html.unescape(ad), "|", len(yazilar), "yazı", flush=True)
     return {"ad": html.unescape(ad), "anahtar": anahtar(ad), "dosya": dosya, "w": resim.width, "h": resim.height,
             "yazilar": [{"b": y["b"], "m": y["m"]} for y in yazilar]}
