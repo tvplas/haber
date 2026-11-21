@@ -112,9 +112,10 @@ def oku(resim):
             fark = s["y0"] - son["y1"]
             if s["bas"]:
                 hb = max(s["h"], son["h"])
-                alt_alta = -0.5 * hb <= fark < 1.2 * hb and ortusme(k, s) > 0.2 * min(k["x1"] - k["x0"], s["x1"] - s["x0"])
-                yan_yana = abs(s["y0"] - son["y0"]) < 0.5 * hb and -hb < s["x0"] - son["x1"] < 3 * hb
-                uygun = alt_alta or yan_yana
+                ayni_punto = abs(s["h"] - son["h"]) < 0.3 * hb      # farklı büyüklükteki başlıklar birleşmez
+                alt_alta = -0.5 * hb <= fark < 1.2 * hb and ortusme(son, s) > 0.2 * min(son["x1"] - son["x0"], s["x1"] - s["x0"])
+                yan_yana = abs(s["y0"] - son["y0"]) < 0.5 * hb and -hb < s["x0"] - son["x1"] < 1.5 * hb
+                uygun = ayni_punto and (alt_alta or yan_yana)
                 fark = abs(fark)
             else:
                 uygun = (-0.3 * govde <= fark < 2.2 * govde and abs(s["x0"] - k["x0"]) < 1.6 * govde
@@ -127,9 +128,10 @@ def oku(resim):
             en["s"].append(s)
             en["x0"], en["x1"] = min(en["x0"], s["x0"]), max(en["x1"], s["x1"])
     for k in kosular:
-        k["s"].sort(key=lambda s: (round(s["y0"] / (0.6 * s["h"])), s["x0"]))   # başlık parçaları okuma sırasına
-        k["y0"], k["y1"] = min(s["y0"] for s in k["s"]), max(s["y1"] for s in k["s"])
         k["h"] = statistics.median(s["h"] for s in k["s"])
+        if k["bas"]:   # başlık parçaları okuma sırasına (satır satır, soldan sağa); gövde zaten yukarıdan aşağı sıralı
+            k["s"].sort(key=lambda s: (round(s["y0"] / (0.6 * k["h"])), s["x0"]))
+        k["y0"], k["y1"] = min(s["y0"] for s in k["s"]), max(s["y1"] for s in k["s"])
     basliklar = [k for k in kosular if k["bas"]]
     govdeler = [k for k in kosular if not k["bas"]]
 
