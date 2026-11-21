@@ -85,7 +85,7 @@ button:disabled{opacity:.6;cursor:wait}
       <textarea id="tMetin" style="min-height:160px" placeholder="Notlarınızı ya da haberi buraya yapıştırın…"></textarea>
       <label>Fotoğraf <small>(isteğe bağlı)</small></label>
       <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>📷 Fotoğraf seçmek için dokunun</span></div>
-      <label>Video <small>(isteğe bağlı, en fazla 200 MB)</small></label>
+      <label>Video <small>(isteğe bağlı; yüklenmeden önce her cihazda kolay açılan MP4 biçimine çevrilir)</small></label>
       <div class="dosya"><input type="file" accept="video/*" data-video><span>🎬 Video seçmek için dokunun</span></div>
       <label for="tBolum">Menü</label>
       <select id="tBolum">
@@ -296,8 +296,34 @@ const base64 = parca => new Promise((ok, hata) => {
   r.readAsDataURL(parca);
 });
 
+// 2026-11-22 kullanıcı: videolar kolay açılsın. Yüklemeden önce tarayıcıda (WebCodecs + Mediabunny kütüphanesi) her cihazda
+// oynayan biçime çevrilir: MP4, H.264 görüntü + AAC ses, en çok 1280 px (720p), ~2,5 Mbps, hızlı başlatma (faststart).
+// Tarayıcı desteklemezse ya da çeviri olmazsa video olduğu gibi yüklenir; zaten küçük bir MP4 ise de olduğu gibi kalır.
+const MEDIABUNNY = "https://cdn.jsdelivr.net/npm/mediabunny@1/+esm";
+async function videoHazirla(dosya, m) {
+  if (typeof VideoEncoder === "undefined" || dosya.size > 1500 * 1048576) return dosya;
+  try {
+    mesaj(m, "🎬 Video hazırlanıyor (her cihazda açılan MP4 biçimine çevriliyor)…", true);
+    const mb = await import(MEDIABUNNY);
+    const input = new mb.Input({ formats: mb.ALL_FORMATS, source: new mb.BlobSource(dosya) });
+    const vt = await input.getPrimaryVideoTrack();
+    if (!vt) return dosya;
+    const w = vt.displayWidth, h = vt.displayHeight, video = { codec: "avc", bitrate: 2500000 };
+    if (w >= h && w > 1280) video.width = 1280; else if (h > w && h > 1280) video.height = 1280;
+    const output = new mb.Output({ format: new mb.Mp4OutputFormat({ fastStart: "in-memory" }), target: new mb.BufferTarget() });
+    const conv = await mb.Conversion.init({ input, output, video, audio: { codec: "aac", bitrate: 128000 } });
+    if (!conv.isValid || conv.discardedTracks.some(d => d.track.type === "video")) return dosya;
+    conv.onProgress = p => mesaj(m, "🎬 Video hazırlanıyor… %" + Math.floor(p * 100) + " (sayfayı kapatmayın)", true);
+    await conv.execute();
+    const cikis = new File([output.target.buffer], dosya.name.replace(/\.[^.]+$/, "") + ".mp4", { type: "video/mp4" });
+    if (/mp4/i.test(dosya.type) && cikis.size >= dosya.size) return dosya;
+    return cikis;
+  } catch (e) { console.warn("Video çevrilemedi, olduğu gibi yüklenecek:", e); return dosya; }
+}
+
 // Videoyu sunucu üzerinden Drive'a parça parça yükler, Drive dosya kimliğini döndürür
 async function videoYukle(dosya, m) {
+  dosya = await videoHazirla(dosya, m);
   if (dosya.size > 200 * 1048576) throw new Error("Video en fazla 200 MB olabilir.");
   const b = await istek({ islem: "videoBasla", ad: dosya.name, boyut: dosya.size, tur: dosya.type });
   if (!b.tamam) throw new Error(b.hata || "Video yüklemesi başlamadı");
