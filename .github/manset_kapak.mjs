@@ -18,7 +18,7 @@ fs.mkdirSync(SAYFA, { recursive: true });
 const kayitYolu = path.join(KAPAK, "kayit.json");
 let kayit = {};
 try { kayit = JSON.parse(fs.readFileSync(kayitYolu, "utf8")); } catch (e) { }
-const SURUM = 7; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
+const SURUM = 8; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
 const kacis = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const tarayici = await chromium.launch();
@@ -50,7 +50,9 @@ for (let i = 0; i < liste.length; i++) {
   </body>`);
   await birlestir.waitForFunction(() => document.getElementById("ana").complete);
   await birlestir.screenshot({ path: path.join(KAPAK, h.k + ".jpg"), type: "jpeg", quality: 88 });
-  const adres = SITE + "m/" + h.k + ".html", hedef = "../tvplas.html?h=" + h.k;
+  // 2026-11-22: Facebook bağlantının görselini kendi tarafında uzun süre saklar; kapak biçimi değişince (SURUM) paylaşım adresi ve
+  // görsel adresi de değişir (?v=SURUM), Facebook yeni görseli okur. tvplas.html'deki KAPAK_SURUM bununla aynı olmalı.
+  const adres = SITE + "m/" + h.k + ".html?v=" + SURUM, hedef = "../tvplas.html?h=" + h.k;
   fs.writeFileSync(path.join(SAYFA, h.k + ".html"), `<!doctype html>
 <html lang="tr">
 <head>
@@ -63,7 +65,7 @@ for (let i = 0; i < liste.length; i++) {
 <meta property="og:title" content="${kacis(h.b)}">
 <meta property="og:description" content="${kacis(h.o)}">
 <meta property="og:url" content="${adres}">
-<meta property="og:image" content="${HAM}${h.k}.jpg">
+<meta property="og:image" content="${HAM}${h.k}.jpg?v=${SURUM}">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
