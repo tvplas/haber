@@ -517,8 +517,21 @@ h1.tv-marka{line-height:0}
 .mt-yazi{position:absolute;z-index:3;left:4%;right:4%;bottom:34px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .mt-rozet{display:inline-flex;align-items:center;gap:.35em;background:var(--r1);color:#fff;font:700 clamp(10px,1.4vw,15px)/1 "Barlow Condensed",var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:.38em .65em;margin-bottom:.4em;box-shadow:0 3px 10px rgba(0,0,0,.45)}
 .mt-rozet-ikon{width:1.15em;height:1.15em;background:#fff;-webkit-mask:var(--ikon) center/contain no-repeat;mask:var(--ikon) center/contain no-repeat}
-.mt-buyuk{max-width:100%;font-family:Anton,"Barlow Condensed",Impact,"Arial Narrow",sans-serif;font-size:clamp(26px,6vw,70px);line-height:1;color:#fff;text-transform:uppercase;white-space:nowrap;text-shadow:0 3px 14px rgba(0,0,0,.65)}
-.mt-buyuk.iki{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mt-buyuk{max-width:100%;font-family:Anton,"Barlow Condensed",Impact,"Arial Narrow",sans-serif;font-size:clamp(26px,6vw,70px);line-height:1.14;padding-top:.06em;color:#fff;text-transform:uppercase;white-space:nowrap;text-shadow:0 3px 14px rgba(0,0,0,.65)}
+.mt-buyuk.iki{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}   /* satır aralığı Türkçe İ Ğ Ü Ş Ç Ö işaretleri kesilmesin diye 1.14 */
+/* Menü kartlarındaki görsel: aynı tabloid tarz, sade (alt başlık ve alt satır yok); kartın eski resim kuralları ezilir */
+.resim:has(.kart-mt){position:relative;overflow:hidden;container-type:inline-size}
+.resim .kart-mt img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;transition:none!important}
+.resim .kart-mt .mt-yan img{transform:scale(1.6)!important}
+.resim .kart-mt .mt-sol img{object-position:15% 30%!important;transform-origin:30% 30%}.resim .kart-mt .mt-sag img{object-position:85% 30%!important;transform-origin:70% 30%}
+.resim .kart-mt .mt-cerceve img{object-position:50% 22%!important;transform:none!important}
+.kart:hover .resim .kart-mt .mt-cerceve img{transform:scale(1.05)!important;transition:transform .6s cubic-bezier(.2,.7,.2,1)!important}
+.kart-mt .mt-yan{height:78%}
+.kart-mt .mt-cerceve{top:5%;width:52%;height:66%;border-width:3px}
+.kart-mt .mt-karart{height:52%}
+.kart-mt .mt-yazi{bottom:6%}
+.kart-mt .mt-rozet{font-size:clamp(9px,3.4cqw,13px);margin-bottom:.3em}
+.resim .kunye,.resim.video::after{z-index:5}
 .mt-alt{margin-top:.3em;max-width:100%;font:700 clamp(13px,2vw,23px)/1.18 "Barlow Condensed",var(--sans);color:#fff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .mt-ayak{position:absolute;z-index:3;left:0;right:0;bottom:0;height:30px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;font:600 12px var(--sans)}
 .mt-kaynak{display:flex;align-items:center;gap:8px;color:#6ea8ff}.manset-kare .mtab img.mt-logo{position:static;inset:auto;width:auto;height:13px;object-fit:contain;transform:none;display:block}
@@ -1007,22 +1020,26 @@ function mansetOzet(b) {
   if (ad.length <= 3) return [ad.join(" "), s];
   return [r.ek || !hepsiBuyuk ? ad[ad.length - 1] : ad.slice(0, 4).join(" "), s];   // uzun unvanlı adda son kelime (soyad)
 }
-function mansetTabloid(h) {
-  const ikon = metaforIkon(h), [ad, r1, r2] = MANSET_KONU[ikon] || ["Gündem", ...MG_GUNDEM];
-  const t = el("div", "mtab");
+// kart: menülerdeki haber kartının görseli (aynı tarz; alt başlık ve alt satır kartın kendi yazısında olduğundan yok)
+function mansetTabloid(h, kart) {
+  const ikon = metaforIkon(h), bolumAdi = h.alt || h.kat;
+  const [ad, r1, r2] = MANSET_KONU[ikon] || [bolumAdi && bolumAdi !== "Kıbrıs" ? bolumAdi : "Gündem", ...(BOLUM_RENK[bolumAdi] || MG_GUNDEM)];
+  const t = el("div", "mtab" + (kart ? " kart-mt" : ""));
   t.style.setProperty("--r1", r1);
   t.style.setProperty("--r2", r2);
   t.style.setProperty("--ikon", "url(" + IKON + ikon + ".svg)");
   const foto = h.g && /^https?:/i.test(h.g) ? h.g : "";
-  const resim = () => { const im = el("img"); im.src = foto; im.alt = ""; im.referrerPolicy = "no-referrer"; im.decoding = "async"; im.onerror = () => t.classList.add("fotosuz"); return im; };
+  const resim = () => { const im = el("img"); im.src = foto; im.alt = ""; im.referrerPolicy = "no-referrer"; im.decoding = "async"; if (kart) im.loading = "lazy"; im.onerror = () => t.classList.add("fotosuz"); return im; };
   const sol = el("div", "mt-yan mt-sol"), sag = el("div", "mt-yan mt-sag"), cerceve = el("div", "mt-cerceve");
   if (foto) { sol.append(resim()); sag.append(resim()); cerceve.append(resim()); } else t.classList.add("fotosuz");
   cerceve.append(el("span", "mt-ikon"));
   const [buyuk, altBaslik] = mansetOzet(h.b);
   const yazi = el("div", "mt-yazi"), rozet = el("span", "mt-rozet");
   rozet.append(el("span", "mt-rozet-ikon"), el("span", "", ad));
-  yazi.append(rozet, el("div", "mt-buyuk", buyuk),
-    el("div", "mt-alt", altBaslik || String(h.o || "").replace(/\s+/g, " ").split(/(?<=[.!?])\s/)[0].slice(0, 170)));
+  yazi.append(rozet, el("div", "mt-buyuk", buyuk));
+  if (kart) { t.append(sol, sag, cerceve, el("span", "mt-karart"), yazi); return t; }
+  // Alt başlık yoksa özetin ilk cümlesi ("Dr.", "Av." gibi kısaltmalarda bölünmez)
+  yazi.append(el("div", "mt-alt", altBaslik || String(h.o || "").replace(/\s+/g, " ").split(/(?<=[a-zçğıöşü0-9"”]{3}[.!?])\s(?=[A-ZÇĞİÖŞÜ"“])/)[0].slice(0, 170)));
   const ayak = el("div", "mt-ayak"), kaynak = el("span", "mt-kaynak"), logo = el("img", "mt-logo");
   logo.src = "tvplas_logo.png"; logo.alt = "TVPLAS";
   kaynak.append(logo, el("span", "", "Kıbrıs Haberleri"));
@@ -1031,19 +1048,27 @@ function mansetTabloid(h) {
   return t;
 }
 // Özet başlık tek satıra sığana kadar küçültülür; en küçük boyda da sığmazsa iki satıra iner
-function mansetSigdir() {
-  document.querySelectorAll("#mansetSahne .mt-buyuk").forEach(b => {
-    const gen = b.parentElement.clientWidth;
-    if (!gen) return;
-    b.classList.remove("iki");
-    let fs = Math.min(76, gen * 0.105);
-    b.style.fontSize = fs + "px";
-    while (b.scrollWidth > gen && fs > gen * 0.06) { fs -= 2; b.style.fontSize = fs + "px"; }
-    if (b.scrollWidth > gen) { b.classList.add("iki"); b.style.fontSize = Math.min(76, gen * 0.075) + "px"; }
-  });
+function buyukSigdir(b) {
+  const gen = b.parentElement.clientWidth;
+  if (!gen) return;
+  const kart = !!b.closest(".kart-mt"), enBuyuk = kart ? 56 : 76;
+  b.classList.remove("iki");
+  let fs = Math.min(enBuyuk, gen * (kart ? 0.12 : 0.105));
+  b.style.fontSize = fs + "px";
+  while (b.scrollWidth > gen && fs > gen * 0.06) { fs -= 1.5; b.style.fontSize = fs + "px"; }
+  if (b.scrollWidth > gen) { b.classList.add("iki"); b.style.fontSize = Math.min(enBuyuk, gen * (kart ? 0.085 : 0.075)) + "px"; }
 }
-addEventListener("resize", () => { clearTimeout(mansetSigdir.z); mansetSigdir.z = setTimeout(mansetSigdir, 150); });
-document.fonts && document.fonts.ready.then(() => mansetSigdir());
+function mansetSigdir() { document.querySelectorAll("#mansetSahne .mt-buyuk").forEach(buyukSigdir); }
+// Menü kartlarında başlık, kart ekrana yaklaşınca sığdırılır (yüzlerce kartı birden ölçmemek için)
+const kartGozcu = "IntersectionObserver" in window ? new IntersectionObserver(g => g.forEach(x => {
+  if (x.isIntersecting) { kartGozcu.unobserve(x.target); buyukSigdir(x.target); }
+}), { rootMargin: "400px" }) : null;
+function kartSigdir(b) { if (kartGozcu) kartGozcu.observe(b); else requestAnimationFrame(() => buyukSigdir(b)); }
+addEventListener("resize", () => {
+  clearTimeout(mansetSigdir.z);
+  mansetSigdir.z = setTimeout(() => { mansetSigdir(); document.querySelectorAll(".kart-mt .mt-buyuk").forEach(kartSigdir); }, 150);
+});
+document.fonts && document.fonts.ready.then(() => { mansetSigdir(); document.querySelectorAll(".kart-mt .mt-buyuk").forEach(kartSigdir); });
 function mansetKareYap(h, i) {
   const a = el("a", "manset-kare");
   a.href = "#"; a.setAttribute("role", "tabpanel"); a.setAttribute("aria-label", (i + 1) + ". manşet: " + h.b);
@@ -1338,18 +1363,18 @@ function kartYap(h) {
   const resim = el("a", "resim" + (h.v || h.vu ? " video" : "") + (portre ? " portre" : ""));
   const adres = turkceAdres(h);
   baglanti(resim, adres);
+  // 2026-11-21 kullanıcı: "bu görsel formatını bütün menülerdeki görsellere uygula" -> kart görseli de tabloid manşet
+  // tarzında (çerçeveli fotoğraf, kırmızı tramlı yanlar, konu rozeti, iri özet başlık); fotoğrafsız haberde konu sembolü
+  const tab = mansetTabloid(h, true);
+  resim.append(tab);
+  kartSigdir(tab.querySelector(".mt-buyuk"));
   if (h.g) {
-    const img = el("img");
-    img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = "";
     // Kıbrıs haberleri gerçek fotoğrafla gösterilir: fotoğrafı açılmayan haber listeden çıkar (kendi haberlerimiz hariç)
-    img.onerror = () => h.kat === "Kıbrıs" && !h.tvplas ? kart.remove() : resim.replaceChildren(metaforYap(h));
-    resim.append(img);
+    tab.querySelector(".mt-cerceve img")?.addEventListener("error", () => { if (h.kat === "Kıbrıs" && !h.tvplas) kart.remove(); });
     // TVplas Haber: fotoğraf haberin kaynağına aittir; künyede kaynak adı yazılır ("Fotoğraf: Kaynak")
     // Dış kaynaklı haberlerde fotoğraf o kaynağındır ("Fotoğraf: Kaynak"); köşe yazarının vesikalığı ve videoda yazılmaz
     const kunyeYazi = h.gk || (!h.tvplas && h.k && !portre && (!h.v || h.vh) ? "Fotoğraf: " + h.k : "");
     if (kunyeYazi) { resim.classList.add("kunyeli"); resim.append(el("span", "kunye", kunyeYazi)); }
-  } else {
-    resim.append(metaforYap(h));
   }
   const ic = el("div", "icerik");
   const ust = el("div", "ust");
