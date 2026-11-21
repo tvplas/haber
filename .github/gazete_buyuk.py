@@ -40,13 +40,15 @@ def temiz_satir(s):
 def oku(resim):
     """Sayfayı Tesseract ile okur; [{b: başlık, m: metin, y: başlık yüksekliği}] döner (okuma sırasıyla)."""
     gri = ImageOps.grayscale(resim)
-    gri = gri.resize((gri.width * 2, gri.height * 2), Image.LANCZOS)   # küçük gövde yazısı için 2 kat büyütülür
+    gri = gri.resize((round(gri.width * 1.6), round(gri.height * 1.6)), Image.LANCZOS)   # küçük gövde yazısı için büyütülür
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         gri.save(f.name)
         yol = f.name
     try:
-        tsv = subprocess.run(["tesseract", yol, "stdout", "-l", "tur", "--psm", "1", "tsv"],
-                             capture_output=True, text=True, timeout=600).stdout
+        # Her Tesseract tek iş parçacığıyla çalışır: aynı anda 4 sayfa okunurken birbirini yavaşlatmasın
+        tsv = subprocess.run(["tesseract", yol, "stdout", "-l", "tur", "--psm", "3", "tsv"],
+                             capture_output=True, text=True, timeout=600,
+                             env={**os.environ, "OMP_THREAD_LIMIT": "1"}).stdout
     finally:
         os.unlink(yol)
     satirlar, sira = {}, []
@@ -66,7 +68,7 @@ def oku(resim):
         s = satirlar[k]
         metin = temiz_satir(" ".join(s["k"]))
         harf = len(HARF.findall(metin))
-        if len(metin) < 3 or harf < 0.55 * len(metin.replace(" ", "")) or statistics.mean(s["c"]) < 50:
+        if len(metin) < 3 or harf < 0.5 * len(metin.replace(" ", "")) or statistics.mean(s["c"]) < 35:
             continue
         liste.append({"t": metin, "h": statistics.median(s["h"]), "blok": s["blok"]})
     if not liste:
@@ -74,9 +76,9 @@ def oku(resim):
     govde = statistics.median([x["h"] for x in liste])
     yazilar, cur = [], None
     for x in liste:
-        baslik = x["h"] >= 1.7 * govde and len(x["t"]) >= 4
+        baslik = x["h"] >= 1.45 * govde and len(x["t"]) >= 4
         if baslik:
-            if cur and not cur["m"] and cur["b"] and abs(cur["y"] - x["h"]) < 0.45 * x["h"]:
+            if cur and not cur["m"] and cur["b"] and abs(cur["y"] - x["h"]) < 0.35 * x["h"]:
                 cur["b"].append(x["t"])          # çok satırlı başlık
                 continue
             if cur:
@@ -102,6 +104,7 @@ def oku(resim):
         if b and not metin and len(b) < 8:
             continue
         sonuc.append({"b": b, "m": metin, "y": round(y["y"] / govde, 2)})
+    print(f"    okuma: {len(liste)} satır, gövde {govde}px, {sum(1 for y in yazilar if y['b'])} başlık, {len(sonuc)} yazı", flush=True)
     return sonuc
 
 
@@ -154,6 +157,9 @@ def main():
             continue
         gorulen.add(k)
         secilen.append((no, ad, gun))
+    deneme = int(os.environ.get("DENEME") or 0)   # elle denemede yalnızca ilk N gazete (sonuç ayrı dala gider)
+    if deneme:
+        secilen = secilen[:deneme]
     with ThreadPoolExecutor(max_workers=4) as havuz:
         sonuc = [x for x in havuz.map(isle, secilen) if x]
     if not sonuc:
