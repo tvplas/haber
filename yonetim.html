@@ -68,7 +68,7 @@ button:disabled{opacity:.6;cursor:wait}
   <!-- Panel -->
   <div id="panel" class="gizli">
     <div class="sekmeler">
-      <button data-s="tvh" class="aktif">📰 TVPLAS HABER</button>
+      <button data-s="tvh" class="aktif" style="font-weight:700">👤 DERVİŞ GÜRYEL</button>
       <button data-s="haber">📝 Haber ekle</button>
       <button data-s="reklam">📣 Reklam ekle</button>
       <button data-s="liste">📋 Yayındakiler</button>
@@ -80,6 +80,7 @@ button:disabled{opacity:.6;cursor:wait}
     <!-- 2026-11-21 kullanıcı: TVPLAS HABER kartı. Yöneticinin metni (herhangi bir dilde, dağınık olabilir) fotoğraf/videoyla
          birlikte Claude ile TÜRKÇE TVPLAS HABER biçimine dönüştürülür (aiHaberYaz), kontrol edilip seçilen menüde yayınlanır (haberEkle) -->
     <form id="tvh" class="kutu sekme">
+      <h2 style="margin:0 0 4px;font-size:19px">📰 TVPLAS HABER</h2>
       <label for="tMetin">Haber metni <small>(dağınık olabilir; hangi dilde yazarsanız yazın haber Türkçe yazılır)</small></label>
       <textarea id="tMetin" style="min-height:160px" placeholder="Notlarınızı ya da haberi buraya yapıştırın…"></textarea>
       <label>Fotoğraf <small>(isteğe bağlı)</small></label>
@@ -97,6 +98,7 @@ button:disabled{opacity:.6;cursor:wait}
         <input id="tBaslik" type="text" maxlength="200">
         <label for="tOzet">Haber metni <small>(düzeltebilirsiniz)</small></label>
         <textarea id="tOzet" style="min-height:260px"></textarea>
+        <label class="onay"><input id="tManset" type="checkbox"> Manşette de göster <small style="font-weight:400;color:var(--soluk)">(yabancı haberlerde kendiliğinden işaretlenir; haber yine seçtiğiniz menüde yayınlanır)</small></label>
         <button class="ana" type="submit">Haberi yayınla</button>
       </div>
       <div class="mesaj"></div>
@@ -113,10 +115,8 @@ button:disabled{opacity:.6;cursor:wait}
       <div class="dosya"><input type="file" accept="video/*" data-video><span>🎬 Video seçmek için dokunun</span></div>
       <label for="hBolum">Bölüm <small>(haberin portalda çıkacağı menü)</small></label>
       <select id="hBolum">
-        <option>Kıbrıs</option><option>Güney</option><option>Türkiye</option><option>Dünya</option>
-        <option>Müzik</option><option>Kültür-Sanat</option><option>Magazin</option>
-        <option>Bilim</option><option>Sağlık</option><option>Ekonomi</option>
-        <option>Spor</option>
+        <option>Kıbrıs</option><option>Güney</option><option>Türkiye</option><option>Dünya</option><option>UK</option>
+        <option>Müzik</option>
         <optgroup label="Alt menü">
           <option value="Fotoğraflar">Fotoğraflar (galeri)</option>
           <option value="Yazarlar">Yazarlar (köşe yazısı)</option>
@@ -515,7 +515,7 @@ $("tYaz").onclick = async () => {
     const gorsel = f ? await kucult(f) : v ? await kareAl(v) : "";
     const c = await istek({ islem: "aiHaberYaz", metin, bolum: $("tBolum").value, gorsel });
     if (!c.tamam) throw new Error(c.hata || "Haber yazılamadı");
-    $("tBaslik").value = c.baslik; $("tOzet").value = c.metin;
+    $("tBaslik").value = c.baslik; $("tOzet").value = c.metin; $("tManset").checked = !!c.yabanci;
     $("tTaslak").classList.remove("gizli");
     mesaj(m, "Haber hazır. Kontrol edin, gerekirse düzeltin ve “Haberi yayınla”ya basın.", true);
     $("tBaslik").focus();
@@ -526,7 +526,7 @@ $("tvh").onsubmit = async e => {
   e.preventDefault();
   if (!$("tBaslik").value.trim()) return mesaj($("tvh").querySelector(".mesaj"), "Başlık boş olamaz.", false);
   const bolum = $("tBolum").value;
-  await gonder($("tvh"), { islem: "haberEkle", baslik: $("tBaslik").value.trim(), ozet: $("tOzet").value.trim(), bas: bugun(), bolum });
+  await gonder($("tvh"), { islem: "haberEkle", baslik: $("tBaslik").value.trim(), ozet: $("tOzet").value.trim(), bas: bugun(), bolum, manset: $("tManset").checked });
   if ($("tvh").querySelector(".mesaj").classList.contains("iyi")) {
     $("tTaslak").classList.add("gizli"); $("tYaz").textContent = "✍ Haberi yaz";
     $("tvh").querySelector("[data-onizleme]").parentElement.querySelector("span").textContent = "📷 Fotoğraf seçmek için dokunun";
