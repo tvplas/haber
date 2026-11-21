@@ -1039,7 +1039,7 @@ function mansetTabloid(h, kart) {
   yazi.append(rozet, el("div", "mt-buyuk", buyuk));
   if (kart) { t.append(sol, sag, cerceve, el("span", "mt-karart"), yazi); return t; }
   // Alt başlık yoksa özetin ilk cümlesi ("Dr.", "Av." gibi kısaltmalarda bölünmez)
-  yazi.append(el("div", "mt-alt", altBaslik || String(h.o || "").replace(/\s+/g, " ").split(/(?<=[a-zçğıöşü0-9"”]{3}[.!?])\s(?=[A-ZÇĞİÖŞÜ"“])/)[0].slice(0, 170)));
+  yazi.append(el("div", "mt-alt", altBaslik || String(h.o || "").replace(/\s+/g, " ").split(/(?<=[a-zçğıöşü0-9"”]{3}[.!?])\s(?=[A-ZÇĞİÖŞÜ"“])/)[0]));   // uzunsa iki satırın sonunda "…" ile biter
   const ayak = el("div", "mt-ayak"), kaynak = el("span", "mt-kaynak"), logo = el("img", "mt-logo");
   logo.src = "tvplas_logo.png"; logo.alt = "TVPLAS";
   kaynak.append(logo, el("span", "", "Kıbrıs Haberleri"));
