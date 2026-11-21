@@ -949,7 +949,7 @@ function mansetKareYap(h, i) {
   const alt = el("div", "manset-alt");
   const logo = el("img", "rozet"); logo.src = "tvplas_logo.png"; logo.alt = "TVPLAS";
   alt.append(logo, el("span", "ozet", String(h.o || "Haberin tamamı için dokunun").replace(/\s+/g, " ").slice(0, 140)));
-  a.append(img, ust, mansetBaslik(h.b), alt);
+  a.append(img, ust, alt);   // 2026-11-21: ortadaki büyük manşet kaldırıldı
   return a;
 }
 function mansetGoster(n) {
