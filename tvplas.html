@@ -548,13 +548,13 @@ main .tv-rozet img{filter:none}
 dialog#detay{--kart:var(--sahne);--yazi:#fff;--soluk:#fff;--cizgi:rgba(255,255,255,.12);background:var(--sahne);color:#fff;border:1px solid rgba(255,255,255,.12)}
 #detay .tv-rozet img{filter:none}
 /* 2026-11-21 Gazete penceresi: siyah zemin, büyük birinci sayfa, altında başlıklar, sağ üstte hep görünen Kapat düğmesi */
-dialog#gazeteGoster{width:min(860px,calc(100% - 20px));max-width:none;max-height:calc(100% - 20px);padding:0;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:var(--sahne);color:#fff;overflow:auto;box-shadow:0 40px 120px rgba(0,0,0,.6)}
+dialog#gazeteGoster{width:min(1080px,calc(100% - 20px));max-width:none;max-height:calc(100% - 20px);padding:0;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:var(--sahne);color:#fff;overflow:auto;box-shadow:0 40px 120px rgba(0,0,0,.6)}
 dialog#gazeteGoster::backdrop{background:rgba(0,0,0,.85);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .gz-kapat{position:sticky;top:12px;float:right;margin:12px 12px -52px 0;z-index:2;height:42px;padding:0 18px;border-radius:999px;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.75);color:#fff;font:700 15px var(--sans);cursor:pointer}
 .gz-kapat:hover{background:var(--dolu);border-color:var(--dolu)}
 .gz-govde{padding:18px 20px 30px}
 .gz-ad{min-height:30px;padding:8px 120px 0 0;margin-bottom:14px;font:800 13px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#ff4d5e}
-.gz-sayfa{display:block;width:100%;max-width:760px;height:auto;margin:0 auto;border-radius:6px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.gz-sayfa{display:block;width:100%;max-width:1000px;height:auto;margin:0 auto;border-radius:6px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .gz-basliklar{max-width:760px;margin:26px auto 0}
 .gz-basliklar .bt{font:700 12px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:#9aa0ad;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.14)}
 .gz-basliklar h2{font-family:var(--serif);font-weight:700;font-size:clamp(22px,3.4vw,32px);line-height:1.2;margin:16px 0 8px;color:#fff}
@@ -697,7 +697,7 @@ const bolumBul = t => {
 const MUZIK = /(^|[\s"'“‘(])(konser|şarkı|albüm|müzik|klip|orkestra|koro\b|korosu|dinleti|resital|opera\b|besteci|caz\b|rock\b|rap\b|türkü)/i;
 // Portal TVplas Haber menüsüyle açılır (2026-11-10 kullanıcı isteği); diğer bölümler menüden seçilir
 // 2026-11-16 kullanıcı: açılış sayfası Kıbrıs menüsüyle
-let bolum = "Kıbrıs", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "";
+let bolum = "Kıbrıs", haberler = [], araReklam = [], gazeteler = null, gazeteTarihi = "", gazeteGun = "";
 let tiklar = {};   // haber kimliği → tıklanma sayısı (sunucudan)
 const ara = document.getElementById("ara"), liste = document.getElementById("liste");
 
@@ -1444,11 +1444,28 @@ function gazeteKartYap(g) {
 const gazetePencere = document.getElementById("gazeteGoster");
 gazetePencere.querySelector(".gz-kapat").onclick = () => gazetePencere.close();
 gazetePencere.addEventListener("click", e => { if (e.target === gazetePencere) gazetePencere.close(); });   // dışına tıklayınca kapanır
+// 2026-11-21 kullanıcı: "gazete görsellerinin yazıları daha okunaklı olacak" -> GitHub Actions (gazete-buyuk.yml) günde
+// birkaç kez sayfaların büyük boyunu (≈1114×1700) "gazete-buyuk" dalına koyar. Pencere önce küçük görseli gösterir,
+// aynı günün büyük görseli varsa yüklenince onunla değiştirir; yoksa küçük görsel kalır.
+const GAZETE_BUYUK = "https://raw.githubusercontent.com/tvplas/haber/gazete-buyuk/";
+let gazeteBuyukIndex = null, gazeteAcNo = 0;
+const gazeteBuyukAl = () => gazeteBuyukIndex || (gazeteBuyukIndex = fetch(GAZETE_BUYUK + "index.json?t=" + Math.floor(Date.now() / 600000))
+  .then(r => r.ok ? r.json() : null).catch(() => null));
+const gzAnahtar = ad => String(ad || "").replace(/\s+/g, " ").trim().toLocaleUpperCase("tr");
 function gazeteAc(g) {
   const d = gazetePencere;
   d.querySelector(".gz-ad").textContent = "📰 " + g.ad + (gazeteTarihi ? " · " + gazeteTarihi : "");
   const img = d.querySelector(".gz-sayfa");
   img.referrerPolicy = "no-referrer"; img.alt = g.ad + " birinci sayfa"; img.src = g.g;
+  const no = ++gazeteAcNo;
+  gazeteBuyukAl().then(ix => {
+    if (!ix || no !== gazeteAcNo || (gazeteGun && ix.tarih !== gazeteGun)) return;
+    const b = (ix.gazeteler || []).find(x => x.anahtar === gzAnahtar(g.ad));
+    if (!b) return;
+    const buyuk = new Image();
+    buyuk.onload = () => { if (no === gazeteAcNo) img.src = buyuk.src; };
+    buyuk.src = GAZETE_BUYUK + b.dosya + "?d=" + encodeURIComponent(ix.guncelleme || ix.tarih);
+  });
   const [ilk, ...diger] = g.basliklar;
   d.querySelector(".gz-basliklar").replaceChildren(...(ilk
     ? [el("div", "bt", "Birinci sayfadaki başlıklar"), el("h2", "", ilk), ...diger.map(b => el("h3", "", b))]
@@ -1564,6 +1581,7 @@ function gazeteleriYukle() {
       .map(g => ({ ...g, ad: coz(g.ad), basliklar: (g.basliklar || []).map(coz) }))
       .sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
     if (v.tarih) {
+      gazeteGun = v.tarih;   // büyük boy görsellerin aynı güne ait olduğu bununla denetlenir
       const [gun, ay, yil] = v.tarih.split("-");
       gazeteTarihi = new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
     }
