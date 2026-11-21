@@ -68,7 +68,8 @@ button:disabled{opacity:.6;cursor:wait}
   <!-- Panel -->
   <div id="panel" class="gizli">
     <div class="sekmeler">
-      <button data-s="haber" class="aktif">📰 Haber ekle</button>
+      <button data-s="tvh" class="aktif">📰 TVPLAS HABER</button>
+      <button data-s="haber">📝 Haber ekle</button>
       <button data-s="reklam">📣 Reklam ekle</button>
       <button data-s="liste">📋 Yayındakiler</button>
       <button data-s="ai">🤖 TVplas Haber</button>
@@ -76,7 +77,32 @@ button:disabled{opacity:.6;cursor:wait}
       <button class="cikis" id="cikis">Çıkış</button>
     </div>
 
-    <form id="haber" class="kutu sekme">
+    <!-- 2026-11-21 kullanıcı: TVPLAS HABER kartı. Yöneticinin metni (herhangi bir dilde, dağınık olabilir) fotoğraf/videoyla
+         birlikte Claude ile TÜRKÇE TVPLAS HABER biçimine dönüştürülür (aiHaberYaz), kontrol edilip seçilen menüde yayınlanır (haberEkle) -->
+    <form id="tvh" class="kutu sekme">
+      <label for="tMetin">Haber metni <small>(dağınık olabilir; hangi dilde yazarsanız yazın haber Türkçe yazılır)</small></label>
+      <textarea id="tMetin" style="min-height:160px" placeholder="Notlarınızı ya da haberi buraya yapıştırın…"></textarea>
+      <label>Fotoğraf <small>(isteğe bağlı)</small></label>
+      <div class="dosya"><input type="file" accept="image/*" data-onizleme><span>📷 Fotoğraf seçmek için dokunun</span></div>
+      <label>Video <small>(isteğe bağlı, en fazla 200 MB)</small></label>
+      <div class="dosya"><input type="file" accept="video/*" data-video><span>🎬 Video seçmek için dokunun</span></div>
+      <label for="tBolum">Menü</label>
+      <select id="tBolum">
+        <option>Kıbrıs</option><option>Güney</option><option>Türkiye</option><option>Dünya</option><option>UK</option>
+        <option>Müzik</option><option>Fotoğraflar</option><option>Yazarlar</option>
+      </select>
+      <button type="button" id="tYaz" style="width:100%;padding:13px;margin-top:18px;font-weight:600">✍ Haberi yaz</button>
+      <div id="tTaslak" class="gizli">
+        <label for="tBaslik">Başlık <small>(düzeltebilirsiniz)</small></label>
+        <input id="tBaslik" type="text" maxlength="200">
+        <label for="tOzet">Haber metni <small>(düzeltebilirsiniz)</small></label>
+        <textarea id="tOzet" style="min-height:260px"></textarea>
+        <button class="ana" type="submit">Haberi yayınla</button>
+      </div>
+      <div class="mesaj"></div>
+    </form>
+
+    <form id="haber" class="kutu sekme gizli">
       <label for="hBaslik">Başlık</label>
       <input id="hBaslik" type="text" required maxlength="200">
       <label for="hOzet">Haber metni <small>(isteğe bağlı)</small></label>
@@ -432,6 +458,37 @@ $("haber").onsubmit = e => {
     bolum: $("hBolum").value, yazar: $("hYazar").value.trim(),
     yil: $("hBolum").value === "Fotoğraflar" ? $("hYil").value.trim() : ""
   });
+};
+
+// ---- TVPLAS HABER kartı ----
+$("tYaz").onclick = async () => {
+  const form = $("tvh"), m = form.querySelector(".mesaj"), btn = $("tYaz");
+  const metin = $("tMetin").value.trim();
+  const f = form.querySelector("[data-onizleme]").files[0], v = form.querySelector("[data-video]").files[0];
+  if (!metin && !f && !v) return mesaj(m, "Önce metin yazın ya da fotoğraf seçin.", false);
+  btn.disabled = true;
+  mesaj(m, "✍ Haber Türkçe yazılıyor… (yarım dakika kadar sürebilir)", true);
+  try {
+    const gorsel = f ? await kucult(f) : v ? await kareAl(v) : "";
+    const c = await istek({ islem: "aiHaberYaz", metin, bolum: $("tBolum").value, gorsel });
+    if (!c.tamam) throw new Error(c.hata || "Haber yazılamadı");
+    $("tBaslik").value = c.baslik; $("tOzet").value = c.metin;
+    $("tTaslak").classList.remove("gizli");
+    mesaj(m, "Haber hazır. Kontrol edin, gerekirse düzeltin ve “Haberi yayınla”ya basın.", true);
+    $("tBaslik").focus();
+  } catch (e) { mesaj(m, "Olmadı: " + e.message, false); }
+  finally { btn.disabled = false; btn.textContent = "✍ Yeniden yaz"; }
+};
+$("tvh").onsubmit = async e => {
+  e.preventDefault();
+  if (!$("tBaslik").value.trim()) return mesaj($("tvh").querySelector(".mesaj"), "Başlık boş olamaz.", false);
+  const bolum = $("tBolum").value;
+  await gonder($("tvh"), { islem: "haberEkle", baslik: $("tBaslik").value.trim(), ozet: $("tOzet").value.trim(), bas: bugun(), bolum });
+  if ($("tvh").querySelector(".mesaj").classList.contains("iyi")) {
+    $("tTaslak").classList.add("gizli"); $("tYaz").textContent = "✍ Haberi yaz";
+    $("tvh").querySelector("[data-onizleme]").parentElement.querySelector("span").textContent = "📷 Fotoğraf seçmek için dokunun";
+    $("tBolum").value = bolum;
+  }
 };
 
 $("reklam").onsubmit = e => {
