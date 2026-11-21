@@ -684,6 +684,7 @@ dialog#gazeteGoster::backdrop{background:rgba(0,0,0,.85);-webkit-backdrop-filter
 <footer><img class="tv-alt" src="tvplas_logo.png" alt="" width="759" height="156">Haberler TVplas Haber tarafından derlenip yazılmaktadır. Fotoğraflar künyelerinde belirtilen sahiplerine aittir; köşe yazıları yazarlarınındır.</footer>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
+const KAPAK_MODU = new URLSearchParams(location.search).has("kapakcek");   // 2026-11-21: manşet kapağı çeken GitHub görevi (ziyaret sayılmaz, manşet kendiliğinden dönmez, Paylaş düğmesi çıkmaz)
 // Menü bölümleri: sunucu Kıbrıs dışındaki haberlerin "tur" alanına bölüm adını yazar; geri kalan her şey Kıbrıs
 // "Güney": yalnızca Güney Kıbrıs'taki Rum basınının haberleri (sunucu ayırır; Kıbrıs menüsüne girmez)
 // "Fotoğraflar": yönetim panelinden bu bölüme eklenen kendi fotoğraflarımız, galeri olarak gösterilir
@@ -929,7 +930,7 @@ function canliDurdur() {
 // ================= Manşet slider'ı: en yeni fotoğraflı Kıbrıs haberleri =================
 const MANSET_SAYI = 14, MANSET_SURE = 6000;
 const mansetSahne = document.getElementById("mansetSahne"), mansetSayfalar = document.getElementById("mansetSayfalar");
-let mansetler = [], mansetNo = 0, mansetZaman = null, mansetDur = false;
+let mansetler = [], mansetNo = 0, mansetZaman = null, mansetDur = KAPAK_MODU;
 function mansetBaslik(b) {
   // Uzun başlık iki parçaya bölünür: ilk kısmı beyaz, ikinci kısmı kırmızı (örnekteki gibi)
   const s = String(b || "").replace(/\s+/g, " ").trim(), h = el("div", "manset-baslik");
@@ -985,7 +986,7 @@ function mansetCiz(yeniden) {
 }
 document.getElementById("mansetGeri").onclick = () => mansetGoster(mansetNo - 1);
 document.getElementById("mansetIleri").onclick = () => mansetGoster(mansetNo + 1);
-  try { if (localStorage.getItem("tvplas_sifre")) { const fbk = el("a", "manset-fb", "📘 Facebook kapağı"); fbk.href = "kapak.html"; fbk.target = "_blank"; fbk.rel = "noopener"; fbk.title = "Bu manşeti Facebook'ta tıklanabilir kapak olarak paylaş"; fbk.onclick = () => { const h = mansetler[mansetNo]; if (h) fbk.href = "kapak.html?manset=" + kimlik(h); }; document.getElementById("manset").append(fbk); } } catch (e) { }   // 2026-11-21: yalnız yönetici (beni hatırla) görür
+  if (!KAPAK_MODU) { const fbk = el("a", "manset-fb", "📘 Paylaş"); fbk.href = "#"; fbk.title = "Bu manşeti Facebook'ta paylaş"; fbk.onclick = async e => { e.preventDefault(); const h = mansetler[mansetNo]; if (!h) return; const k = kimlik(h), pen = window.open("about:blank", "_blank"); let u = paylasAdres(h); try { const r = await fetch("m/" + k + ".html", { method: "HEAD", cache: "no-store" }); if (r.ok) u = new URL("m/" + k + ".html", location.href).href; } catch (x) { } const fb = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u); if (pen) pen.location.href = fb; else location.href = fb; }; document.getElementById("manset").append(fbk); }   // 2026-11-21 kullanıcı: herkese açık Facebook paylaşımı; kapak, sayfanın bu bölümünün ekran görüntüsü (m/<kimlik>.html, GitHub görevi üretir), henüz yoksa haberin olağan paylaşımı
 const mansetKutu = document.getElementById("manset");
 mansetKutu.addEventListener("mouseenter", () => mansetDur = true);
 mansetKutu.addEventListener("mouseleave", () => mansetDur = false);
@@ -1805,7 +1806,7 @@ function bugunTarih() {
 
 let ziyaretSayildi = false;
 function sayilacakMi() {
-  if (ziyaretSayildi) return false;
+  if (ziyaretSayildi || KAPAK_MODU) return false;
   ziyaretSayildi = true;
   return true;
 }
