@@ -165,11 +165,11 @@ def oku(resim):
         metin = birlestir(h["parca"])
         if len(metin) < 25 and len(bas) < 15:   # metinsiz kısa başlık parçaları (süslü yazı kırıntıları) atılır
             continue
-        sonuc.append({"b": bas, "m": metin, "y": round(b["h"] / govde, 2)})
+        sonuc.append({"b": bas, "m": metin, "y": round(b["h"] / govde, 2), "u": round(b["y0"] / gri.height, 3)})
     for g in sahipsiz:   # başlıksız ama uzun metin parçaları (ör. sürmanşet, köşe yazısı girişi) da kaybolmasın
         metin = birlestir([g])
         if len(metin) >= 120:
-            sonuc.append({"b": "", "m": metin, "y": 0})
+            sonuc.append({"b": "", "m": metin, "y": 0, "u": round(g["y0"] / gri.height, 3)})
     print(f"    okuma: {len(seg)} satır, gövde {govde}px, {len(basliklar)} başlık, {len(govdeler)} sütun parçası, "
           f"{len(sahipsiz)} sahipsiz, {len(sonuc)} yazı", flush=True)
     return sonuc
@@ -196,6 +196,17 @@ def isle(oge):
     except Exception as e:
         print("  okunamadı:", no, ad, e, flush=True)
         yazilar = []
+    # Gazetenin kendi logosu / adresi başlık sayılmaz (en büyük yazı çoğu zaman logodur)
+    ad_k = re.sub(r"[^A-ZÇĞİÖŞÜ0-9]", "", anahtar(ad))
+
+    def logo_mu(y):
+        t = re.sub(r"[^A-ZÇĞİÖŞÜ0-9]", "", y["b"].replace("i", "İ").upper())
+        return bool(t) and ("WWW" in t or ".com" in y["b"].lower() or ad_k in t or (len(t) >= 4 and t in ad_k)
+                            or (y["u"] < 0.07 and len(y["m"]) < 60))
+    for y in yazilar:
+        if y["b"] and logo_mu(y):
+            y["b"] = ""
+    yazilar = [y for y in yazilar if y["b"] or len(y["m"]) >= 60]
     # Manşet: en büyük puntolu başlık; geri kalanlar sayfadaki okuma sırasıyla
     if yazilar:
         en = max(range(len(yazilar)), key=lambda i: (yazilar[i]["y"] if yazilar[i]["b"] else 0))
