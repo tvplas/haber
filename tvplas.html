@@ -1753,14 +1753,14 @@ function fotoKartYap(h) {
   const kart = el("article", "kart foto");
   const resim = el("a", "resim" + (h.v ? " video" : ""));
   resim.href = "#";
-  if (h.g) {
-    const img = el("img");
-    img.src = h.g; img.loading = "lazy"; img.referrerPolicy = "no-referrer"; img.alt = h.b || "";
-    img.onerror = () => resim.replaceChildren(metaforYap(h));
-    resim.append(img);
-  } else {
-    resim.append(metaforYap(h));
-  }
+  // 2026-11-21 kullanıcı: tabloid görsel formatı Fotoğraflar galerisinde de (dokununca fotoğraf yine açıklamasıyla büyür)
+  const tab = mansetTabloid(h, true);
+  // Galeride konu tahmini yerine kamera simgesi ve fotoğrafın yılı ("FOTOĞRAF · 1966"), TVPLAS kırmızısı
+  tab.style.setProperty("--r1", "#c8102e"); tab.style.setProperty("--r2", "#4a0410");
+  tab.style.setProperty("--ikon", "url(" + IKON + "camera.svg)");
+  tab.querySelector(".mt-rozet span:last-child").textContent = "Fotoğraf" + (fotoYili(h) ? " · " + fotoYili(h) : "");
+  resim.append(tab);
+  kartSigdir(tab.querySelector(".mt-buyuk"));
   const ic = el("div", "icerik"), ust = el("div", "ust");
   const n = tiklar[kimlik(h)] || 0, tik = el("span", "tik", tikYazi(n));
   tik.hidden = !n;
