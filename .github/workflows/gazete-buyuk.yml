@@ -1,11 +1,17 @@
-# Günün gazetelerinin birinci sayfalarını büyük boy indirip "gazete-buyuk" dalına koyar.
-# Portal (tvplas.html) Gazeteler penceresinde bu büyük görselleri gösterir; yoksa eski küçük görsele döner.
+# Günün gazetelerinin birinci sayfalarını büyük boy indirip yazılarını okur (OCR) ve "gazete-buyuk" dalına koyar.
+# Portal (tvplas.html) Gazeteler penceresinde bu büyük görselleri ve yazıları gösterir; yoksa eski küçük görsele döner.
 # Dal her çalışmada tek bir commit olarak yeniden yazılır: depo büyümez.
+# Elle çalıştırırken "deneme" sayısı girilirse yalnızca ilk N gazete işlenir ve sonuç "gazete-deneme" dalına gider.
 name: Gazeteler büyük boy
 on:
   schedule:
     - cron: "20 3,5,7,9,12,15 * * *"   # Kıbrıs saatiyle yaklaşık 05:20-18:20 arası, 6 kez
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      deneme:
+        description: "Deneme: yalnızca ilk N gazete (boş = hepsi, sitedeki veriler güncellenir)"
+        required: false
+        default: ""
 permissions:
   contents: write
 concurrency:
@@ -15,6 +21,9 @@ jobs:
   indir:
     runs-on: ubuntu-latest
     timeout-minutes: 50
+    env:
+      DENEME: ${{ inputs.deneme }}
+      DAL: ${{ inputs.deneme && 'gazete-deneme' || 'gazete-buyuk' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,12 +34,12 @@ jobs:
       - run: pip install --quiet pillow
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-tur   # sayfadaki yazıları okumak için
       - run: python .github/gazete_buyuk.py cikti
-      - name: gazete-buyuk dalına koy
+      - name: dala koy
         working-directory: cikti
         run: |
-          git init -q -b gazete-buyuk
+          git init -q -b "$DAL"
           git config user.name "tvplas-bot"
           git config user.email "tvplas-bot@users.noreply.github.com"
           git add -A
           git commit -q -m "Gazeteler $(date -u +%Y-%m-%d\ %H:%M)"
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gazete-buyuk
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "$DAL"
