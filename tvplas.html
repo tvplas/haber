@@ -1042,7 +1042,7 @@ function mansetTabloid(h, kart) {
   yazi.append(el("div", "mt-alt", altBaslik || String(h.o || "").replace(/\s+/g, " ").split(/(?<=[a-zçğıöşü0-9"”]{3}[.!?])\s(?=[A-ZÇĞİÖŞÜ"“])/)[0]));   // uzunsa iki satırın sonunda "…" ile biter
   const ayak = el("div", "mt-ayak"), kaynak = el("span", "mt-kaynak"), logo = el("img", "mt-logo");
   logo.src = "tvplas_logo.png"; logo.alt = "TVPLAS";
-  kaynak.append(logo, el("span", "", "Kıbrıs Haberleri"));
+  kaynak.append(logo, el("span", "", "HABER"));   // 2026-11-22 kullanıcı: logonun yanında her zaman yalnızca "HABER"
   ayak.append(kaynak, el("span", "mt-zaman", "🕒 " + kac(h.t)));
   t.append(sol, sag, cerceve, el("span", "mt-karart"), yazi, ayak);
   return t;
