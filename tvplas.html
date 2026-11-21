@@ -2337,7 +2337,8 @@ async function yukle(sessiz) {
       ...[...benim.filter(h => !h.sabit), ...tum.filter(h => h.kat === "Kıbrıs"), ...thYazi.filter(h => h.kat === "Kıbrıs"), ...fbHaber].sort((x, y) => (y.t || "").localeCompare(x.t || "")),
       ...tum.filter(h => h.kat !== "Kıbrıs"), ...thYazi.filter(h => h.kat !== "Kıbrıs"), ...tvh.filter(h => h.v)];   // TVplas Haber menüsünde yalnızca video haberler
     // 2026-11-19 kullanıcı: "kıbrıs haberleri içine video haber koyma" -> videolu haberler Kıbrıs menüsünde yok
-    haberler = haberler.filter(h => !(h.kat === "Kıbrıs" && (h.v || h.vu)));
+    // 2026-11-22 kullanıcı: yönetim panelinden kendi eklediğimiz videolu haberler (benim) Kıbrıs menüsünde çıkar; kural yalnızca otomatik gelenler için
+    haberler = haberler.filter(h => !(h.kat === "Kıbrıs" && (h.v || h.vu)) || benim.includes(h));
     // 2026-11-19 kullanıcı: "kıbrıs haberleri neden 24 adet değil?" -> son teklemesi 24'e kesmeden ÖNCE yapılır
     // (önceden kesimden sonra yapılıyordu, atılan benzerler yüzünden menü 21'e düşüyordu)
     { const at = tekleTum(haberler.filter(h => h.kat !== "Yazarlar" && h.kat !== "Fotoğraflar" && !(h.tvplas && !h.th))); if (at.size) haberler = haberler.filter(h => !at.has(h)); }
