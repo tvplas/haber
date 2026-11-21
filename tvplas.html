@@ -1092,7 +1092,7 @@ function mansetSay() {
 function mansetCiz(yeniden) {
   if (!yeniden) {
     const onceki = mansetler[mansetNo];
-    mansetler = haberler.filter(h => (h.kat === "Kıbrıs" || h.manset) && h.g && !h.v && /^https?:/i.test(h.g))   // 2026-11-22: panelde "Manşette de göster" işaretli haberler (ör. yabancı haberler) kendi menülerinin yanında manşette de çıkar
+    mansetler = haberler.filter(h => (h.kat === "Kıbrıs" || h.manset) && h.g && (!h.v || h.tur === "TVplas") && /^https?:/i.test(h.g))   // 2026-11-22: panelde "Manşette de göster" işaretli haberler (ör. yabancı haberler) kendi menülerinin yanında manşette de çıkar
         
       .sort((x, y) => (y.t || "").localeCompare(x.t || "")).slice(0, MANSET_SAYI);
     const ayni = onceki && mansetler.findIndex(h => kimlik(h) === kimlik(onceki));
