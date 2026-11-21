@@ -1,0 +1,48 @@
+# Manşetlerin Facebook kapakları: portalın üst bölümünün ekran görüntüsü (logo, manşet, yayın akışı, hava, döviz, eczane).
+# Kapaklar "manset-kapak" dalına konur (dal her çalışmada tek commit olarak yeniden yazılır: depo büyümez);
+# her haberin paylaşım sayfası m/<kimlik>.html ana dala eklenir. Portaldaki "📘 Paylaş" düğmesi bu sayfayı paylaşır.
+name: Manşet kapakları
+on:
+  schedule:
+    - cron: "*/20 * * * *"   # 20 dakikada bir; yalnızca yeni manşetlerin kapağı çekilir
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: manset-kapak
+  cancel-in-progress: false
+jobs:
+  cek:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: tarayıcı
+        run: |
+          npm install --no-save --silent playwright@1.48.2
+          npx playwright install --with-deps chromium
+          sudo apt-get install -y -qq fonts-noto-color-emoji
+      - name: önceki kapaklar
+        run: git clone -q --depth 1 -b manset-kapak "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" kapak || mkdir kapak
+      - name: kapakları çek
+        run: node .github/manset_kapak.mjs kapak m
+      - name: kapak dalına koy
+        working-directory: kapak
+        run: |
+          if [ -d .git ]; then git checkout -q --orphan yeni; else git init -q -b yeni; fi
+          git config user.name "tvplas-bot"
+          git config user.email "tvplas-bot@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Manşet kapakları $(date -u +%Y-%m-%d\ %H:%M)"
+          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" yeni:manset-kapak
+      - name: paylaşım sayfalarını ana dala ekle
+        run: |
+          git config user.name "tvplas-bot"
+          git config user.email "tvplas-bot@users.noreply.github.com"
+          git add m
+          if git diff --cached --quiet; then echo "yeni sayfa yok"; exit 0; fi
+          git commit -q -m "Manşet paylaşım sayfaları $(date -u +%Y-%m-%d\ %H:%M)"
+          for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
