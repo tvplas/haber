@@ -547,6 +547,19 @@ main .tv-rozet img{filter:none}
 /* 2026-11-21 kullanıcı: haber penceresindeki TVPLAS logosu şeffaf olacak -> pencere de siyah zemin, beyaz yazı; logoda kontur yok */
 dialog#detay{--kart:var(--sahne);--yazi:#fff;--soluk:#fff;--cizgi:rgba(255,255,255,.12);background:var(--sahne);color:#fff;border:1px solid rgba(255,255,255,.12)}
 #detay .tv-rozet img{filter:none}
+/* 2026-11-21 Gazete penceresi: siyah zemin, büyük birinci sayfa, altında başlıklar, sağ üstte hep görünen Kapat düğmesi */
+dialog#gazeteGoster{width:min(860px,calc(100% - 20px));max-width:none;max-height:calc(100% - 20px);padding:0;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:var(--sahne);color:#fff;overflow:auto;box-shadow:0 40px 120px rgba(0,0,0,.6)}
+dialog#gazeteGoster::backdrop{background:rgba(0,0,0,.85);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.gz-kapat{position:sticky;top:12px;float:right;margin:12px 12px -52px 0;z-index:2;height:42px;padding:0 18px;border-radius:999px;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.75);color:#fff;font:700 15px var(--sans);cursor:pointer}
+.gz-kapat:hover{background:var(--dolu);border-color:var(--dolu)}
+.gz-govde{padding:18px 20px 30px}
+.gz-ad{min-height:30px;padding:8px 120px 0 0;margin-bottom:14px;font:800 13px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#ff4d5e}
+.gz-sayfa{display:block;width:100%;max-width:760px;height:auto;margin:0 auto;border-radius:6px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.gz-basliklar{max-width:760px;margin:26px auto 0}
+.gz-basliklar .bt{font:700 12px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:#9aa0ad;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.14)}
+.gz-basliklar h2{font-family:var(--serif);font-weight:700;font-size:clamp(22px,3.4vw,32px);line-height:1.2;margin:16px 0 8px;color:#fff}
+.gz-basliklar h3{font-family:var(--serif);font-weight:600;font-size:clamp(17px,2.4vw,21px);line-height:1.35;margin:0;padding:12px 0;border-top:1px solid rgba(255,255,255,.08);color:#fff}
+@media (max-width:640px){.gz-govde{padding:14px 12px 24px}.gz-kapat{height:38px;padding:0 14px;font-size:14px}}
 </style>
 </head>
 <body>
@@ -641,6 +654,11 @@ dialog#detay{--kart:var(--sahne);--yazi:#fff;--soluk:#fff;--cizgi:rgba(255,255,2
   <div class="ek-ust"><b id="ekBaslik"></b><span id="ekTarih"></span><button class="ek-kapat" aria-label="Kapat">✕</button></div>
   <div class="ek-govde" id="ekGovde"></div>
   <div class="ek-alt" id="ekAlt"></div>
+</dialog>
+<!-- 2026-11-21 Gazeteler: birinci sayfa büyük boy, altında başlıklar, Kapat düğmesi (dış bağlantı yok) -->
+<dialog id="gazeteGoster" aria-label="Gazetenin birinci sayfası">
+  <button class="gz-kapat" type="button" aria-label="Kapat">✕ Kapat</button>
+  <div class="gz-govde"><div class="gz-ad"></div><img class="gz-sayfa" alt=""><div class="gz-basliklar"></div></div>
 </dialog>
 <dialog id="detay" aria-label="Haberin tamamı">
   <button class="kapat" aria-label="Kapat">✕</button>
@@ -1413,36 +1431,28 @@ function gazeteKartYap(g) {
     ic.append(ul);
   }
   kart.append(sayfa, ic);
-  // İnternet sitesi olan gazete kendi sitesinde açılır; olmayanın birinci sayfası portalda büyür
-  const site = GAZETE_SITELERI[g.ad];
-  if (site) {
-    baglanti(sayfa, site);
-    h2.onclick = () => window.open(site, "_blank", "noopener");
-    ust.append(el("span", "", "🌐 sitesine gider"));
-  } else {
-    [sayfa, h2].forEach(x => x.onclick = () => gazeteAc(g));
-  }
+  // 2026-11-21 kullanıcı: "gazeteye tıklandığında sadece gazete görüntüsünü büyüt, ön sayfadaki yazıları altına başlıklarla
+  // yaz, gazetenin orijinal bağlantısına yönlendirme, üzerine kapat düğmesi koy" -> her gazete portalda büyük açılır
+  // (GAZETE_SITELERI artık kullanılmıyor)
+  [sayfa, h2].forEach(x => x.onclick = e => { e.preventDefault(); gazeteAc(g); });
   if (g.id) [sayfa, h2].forEach(x => x.addEventListener("click", () => tiklandi(gh, tik)));
   return kart;
 }
 
-// Gazetenin birinci sayfası büyük, okunan başlıklarla birlikte pencerede açılır
+// Gazetenin birinci sayfası kendi penceresinde büyük boy açılır; altında ön sayfadaki başlıklar, üstünde Kapat düğmesi.
+// Dış bağlantı yok (2026-11-21 kullanıcı isteği). Kaynak görseller ~361×500 piksel: büyük gösterilince biraz yumuşar.
+const gazetePencere = document.getElementById("gazeteGoster");
+gazetePencere.querySelector(".gz-kapat").onclick = () => gazetePencere.close();
+gazetePencere.addEventListener("click", e => { if (e.target === gazetePencere) gazetePencere.close(); });   // dışına tıklayınca kapanır
 function gazeteAc(g) {
-  const d = document.getElementById("detay");
-  const img = el("img");
-  img.src = g.g; img.alt = g.ad + " birinci sayfa"; img.referrerPolicy = "no-referrer";
-  // Kaynak sayfalar ~370×500 piksel: kendi boyutundan büyük gösterilirse bulanıklaşır, bu yüzden şişirilmez
-  img.style.cssText = "width:auto;max-width:100%;margin:0 auto";
-  d.querySelector(".d-gorsel").replaceChildren(img);
-  d.querySelector("h2").textContent = g.ad + (g.basliklar[0] ? ": " + g.basliklar[0] : "");
-  d.querySelector(".govde .ust span:last-child").textContent = "Haber";   // önceki köşe yazısının yazar adı kalmasın
-  d.querySelector(".metin").textContent = g.basliklar.slice(1).map(b => "• " + b).join("\n");
-  d.querySelector(".ceviri-dugmeler").replaceChildren();
-  const kaynak = d.querySelector(".kaynakLink");
-  kaynak.textContent = "Gazete sayfaları: kibrisgazeteleri.com →";
-  kaynak.hidden = false;
-  kaynak.href = "http://kibrisgazeteleri.com/";
-  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(PORTAL);
+  const d = gazetePencere;
+  d.querySelector(".gz-ad").textContent = "📰 " + g.ad + (gazeteTarihi ? " · " + gazeteTarihi : "");
+  const img = d.querySelector(".gz-sayfa");
+  img.referrerPolicy = "no-referrer"; img.alt = g.ad + " birinci sayfa"; img.src = g.g;
+  const [ilk, ...diger] = g.basliklar;
+  d.querySelector(".gz-basliklar").replaceChildren(...(ilk
+    ? [el("div", "bt", "Birinci sayfadaki başlıklar"), el("h2", "", ilk), ...diger.map(b => el("h3", "", b))]
+    : []));
   d.showModal();
   d.scrollTop = 0;
 }
