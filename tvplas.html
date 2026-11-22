@@ -1480,6 +1480,17 @@ function detayAc(h) {
     v.addEventListener("play", () => { const c = canliKutu.querySelector("video"); if (c) c.muted = true; });
     kutu.classList.remove("yazar-foto");
     kutu.replaceChildren(v);
+  } else if (/^yt:[\w-]{11}$/.test(h.v || "")) {
+    // 2026-11-22 kullanıcı: videolar YouTube'dan oynasın (Drive oynatıcısı kaliteyi düşük seçiyordu). Panelde YouTube bağlantısı
+    // girilen video "yt:<kimlik>" olarak gelir; YouTube kaliteyi ekran boyutuna ve bağlantı hızına göre seçer (genellikle 720p ve üstü)
+    const id = h.v.slice(3), f = el("iframe");
+    f.src = "https://www.youtube-nocookie.com/embed/" + id + "?rel=0&playsinline=1&vq=hd1080";
+    f.allow = "autoplay; fullscreen; encrypted-media; picture-in-picture"; f.allowFullscreen = true; f.title = h.b;
+    f.referrerPolicy = "strict-origin-when-cross-origin";   // YouTube gömülü oynatıcısı yönlendiren sayfa bilgisi olmadan açılmıyor
+    const yedek = el("a", "video-yedek", "▶ Video oynamıyorsa YouTube'da açın");
+    baglanti(yedek, "https://www.youtube.com/watch?v=" + id);
+    kutu.classList.remove("yazar-foto");
+    kutu.replaceChildren(f, yedek);
   } else if (h.v) {
     // Panelden yüklenen video Drive oynatıcısıyla portalın içinde oynar
     const f = el("iframe");
