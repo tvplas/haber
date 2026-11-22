@@ -706,7 +706,10 @@ async function listele() {
     h.textContent = "📰 Haberlerim (" + c.haberler.length + ")";
     yer.append(h);
     if (!c.haberler.length) yer.append(Object.assign(document.createElement("div"), { className: "det", textContent: "Henüz kayıt yok." }));
-    c.haberler.forEach(k => yer.append(kayitYap(k, "Haberlerim")));
+    // 2026-11-22 kullanıcı: "Yayındakiler tıklandığında en yeni haberden en eski habere göre sıralansın" -> yayın tarihine göre
+    // en yeniden eskiye; aynı gün eklenenlerde e-tabloya en son eklenen (satır numarası büyük olan) üstte
+    const zaman = k => +new Date(k.bas) || 0;
+    c.haberler.slice().sort((x, y) => (zaman(y) - zaman(x)) || ((+y.satir || 0) - (+x.satir || 0))).forEach(k => yer.append(kayitYap(k, "Haberlerim")));
   } catch (e) {
     yer.textContent = "Liste alınamadı: " + e.message;
   }
