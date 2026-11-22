@@ -121,8 +121,9 @@ const gzTarih = (() => { const [g, a, y] = String(gzVeri.tarih || "").split("-")
 for (const g of gzVeri.gazeteler || []) {
   const k = "gz-" + String(g.id || "").replace(/[^\w-]/g, ""), resim = g.buyuk || g.g;
   if (k === "gz-" || !resim) continue;
-  if (kayit[k] && fs.existsSync(path.join(KAPAK, k + ".jpg"))) continue;   // bu gazetenin kapağı zaten var
-  try {
+  // kapak zaten varsa yeniden çekilmez, yalnızca paylaşım sayfası yeniden yazılır (hedef adresi değişirse eski sayfalar da güncellensin)
+  const kapakVar = kayit[k] && fs.existsSync(path.join(KAPAK, k + ".jpg"));
+  if (!kapakVar) try {
     await birlestir.setContent(`<body style="margin:0;width:1200px;height:630px;overflow:hidden;background:#0a0d14;position:relative">
     <img src="${kacis(resim)}" referrerpolicy="no-referrer" style="position:absolute;inset:-40px;width:1280px;height:710px;object-fit:cover;filter:blur(28px) brightness(.5)">
     <img src="${kacis(resim)}" referrerpolicy="no-referrer" style="position:absolute;left:50%;top:0;width:560px;height:630px;object-fit:cover;object-position:top;transform:translateX(-50%);box-shadow:0 0 40px rgba(0,0,0,.7)">
@@ -131,7 +132,7 @@ for (const g of gzVeri.gazeteler || []) {
   } catch (e) { console.log("gazete kapağı çekilemedi:", g.ad, e.message); continue; }
   const b = g.ad + " gazetesi" + (gzTarih ? " · " + gzTarih : "") + " birinci sayfası";
   const o = (g.basliklar || []).slice(0, 4).join(" · ").slice(0, 220);
-  const adres = SITE + "m/" + k + ".html?v=" + SURUM, hedef = "../tvplas.html?b=Gazeteler";
+  const adres = SITE + "m/" + k + ".html?v=" + SURUM, hedef = "../tvplas.html?b=Gazeteler&gz=" + k.slice(3);   // 2026-11-22: tıklayan okur gazetenin kartını (büyük sayfa) görür
   fs.writeFileSync(path.join(SAYFA, k + ".html"), `<!doctype html>
 <html lang="tr">
 <head>
@@ -156,9 +157,7 @@ for (const g of gzVeri.gazeteler || []) {
 </body>
 </html>
 `);
-  kayit[k] = Date.now();
-  yeni++;
-  console.log("gazete kapağı:", k, g.ad);
+  if (!kapakVar) { kayit[k] = Date.now(); yeni++; console.log("gazete kapağı:", k, g.ad); }
 }
 await tarayici.close();
 
