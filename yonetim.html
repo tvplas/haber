@@ -709,7 +709,24 @@ async function listele() {
     // 2026-11-22 kullanıcı: "Yayındakiler tıklandığında en yeni haberden en eski habere göre sıralansın" -> yayın tarihine göre
     // en yeniden eskiye; aynı gün eklenenlerde e-tabloya en son eklenen (satır numarası büyük olan) üstte
     const zaman = k => +new Date(k.bas) || 0;
-    c.haberler.slice().sort((x, y) => (zaman(y) - zaman(x)) || ((+y.satir || 0) - (+x.satir || 0))).forEach(k => yer.append(kayitYap(k, "Haberlerim")));
+    // 2026-11-22 kullanıcı: "Yayındakileri menülerine göre ayırınız" -> her menü kendi başlığı altında (portaldaki menü sırasıyla),
+    // her menünün içi en yeniden eskiye. Menü, kaydın açıklamasının ilk parçasıdır ("Kıbrıs · En üstte sabit · 🎬 Video")
+    const MENU_SIRA = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "UK", "Video", "Fotoğraflar", "Yazarlar"];
+    const menuAdi = k => { const m = String(k.ek || "").split(" · ")[0].trim() || "Kıbrıs"; return m === "Müzik" ? "Video" : m; };
+    const gruplar = new Map();
+    c.haberler.slice().sort((x, y) => (zaman(y) - zaman(x)) || ((+y.satir || 0) - (+x.satir || 0))).forEach(k => {
+      const m = menuAdi(k);
+      if (!gruplar.has(m)) gruplar.set(m, []);
+      gruplar.get(m).push(k);
+    });
+    const sira = m => (MENU_SIRA.indexOf(m) + 1) || 99;
+    [...gruplar.keys()].sort((x, y) => sira(x) - sira(y) || x.localeCompare(y, "tr")).forEach(m => {
+      const alt = document.createElement("h3");
+      alt.textContent = m + " (" + gruplar.get(m).length + ")";
+      alt.style.cssText = "margin:22px 0 2px;font-size:16px;color:var(--vurgu);border-bottom:2px solid var(--vurgu);padding-bottom:4px";
+      yer.append(alt);
+      gruplar.get(m).forEach(k => yer.append(kayitYap(k, "Haberlerim")));
+    });
   } catch (e) {
     yer.textContent = "Liste alınamadı: " + e.message;
   }
