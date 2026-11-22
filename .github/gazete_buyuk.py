@@ -1,5 +1,7 @@
-# Günün Kıbrıs gazetelerinin birinci sayfalarını büyük boy (≈1114×1700) indirir ve sayfadaki yazıları okur (OCR).
-# Kaynak: kibrisgazeteleri.com; sitedeki "İncele" düğmesinin kullandığı /Home/getPhotoCode adresi.
+# Günün Kıbrıs gazetelerinin birinci sayfalarını büyük boy (1200 piksel genişlik) indirir ve sayfadaki yazıları okur (OCR).
+# 2026-11-22 kullanıcı: "gazeteleri bu saatten sonra artık bu linkten alınız: https://bugunkibris.com/gazete-mansetleri/"
+# Kaynak: Bugün Kıbrıs gazete manşetleri sayfası; her kapağın "büyüt" düğmesindeki data-cover adresi (büyük boy JPEG).
+# (Eski kaynak: kibrisgazeteleri.com /Home/getPhotoCode)
 # Çıktı: cikti/ klasöründe gNN.jpg dosyaları ve index.json (gazete adı -> dosya, manşet ve yazılar).
 # GitHub Actions'ta her gün çalışır (.github/workflows/gazete-buyuk.yml); sonuç "gazete-buyuk" dalına konur.
 # 2026-11-21 kullanıcı: "gazete görsellerinin yazıları daha okunaklı olacak" ve "ön sayfadaki manşet ve bütün yazılar
@@ -8,7 +10,7 @@ import base64, html, io, json, os, re, statistics, subprocess, sys, tempfile, ti
 from concurrent.futures import ThreadPoolExecutor
 from PIL import Image, ImageOps
 
-SITE = "http://kibrisgazeteleri.com"
+SITE = "https://bugunkibris.com/gazete-mansetleri/"
 CIKTI = sys.argv[1] if len(sys.argv) > 1 else "cikti"
 UA = {"User-Agent": "Mozilla/5.0 (TVPLAS gazete arsivi)"}
 HARF = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşü]")
@@ -176,14 +178,13 @@ def oku(resim):
 
 
 def isle(oge):
-    no, ad, gun = oge
-    veri = urllib.parse.urlencode({"name": f"{no}-{html.unescape(ad)}", "date": gun}).encode()
-    yanit = al(SITE + "/Home/getPhotoCode", veri)
+    no, ad, kapak = oge
+    yanit = al(kapak)
     if not yanit:
         print("  alınamadı:", no, ad, flush=True)
         return None
     try:
-        resim = Image.open(io.BytesIO(base64.b64decode(yanit.decode().strip().strip('"')))).convert("RGB")
+        resim = Image.open(io.BytesIO(yanit)).convert("RGB")
     except Exception as e:
         print("  çözülemedi:", no, ad, e, flush=True)
         return None
@@ -219,23 +220,24 @@ def isle(oge):
 
 def main():
     os.makedirs(CIKTI, exist_ok=True)
-    ana = al(SITE + "/")
+    ana = al(SITE)
     if not ana:
-        sys.exit("Ana sayfa alınamadı")
+        sys.exit("Gazete sayfası alınamadı")
     metin = ana.decode("utf-8", "replace")
-    # <a data-src="..." data-name="3-ADA NEWS" data-date="21-11-2026" class="main-btn view-btn">
-    liste = re.findall(r'data-name="(\d+)-([^"]+)"\s+data-date="(\d\d-\d\d-\d{4})"', metin)
+    # <button ... data-cover="https://cdn.bugunkibris.com/.../AVRUPAGAZETESI_20261122_0-scaled.jpeg" data-title="Avrupa" ...>
+    liste = re.findall(r'data-cover="([^"]+)"\s+data-title="([^"]+)"', metin)
     if not liste:
         sys.exit("Gazete listesi bulunamadı")
-    tarih = liste[0][2]
+    gun = re.search(r"_(20\d\d)(\d\d)(\d\d)_", liste[0][0])
+    tarih = f"{gun.group(3)}-{gun.group(2)}-{gun.group(1)}" if gun else time.strftime("%d-%m-%Y", time.gmtime(time.time() + 2 * 3600))
     print(len(liste), "gazete,", tarih, flush=True)
     secilen, gorulen = [], set()
-    for no, ad, gun in liste:
+    for no, (kapak, ad) in enumerate(liste, 1):
         k = anahtar(ad)
-        if k in gorulen:          # aynı adlı ikinci baskı (ör. iki BAĞIMSIZ): ilki alınır
+        if k in gorulen:          # aynı adlı ikinci kapak: ilki alınır
             continue
         gorulen.add(k)
-        secilen.append((no, ad, gun))
+        secilen.append((no, ad, html.unescape(kapak)))
     deneme = int(os.environ.get("DENEME") or 0)   # elle denemede yalnızca ilk N gazete (sonuç ayrı dala gider)
     if deneme:
         secilen = secilen[:deneme]
