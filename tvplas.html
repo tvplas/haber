@@ -684,7 +684,7 @@ dialog#gazeteGoster::backdrop{background:rgba(0,0,0,.85);-webkit-backdrop-filter
     <button data-k="Dünya">DÜNYA</button>
     <!-- 2026-11-19 kullanıcı: UK menüsü (İngiltere hükümetinin GOV.UK haberleri, Open Government Licence, Türkçeleştirilmiş) -->
     <button data-k="UK">🇬🇧 UK</button>
-    <button data-k="Müzik">MÜZİK</button>
+    <button data-k="Video">VİDEO</button>
     <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
     <button data-k="Yazarlar">✍️ YAZARLAR</button>
     <!-- 2026-11-17 kullanıcı: "Reklamsız haberler" kutusu ve Basında Bugün videosu İLETİŞİM menüsünde -->
@@ -729,12 +729,15 @@ const KAPAK_MODU = new URLSearchParams(location.search).has("kapakcek");   // 20
 // "Fotoğraflar": yönetim panelinden bu bölüme eklenen kendi fotoğraflarımız, galeri olarak gösterilir
 // "Yazarlar": panelden eklenen kendi köşe yazılarımız (önce) ve Kıbrıs gazetelerinin köşe yazıları (sunucu toplar)
 // "TVplas Haber": Kıbrıs haberlerinin TVplas biçiminde (yapay zekâyla, olgular değiştirilmeden) yeniden yazılmış hâlleri; sunucu yazar
-const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "UK", "Müzik", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar", "Yazarlar", "TVplas Haber"];
+const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "UK", "Video", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar", "Yazarlar", "TVplas Haber"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
 // (Şu an birleşik menü yok: Müzik, Kültür-Sanat, Magazin, Bilim, Sağlık ve Ekonomi ayrı menülerde)
 const GRUPLAR = {};
-const ORTAK = "Müzik";   // müzikle ilgili diğer haberlerin çapraz eklendiği menü
+// 2026-11-22 kullanıcı: "müzik menüsünü kaldırınız, yerine video menüsü ekleyiniz" -> Müzik menüsü yok; panelden "Müzik" bölümüne
+// eklenmiş eski kayıtlar Video menüsüne gider, otomatik gelen müzik haberleri Magazin'de çıkar, videolu bütün haberler Video'da da görünür.
+const ORTAK = "Video";   // videolu haberlerin çapraz eklendiği menü
 const bolumBul = t => {
+  if (t === "Müzik") t = "Video";
   const grup = Object.keys(GRUPLAR).find(g => GRUPLAR[g].includes(t));
   return grup ? [grup, t] : [BOLUMLER.includes(t) ? t : "Kıbrıs", null];
 };
@@ -1254,10 +1257,10 @@ const METAFORLAR = [
   ["star", "ünlü|şarkıcı|oyuncu|magazin"]
 ].map(([ikon, kelimeler]) => [ikon, new RegExp(KB + "(" + kelimeler + ")", "i")]);
 // Hiçbir kural uymazsa bölümün sembolü; renkler bölüme göre
-const BOLUM_SEMBOL = { "Kıbrıs": "map-pin", "Güney": "landmark", "Türkiye": "flag", "Dünya": "globe", "UK": "landmark", "Etkinlikler": "calendar-days", "Müzik": "music",
+const BOLUM_SEMBOL = { "Kıbrıs": "map-pin", "Güney": "landmark", "Türkiye": "flag", "Dünya": "globe", "UK": "landmark", "Etkinlikler": "calendar-days", "Müzik": "music", "Video": "clapperboard",
   "Kültür-Sanat": "palette", "Magazin": "star", "Bilim": "atom", "Ekonomi": "trending-up", "Sağlık": "heart-pulse", "Spor": "trophy", "Yazarlar": "pen-line", "TVplas Haber": "newspaper" };
 const BOLUM_RENK = { "Kıbrıs": ["#c8102e", "#5c0614"], "Güney": ["#0369a1", "#082f49"], "Türkiye": ["#e30a17", "#6e050b"], "Dünya": ["#1e40af", "#0a1a4a"], "UK": ["#012169", "#000c2e"],
-  "Etkinlikler": ["#7c3aed", "#35106e"], "Müzik": ["#db2777", "#5f0d33"], "Kültür-Sanat": ["#9d174d", "#430920"],
+  "Etkinlikler": ["#7c3aed", "#35106e"], "Müzik": ["#db2777", "#5f0d33"], "Video": ["#db2777", "#5f0d33"], "Kültür-Sanat": ["#9d174d", "#430920"],
   "Magazin": ["#ea580c", "#6b2605"], "Bilim": ["#0891b2", "#063847"], "Ekonomi": ["#047857", "#022a1f"],
   "Sağlık": ["#0e7490", "#05303c"], "Spor": ["#c2410c", "#521b04"], "Yazarlar": ["#6d28d9", "#2e1065"], "TVplas Haber": ["#be123c", "#4c0519"] };
 /* 2026-11-21 kullanıcı: manşet görselleri TVPLAS görsel formatında (haberin fotoğrafı + konuya göre renk/rozet) */ function metaforIkon(h) { const baslik = String(h.b || "").toLocaleLowerCase("tr"), ozet = (h.o || "").toLocaleLowerCase("tr"); const kural = METAFORLAR.find(([, re]) => re.test(baslik)) || METAFORLAR.find(([, re]) => re.test(ozet)); return kural ? kural[0] : (BOLUM_SEMBOL[h.alt || h.kat] || "newspaper"); } const MG_SIYASET = ["#1e3a8a", "#0b1640"], MG_ASAYIS = ["#b91c1c", "#3f0808"], MG_SAGLIK = ["#0f766e", "#05302c"], MG_EKONOMI = ["#047857", "#02281d"], MG_KULTUR = ["#7e22ce", "#2e0a4f"], MG_SPOR = ["#c2410c", "#4a1803"], MG_EGITIM = ["#4338ca", "#1a1550"], MG_DOGA = ["#15803d", "#062b14"], MG_ULASIM = ["#0369a1", "#062a40"], MG_GUNDEM = ["#c8102e", "#4a0410"], MG_ANMA = ["#334155", "#0b1220"], MG_BILIM = ["#0891b2", "#063847"]; const MANSET_KONU = { ribbon: ["Sağlık", ...MG_SAGLIK], syringe: ["Sağlık", ...MG_SAGLIK], pill: ["Sağlık", ...MG_SAGLIK], "heart-pulse": ["Sağlık", ...MG_SAGLIK], stethoscope: ["Sağlık", ...MG_SAGLIK], gavel: ["Adliye", ...MG_ASAYIS], siren: ["Asayiş", ...MG_ASAYIS], car: ["Trafik", ...MG_ASAYIS], flame: ["Yangın", ...MG_ASAYIS], activity: ["Deprem", ...MG_ASAYIS], shield: ["Güvenlik", ...MG_ASAYIS], vote: ["Seçim", ...MG_SIYASET], mic: ["Medya", ...MG_SIYASET], megaphone: ["Eylem", ...MG_SIYASET], handshake: ["Diplomasi", ...MG_SIYASET], landmark: ["Siyaset", ...MG_SIYASET], music: ["Müzik", ...MG_KULTUR], drama: ["Tiyatro", ...MG_KULTUR], clapperboard: ["Sinema", ...MG_KULTUR], palette: ["Sanat", ...MG_KULTUR], "book-open": ["Kültür", ...MG_KULTUR], "party-popper": ["Etkinlik", ...MG_KULTUR], star: ["Magazin", ...MG_KULTUR], "graduation-cap": ["Eğitim", ...MG_EGITIM], trophy: ["Spor", ...MG_SPOR], volleyball: ["Spor", ...MG_SPOR], dumbbell: ["Spor", ...MG_SPOR], bike: ["Spor", ...MG_SPOR], "piggy-bank": ["Ekonomi", ...MG_EKONOMI], "trending-up": ["Ekonomi", ...MG_EKONOMI], banknote: ["Ekonomi", ...MG_EKONOMI], "tree-palm": ["Turizm", ...MG_ULASIM], plane: ["Ulaşım", ...MG_ULASIM], ship: ["Ulaşım", ...MG_ULASIM], bus: ["Ulaşım", ...MG_ULASIM], zap: ["Enerji", ...MG_ULASIM], droplets: ["Su", ...MG_ULASIM], "cloud-rain": ["Hava Durumu", ...MG_ULASIM], construction: ["Altyapı", ...MG_ULASIM], "building-2": ["Konut", ...MG_ULASIM], wheat: ["Tarım", ...MG_DOGA], trees: ["Çevre", ...MG_DOGA], "paw-print": ["Hayvanlar", ...MG_DOGA], utensils: ["Gastronomi", ...MG_DOGA], cpu: ["Teknoloji", ...MG_BILIM], rocket: ["Uzay", ...MG_BILIM], atom: ["Bilim", ...MG_BILIM], "flower-2": ["Anma", ...MG_ANMA], footprints: ["Göç", ...MG_ANMA], baby: ["Çocuk", ...MG_EGITIM] }; function mansetGrafik(h) { const ikon = metaforIkon(h); const [ad, r1, r2] = MANSET_KONU[ikon] || ["Gündem", ...MG_GUNDEM]; const g = el("div", "mgrafik"); g.style.setProperty("--r1", r1); g.style.setProperty("--r2", r2); g.style.setProperty("--ikon", "url(" + IKON + ikon + ".svg)"); const sol = el("div", "mg-sol"); sol.append(el("span", "mg-ust", "TVPLAS HABER"), el("span", "mg-konu", ad), el("span", "mg-cizgi")); const rozet = el("div", "mg-rozet"); rozet.append(el("span", "mg-rozet-ikon"), el("span", "", ad)); g.append(el("span", "mg-desen"), el("span", "mg-halka"), el("span", "mg-ikon"), sol, el("span", "mg-ton"), el("span", "mg-serit"), rozet); if (h.g && /^https?:/i.test(h.g)) { const img = el("img", "mg-foto"); img.src = h.g; img.alt = ""; img.referrerPolicy = "no-referrer"; img.decoding = "async"; img.onerror = () => { img.remove(); g.classList.remove("foto"); }; g.prepend(img); g.classList.add("foto"); } return g; }
@@ -1870,7 +1873,7 @@ function ciz() {
     return;
   }
   let secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
-    : haberler.filter(h => h.kat === bolum || (bolum === "Müzik" && h.ekBolum.includes(bolum) && MUZIK.test(h.b)));
+    : haberler.filter(h => h.kat === bolum || (bolum === ORTAK && (h.ekBolum || []).includes(ORTAK)));
   // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
   // Dünya'da sunucunun öncelikli saydığı büyük gazeteler (h.on) diğer kaynaklardan önce gelir
   if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
@@ -2340,7 +2343,7 @@ async function yukle(sessiz) {
     const kapsanan = new Set(sunucuYazi.flatMap(x => x.u || []));   // TVplas Haber olarak yazılmış kaynak haberler
     const tum = (veri.haberler || []).filter(h => h.tur !== "Etkinlikler" && !kapsanan.has(kimlik(h))).map(h => {
       let tur = h.tur;
-      if (tur === "Müzik" && !MUZIK.test(h.b)) tur = "Magazin";
+      if (tur === "Müzik") tur = "Magazin";   // 2026-11-22: Müzik menüsü kaldırıldı
       const [kat, alt] = bolumBul(tur);
       // TVplas Haber biçiminde yeniden yazılmış haber (sunucu: tumunuYaz): başlık ve metin TVplas yazısıdır
       // 2026-11-15 kullanıcı: köşe yazısı gazeteye gitmeden, yazarın fotoğrafıyla tam metin olarak portal penceresinde
@@ -2389,7 +2392,7 @@ async function yukle(sessiz) {
     }
     [...benim, ...tum, ...tvh, ...thYazi].forEach(h => {
       h.ekBolum = [];
-      if (h.kat !== ORTAK && h.kat !== "Spor" && h.kat !== "Fotoğraflar" && h.kat !== "Yazarlar" && h.kat !== "TVplas Haber" && MUZIK.test(h.b)) h.ekBolum.push(ORTAK);
+      if (h.kat !== ORTAK && (h.v || h.vu)) h.ekBolum.push(ORTAK);   // videolu haber Video menüsünde de görünür
       if (h.thf && h.kat !== "TVplas Haber") h.ekBolum.push("TVplas Haber");
     });
     haberler = [...benim.filter(h => h.sabit),
