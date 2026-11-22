@@ -1329,6 +1329,18 @@ async function fbPaylas(h) {
   const fb = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u);
   if (pen) pen.location.href = fb; else location.href = fb;
 }
+// 2026-11-22 kullanıcı: "gazetelerin altına Facebook için paylaş düğmesi ekle": kapak görevi her gazete için m/gz-<kimlik>.html
+// paylaşım sayfası yazar (gazetenin birinci sayfası 1200x630); sayfa varsa o, henüz yoksa portalın Gazeteler bölümü paylaşılır.
+async function gazetePaylas(g) {
+  const pen = window.open("about:blank", "_blank");
+  let u = new URL("tvplas.html?b=Gazeteler", document.baseURI).href;
+  try {
+    const k = "gz-" + String(g.id || "").replace(/[^\w-]/g, ""), r = k === "gz-" ? null : await fetch("m/" + k + ".html", { method: "HEAD", cache: "no-store" });
+    if (r && r.ok) u = new URL("m/" + k + ".html?v=" + KAPAK_SURUM, document.baseURI).href;
+  } catch (x) { }
+  const fb = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u);
+  if (pen) pen.location.href = fb; else location.href = fb;
+}
 // 2026-11-15 kullanıcı: Facebook paylaşımı haberin görseliyle çıksın, görselin sol üstünde TVPLAS logosu.
 // Sunucudaki paylaşım sayfası (paylas.py) Facebook'a haberin başlığını, özetini ve logolu görselini verir;
 // tıklayan okuyucuyu portaldaki habere getirir (?h=kimlik). Haber olmayanlar (reklam) eskisi gibi.
@@ -1574,6 +1586,10 @@ function gazeteKartYap(g) {
     g.basliklar.slice(1).forEach(b => ul.append(el("li", "", b)));
     ic.append(ul);
   }
+  const pay = el("a", "paylas", "📘 Facebook'ta paylaş");   // 2026-11-22: gazetenin altında Facebook paylaşımı
+  pay.href = "#"; pay.title = g.ad + " gazetesinin birinci sayfasını Facebook'ta paylaş";
+  pay.onclick = e => { e.preventDefault(); gazetePaylas(g); };
+  ic.append(pay);
   kart.append(sayfa, ic);
   // 2026-11-21 kullanıcı: "gazeteye tıklandığında sadece gazete görüntüsünü büyüt, ön sayfadaki yazıları altına başlıklarla
   // yaz, gazetenin orijinal bağlantısına yönlendirme, üzerine kapat düğmesi koy" -> her gazete portalda büyük açılır
