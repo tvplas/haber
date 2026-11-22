@@ -111,6 +111,55 @@ for (const h of liste) {
   yeni++;
   console.log("kapak:", h.k, h.b);
 }
+// 2026-11-22 kullanıcı: "gazetelerin altına Facebook için paylaş düğmesi ekle": günün her gazetesi için de 1200x630 kapak
+// (gazetenin birinci sayfasının üst kısmı ortada, kenarlar aynı sayfanın bulanık hâli) ve m/gz-<kimlik>.html paylaşım sayfası
+// yazılır. Liste Apps Script'ten gelir (?islem=gazeteler; kaynak bugunkibris.com); kimlik o günkü sayfanın dosya adıdır.
+const GAZETE_API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec?islem=gazeteler";
+let gzVeri = { gazeteler: [] };
+try { gzVeri = await (await fetch(GAZETE_API)).json(); } catch (e) { console.log("gazete listesi alınamadı:", e.message); }
+const gzTarih = (() => { const [g, a, y] = String(gzVeri.tarih || "").split("-").map(Number); return y ? new Date(y, a - 1, g).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }) : ""; })();
+for (const g of gzVeri.gazeteler || []) {
+  const k = "gz-" + String(g.id || "").replace(/[^\w-]/g, ""), resim = g.buyuk || g.g;
+  if (k === "gz-" || !resim) continue;
+  if (kayit[k] && fs.existsSync(path.join(KAPAK, k + ".jpg"))) continue;   // bu gazetenin kapağı zaten var
+  try {
+    await birlestir.setContent(`<body style="margin:0;width:1200px;height:630px;overflow:hidden;background:#0a0d14;position:relative">
+    <img src="${kacis(resim)}" referrerpolicy="no-referrer" style="position:absolute;inset:-40px;width:1280px;height:710px;object-fit:cover;filter:blur(28px) brightness(.5)">
+    <img src="${kacis(resim)}" referrerpolicy="no-referrer" style="position:absolute;left:50%;top:0;width:560px;height:630px;object-fit:cover;object-position:top;transform:translateX(-50%);box-shadow:0 0 40px rgba(0,0,0,.7)">
+  </body>`, { waitUntil: "load", timeout: 60000 });
+    await birlestir.screenshot({ path: path.join(KAPAK, k + ".jpg"), type: "jpeg", quality: 88 });
+  } catch (e) { console.log("gazete kapağı çekilemedi:", g.ad, e.message); continue; }
+  const b = g.ad + " gazetesi" + (gzTarih ? " · " + gzTarih : "") + " birinci sayfası";
+  const o = (g.basliklar || []).slice(0, 4).join(" · ").slice(0, 220);
+  const adres = SITE + "m/" + k + ".html?v=" + SURUM, hedef = "../tvplas.html?b=Gazeteler";
+  fs.writeFileSync(path.join(SAYFA, k + ".html"), `<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>${kacis(b)} – TVPLAS</title>
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="TVPLAS">
+<meta property="og:title" content="${kacis(b)}">
+<meta property="og:description" content="${kacis(o)}">
+<meta property="og:url" content="${adres}">
+<meta property="og:image" content="${HAM}${k}.jpg?v=${SURUM}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script>location.replace("${hedef}");</script>
+</head>
+<body>
+<p style="font:16px sans-serif;text-align:center;margin-top:40px"><a href="${hedef}">TVPLAS açılıyor…</a></p>
+</body>
+</html>
+`);
+  kayit[k] = Date.now();
+  yeni++;
+  console.log("gazete kapağı:", k, g.ad);
+}
 await tarayici.close();
 
 // 7 günden eski kapaklar daldan silinir (paylaşım sayfaları ana dalda kalır)
