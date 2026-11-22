@@ -1749,6 +1749,19 @@ function basinBul() {
 // 2026-11-18 kullanıcı: "her sabah Basında Bugün video ve işlemlerini kökten iptal ediniz" -> kart gösterilmez
 // basinBul();
 
+// 2026-11-22 kullanıcı: "gazete Facebook paylaşımları tıklandığında kart olarak açılsın": paylaşım sayfası (m/gz-<kimlik>.html)
+// okuru tvplas.html?b=Gazeteler&gz=<kimlik> adresine getirir; gazeteler yüklenince o gazetenin penceresi (büyük sayfa, yazılar) açılır.
+// Adres, sayfa açılışında okunur (hedefAc adres çubuğunu sonradan temizler).
+const GZ_ISTE = (s => /^[\w-]{1,80}$/.test(s) ? s : "")(new URLSearchParams(location.search).get("gz") || "");
+let gzIsteAcildi = false;
+function gazeteIstegiAc() {
+  if (!GZ_ISTE || gzIsteAcildi || !gazeteler || !gazeteler.length) return;
+  const g = gazeteler.find(x => String(x.id || "").replace(/[^\w-]/g, "") === GZ_ISTE);
+  gzIsteAcildi = true;
+  if (!g) return;   // o günün gazetesi artık listede değilse Gazeteler bölümü açık kalır
+  if (bolum !== "Gazeteler") document.querySelector('.menu button[data-k="Gazeteler"]')?.click();
+  gazeteAc(g);
+}
 function gazeteleriYukle() {
   fetch(API + "?islem=gazeteler").then(r => r.json()).then(v => {
     gazeteler = (v.gazeteler || []).filter(g => g.g)
@@ -1759,7 +1772,7 @@ function gazeteleriYukle() {
       const [gun, ay, yil] = v.tarih.split("-");
       gazeteTarihi = new Date(yil, ay - 1, gun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
     }
-  }).catch(() => { gazeteler = []; }).then(() => { if (bolum === "Gazeteler" && !ara.value.trim()) ciz(); });
+  }).catch(() => { gazeteler = []; }).then(() => { if (bolum === "Gazeteler" && !ara.value.trim()) ciz(); gazeteIstegiAc(); });
 }
 
 function reklamYap(r) {
