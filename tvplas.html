@@ -1866,6 +1866,10 @@ function ciz() {
       if (!enSon.has(ad) || (h.t || "") > (enSon.get(ad).t || "")) enSon.set(ad, h);
     }
     secili = secili.filter(h => enSon.get(yazarAnahtar(h)) === h);
+    // 2026-11-22 kullanıcı: "yazarların en son yazıları kalacak, eski yazıları kaldırınız" -> 7 günden eski yazı, yazarın son yazısı
+    // olsa bile menüde gösterilmez; yazar yeni yazı yazınca yeniden çıkar (aramada eski yazılar bulunmaya devam eder)
+    const yaziSiniri = new Date(Date.now() - 7 * 864e5).toISOString();
+    secili = secili.filter(h => (h.t || "") >= yaziSiniri);
     secili.sort((x, y) => !!y.tvplas - !!x.tvplas);
   }
   if (!q && bolum === "Fotoğraflar") {
