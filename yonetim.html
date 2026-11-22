@@ -297,27 +297,40 @@ const base64 = parca => new Promise((ok, hata) => {
 });
 
 // 2026-11-22 kullanıcı: videolar kolay açılsın. Yüklemeden önce tarayıcıda (WebCodecs + Mediabunny kütüphanesi) her cihazda
-// oynayan biçime çevrilir: MP4, H.264 görüntü + AAC ses, en çok 1280 px (720p), ~2,5 Mbps, hızlı başlatma (faststart).
-// Tarayıcı desteklemezse ya da çeviri olmazsa video olduğu gibi yüklenir; zaten küçük bir MP4 ise de olduğu gibi kalır.
+// oynayan biçime getirilir: MP4, H.264 görüntü + AAC ses, hızlı başlatma (faststart).
+// 2026-11-22 kullanıcı: "yüklediğimiz videonun çözünürlüğü zayıf, nasıl artırabilirsiniz" -> sınır 720p'den 1080p'ye çıktı, bit hızı
+// yükseldi (1080p ~8 Mbps, 720p ~5 Mbps, daha küçükler ~3 Mbps). Video zaten H.264/AAC ve en çok 1080p ise yeniden kodlanmaz:
+// görüntü bozulmadan yalnızca hızlı başlatma için yeniden paketlenir. 200 MB sınırını aşacak uzun videolarda bit hızı sığacak kadar düşürülür.
+// Tarayıcı desteklemezse ya da çeviri olmazsa video olduğu gibi yüklenir.
 const MEDIABUNNY = "https://cdn.jsdelivr.net/npm/mediabunny@1/+esm";
 async function videoHazirla(dosya, m) {
   if (typeof VideoEncoder === "undefined" || dosya.size > 1500 * 1048576) return dosya;
   try {
-    mesaj(m, "🎬 Video hazırlanıyor (her cihazda açılan MP4 biçimine çevriliyor)…", true);
+    mesaj(m, "🎬 Video hazırlanıyor (her cihazda açılan MP4 biçimine getiriliyor)…", true);
     const mb = await import(MEDIABUNNY);
     const input = new mb.Input({ formats: mb.ALL_FORMATS, source: new mb.BlobSource(dosya) });
     const vt = await input.getPrimaryVideoTrack();
     if (!vt) return dosya;
-    const w = vt.displayWidth, h = vt.displayHeight, video = { codec: "avc", bitrate: 2500000 };
-    if (w >= h && w > 1280) video.width = 1280; else if (h > w && h > 1280) video.height = 1280;
+    const at = await input.getPrimaryAudioTrack();
+    const w = vt.displayWidth, h = vt.displayHeight, uzun = Math.max(w, h), SINIR = 1920, SIGA = 190 * 1048576;
+    const sure = await input.computeDuration().catch(() => 0);
+    let video, audio;
+    if (vt.codec === "avc" && uzun <= SINIR && (!at || at.codec === "aac") && dosya.size <= SIGA) {
+      video = {}; audio = {};   // zaten uygun: kalite kaybı olmadan yalnızca yeniden paketlenir
+    } else {
+      const hedef = Math.min(uzun, SINIR) >= 1600 ? 8000000 : Math.min(uzun, SINIR) >= 1100 ? 5000000 : 3000000;
+      const sigan = sure > 0 ? Math.floor(SIGA * 8 / sure) - 160000 : hedef;   // 200 MB sınırına sığacak en yüksek bit hızı
+      video = { codec: "avc", bitrate: Math.max(1500000, Math.min(hedef, sigan)) };
+      if (w >= h && w > SINIR) video.width = SINIR; else if (h > w && h > SINIR) video.height = SINIR;
+      audio = { codec: "aac", bitrate: 160000 };
+    }
     const output = new mb.Output({ format: new mb.Mp4OutputFormat({ fastStart: "in-memory" }), target: new mb.BufferTarget() });
-    const conv = await mb.Conversion.init({ input, output, video, audio: { codec: "aac", bitrate: 128000 } });
+    const conv = await mb.Conversion.init({ input, output, video, audio });
     if (!conv.isValid || conv.discardedTracks.some(d => d.track.type === "video")) return dosya;
     conv.onProgress = p => mesaj(m, "🎬 Video hazırlanıyor… %" + Math.floor(p * 100) + " (sayfayı kapatmayın)", true);
     await conv.execute();
     const cikis = new File([output.target.buffer], dosya.name.replace(/\.[^.]+$/, "") + ".mp4", { type: "video/mp4" });
-    if (/mp4/i.test(dosya.type) && cikis.size >= dosya.size) return dosya;
-    return cikis;
+    return cikis.size > 0 ? cikis : dosya;
   } catch (e) { console.warn("Video çevrilemedi, olduğu gibi yüklenecek:", e); return dosya; }
 }
 
