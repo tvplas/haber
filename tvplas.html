@@ -1112,7 +1112,7 @@ function mansetCiz(yeniden) {
 }
 document.getElementById("mansetGeri").onclick = () => mansetGoster(mansetNo - 1);
 document.getElementById("mansetIleri").onclick = () => mansetGoster(mansetNo + 1);
-  if (!KAPAK_MODU) { const fbk = el("a", "manset-fb", "📘 Paylaş"); fbk.href = "#"; fbk.title = "Bu manşeti Facebook'ta paylaş"; fbk.onclick = async e => { e.preventDefault(); const h = mansetler[mansetNo]; if (!h) return; const k = kimlik(h), pen = window.open("about:blank", "_blank"); let u = paylasAdres(h); try { const r = await fetch("m/" + k + ".html", { method: "HEAD", cache: "no-store" }); if (r.ok) u = new URL("m/" + k + ".html?v=8", location.href).href; /* v: .github/manset_kapak.mjs SURUM ile aynı */ } catch (x) { } const fb = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u); if (pen) pen.location.href = fb; else location.href = fb; }; document.getElementById("manset").append(fbk); }   // 2026-11-21 kullanıcı: herkese açık Facebook paylaşımı; kapak, sayfanın bu bölümünün ekran görüntüsü (m/<kimlik>.html, GitHub görevi üretir), henüz yoksa haberin olağan paylaşımı
+  if (!KAPAK_MODU) { const fbk = el("a", "manset-fb", "📘 Paylaş"); fbk.href = "#"; fbk.title = "Bu manşeti Facebook'ta paylaş"; fbk.onclick = e => { e.preventDefault(); const h = mansetler[mansetNo]; if (h) fbPaylas(h); }; document.getElementById("manset").append(fbk); }   // 2026-11-21 kullanıcı: herkese açık Facebook paylaşımı; kapak, sayfanın bu bölümünün ekran görüntüsü (m/<kimlik>.html, GitHub görevi üretir), henüz yoksa haberin olağan paylaşımı
 const mansetKutu = document.getElementById("manset");
 mansetKutu.addEventListener("mouseenter", () => mansetDur = true);
 mansetKutu.addEventListener("mouseleave", () => mansetDur = false);
@@ -1315,6 +1315,20 @@ function hedefAc(reklamlar) {
 }
 
 // Dış kaynaklı haber portalda önce TVplas Haber tarzı özet penceresinde açılır; tamamı oradan kaynağında okunur
+// 2026-11-22 kullanıcı: "tüm menülerdeki haber görsellerinde paylaş denildiğinde Facebook'ta manşet kapakları gibi çıksın".
+// GitHub görevi (.github/manset_kapak.mjs) manşetlerin ve bütün menü haberlerinin kartını manşet görünümünde çeker, m/<kimlik>.html
+// paylaşım sayfasını yazar. Sayfa varsa o paylaşılır, henüz yoksa haberin olağan paylaşımı. KAPAK_SURUM, betikteki SURUM ile aynı olmalı.
+const KAPAK_SURUM = 8;
+async function fbPaylas(h) {
+  const pen = window.open("about:blank", "_blank");
+  let u = paylasAdres(h);
+  if (h.kat && !h.fb) try {
+    const k = kimlik(h), r = await fetch("m/" + k + ".html", { method: "HEAD", cache: "no-store" });
+    if (r.ok) u = new URL("m/" + k + ".html?v=" + KAPAK_SURUM, document.baseURI).href;
+  } catch (x) { }
+  const fb = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(u);
+  if (pen) pen.location.href = fb; else location.href = fb;
+}
 // 2026-11-15 kullanıcı: Facebook paylaşımı haberin görseliyle çıksın, görselin sol üstünde TVPLAS logosu.
 // Sunucudaki paylaşım sayfası (paylas.py) Facebook'a haberin başlığını, özetini ve logolu görselini verir;
 // tıklayan okuyucuyu portaldaki habere getirir (?h=kimlik). Haber olmayanlar (reklam) eskisi gibi.
@@ -1396,6 +1410,7 @@ function kartYap(h) {
   else if (!h.tvplas && h.l) [a, resim].forEach(x => { x.href = "#"; x.onclick = e => { e.preventDefault(); detayAc(ozetHaber(h)); }; });
   const pay = el("a", "paylas", "Facebook'ta paylaş");
   baglanti(pay, "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasAdres(h)));
+  pay.onclick = e => { e.preventDefault(); fbPaylas(h); };   // 2026-11-22: kapak sayfası varsa manşet kapağı gibi paylaşılır
   ic.append(ust, h2, el("p", "ozet", h.o));
   if (h.tvplas && (h.o || "").length > 180) {
     const devam = el("button", "devam", "Devamını oku →");
@@ -1487,7 +1502,7 @@ function detayAc(h) {
   kaynak.hidden = !h.l || (!!h.kat && !h.fb) ||(!h.tvplas && h.ob && turkceAdres(h) === h.l);   // haberlerde kaynak bağlantısı yok   // Türkçe sayfası yoksa iki düğme yeter
   if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
   ceviriDugmeleri(h, d.querySelector(".ceviri-dugmeler"));
-  d.querySelector(".paylas").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasAdres(h));
+  { const p = d.querySelector(".paylas"); p.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(paylasAdres(h)); p.onclick = e => { e.preventDefault(); fbPaylas(h); }; }
   d.showModal();
   d.scrollTop = 0;
 }
