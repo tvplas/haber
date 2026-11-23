@@ -22,7 +22,7 @@ fs.mkdirSync(SAYFA, { recursive: true });
 const kayitYolu = path.join(KAPAK, "kayit.json");
 let kayit = {};
 try { kayit = JSON.parse(fs.readFileSync(kayitYolu, "utf8")); } catch (e) { }
-const SURUM = 8; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
+const SURUM = 9; if (kayit.surum !== SURUM) kayit = { surum: SURUM };   // çekim biçimi değişince bütün kapaklar yeniden çekilir
 const kacis = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const tarayici = await chromium.launch();
@@ -67,8 +67,8 @@ for (const h of liste) {
     if (!var_) continue;
   }
   await sayfa.waitForFunction(() => {
-    const im = document.querySelector(".manset-kare.aktif img.mg-foto");
-    return !im || !im.isConnected || (im.complete && im.naturalWidth > 0);
+    const im = document.querySelector(".manset-kare.aktif .mtab img:not(.mt-logo)");
+    return !im || !im.isConnected || (im.complete);
   }, null, { timeout: 30000 }).catch(() => { });
   await sayfa.waitForTimeout(700);
   const kes = await sayfa.evaluate(() => { const r = document.getElementById("manset").getBoundingClientRect(); return { x: Math.max(0, Math.floor(r.left + scrollX)), y: Math.max(0, Math.floor(r.top + scrollY)), width: Math.ceil(r.width), height: Math.ceil(r.height) }; });   // yalnızca manşet kartı
