@@ -684,7 +684,7 @@ dialog#gazeteGoster::backdrop{background:rgba(0,0,0,.85);-webkit-backdrop-filter
     <button data-k="Dünya">DÜNYA</button>
     <!-- 2026-11-19 kullanıcı: UK menüsü (İngiltere hükümetinin GOV.UK haberleri, Open Government Licence, Türkçeleştirilmiş) -->
     <button data-k="UK">🇬🇧 UK</button>
-    <button data-k="Video">VİDEO</button>
+    <button data-k="Video" style="display:none">VİDEO</button><!-- 2026-11-24 kullanıcı: canlı yayın yapılmadığından video haberleri ikinci bir emre kadar durduruldu (VIDEO_HABER_ACIK) -->
     <button data-k="Fotoğraflar">📷 FOTOĞRAFLAR</button>
     <button data-k="Yazarlar">✍️ YAZARLAR</button>
     <!-- 2026-11-17 kullanıcı: "Reklamsız haberler" kutusu ve Basında Bugün videosu İLETİŞİM menüsünde -->
@@ -735,7 +735,7 @@ const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "UK", "Video", "K�
 const GRUPLAR = {};
 // 2026-11-22 kullanıcı: "müzik menüsünü kaldırınız, yerine video menüsü ekleyiniz" -> Müzik menüsü yok; panelden "Müzik" bölümüne
 // eklenmiş eski kayıtlar Video menüsüne gider, otomatik gelen müzik haberleri Magazin'de çıkar, videolu bütün haberler Video'da da görünür.
-const ORTAK = "Video";   // videolu haberlerin çapraz eklendiği menü
+const ORTAK = "Video", VIDEO_HABER_ACIK = false;   // ORTAK: videolu haberlerin çapraz eklendiği menü.   // 2026-11-24 kullanıcı: "canlı yayın yapmadığımdan dolayı ikinci bir emre kadar video haberlerini durdurunuz": videolu haberler ve Video menüsü gösterilmez; yeniden açmak için true yapın ve menüdeki VİDEO düğmesinin display:none'ını kaldırın
 const bolumBul = t => {
   if (t === "Müzik") t = "Video";
   const grup = Object.keys(GRUPLAR).find(g => GRUPLAR[g].includes(t));
@@ -2400,7 +2400,7 @@ async function yukle(sessiz) {
       ...tum.filter(h => h.kat !== "Kıbrıs"), ...thYazi.filter(h => h.kat !== "Kıbrıs"), ...tvh.filter(h => h.v)];   // TVplas Haber menüsünde yalnızca video haberler
     // 2026-11-19 kullanıcı: "kıbrıs haberleri içine video haber koyma" -> videolu haberler Kıbrıs menüsünde yok
     // 2026-11-22 kullanıcı: yönetim panelinden kendi eklediğimiz videolu haberler (benim) Kıbrıs menüsünde çıkar; kural yalnızca otomatik gelenler için
-    haberler = haberler.filter(h => h.kat && (!(h.kat === "Kıbrıs" && (h.v || h.vu)) || benim.includes(h)));   // 2026-11-24: menüsü olmayan haber hiçbir menüde çıkmaz
+    haberler = haberler.filter(h => h.kat && (VIDEO_HABER_ACIK || !(h.v || h.vu || h.kat === "Video")) && (!(h.kat === "Kıbrıs" && (h.v || h.vu)) || benim.includes(h)));   // 2026-11-24: menüsü olmayan haber hiçbir menüde çıkmaz
     // 2026-11-19 kullanıcı: "kıbrıs haberleri neden 24 adet değil?" -> son teklemesi 24'e kesmeden ÖNCE yapılır
     // (önceden kesimden sonra yapılıyordu, atılan benzerler yüzünden menü 21'e düşüyordu)
     { const at = tekleTum(haberler.filter(h => h.kat !== "Yazarlar" && h.kat !== "Fotoğraflar" && !(h.tvplas && !h.th))); if (at.size) haberler = haberler.filter(h => !at.has(h)); }
