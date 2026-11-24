@@ -739,7 +739,7 @@ const ORTAK = "Video";   // videolu haberlerin çapraz eklendiği menü
 const bolumBul = t => {
   if (t === "Müzik") t = "Video";
   const grup = Object.keys(GRUPLAR).find(g => GRUPLAR[g].includes(t));
-  return grup ? [grup, t] : [BOLUMLER.includes(t) ? t : "Kıbrıs", null];
+  return grup ? [grup, t] : [BOLUMLER.includes(t) ? t : !t || ["Haber sitesi", "Arama"].includes(t) ? "Kıbrıs" : null, null];   // 2026-11-24 kullanıcı: "her menü kendi menü ismine ait haberler dışında haber yayınlamamalı": yalnızca Kıbrıs kaynakları (Haber sitesi, Arama) Kıbrıs'a gider; menüsü olmayan haber hiçbir menüde çıkmaz
 };
 // Müzik Bing aramalarından gelir; başlığı bu kelimelere uymayanlar Magazin'e aktarılır.
 // Ayrıca müzikle ilgili diğer haberler Müzik menüsünde de görünür.
@@ -1873,7 +1873,7 @@ function ciz() {
     return;
   }
   let secili = q ? haberler.filter(h => aramaMetni(h).includes(q))
-    : haberler.filter(h => h.kat === bolum || (bolum === ORTAK && (h.ekBolum || []).includes(ORTAK)));
+    : haberler.filter(h => h.kat === bolum);   // 2026-11-24 kullanıcı: her menü yalnızca kendi haberlerini gösterir; başka menülerin videolu haberleri Video'ya çapraz eklenmez
   // Kıbrıs dışında bölüm içi sıra: kendi sabit haberlerimiz önce, sonra en yeniler (çapraz eklenenler de karışır)
   // Dünya'da sunucunun öncelikli saydığı büyük gazeteler (h.on) diğer kaynaklardan önce gelir
   if (!q && bolum !== "Kıbrıs") secili.sort((x, y) => (!!(y.tvplas && y.sabit) - !!(x.tvplas && x.sabit)) || (!!y.on - !!x.on) || (y.t || "").localeCompare(x.t || ""));
@@ -2352,7 +2352,7 @@ async function yukle(sessiz) {
       return { ...h, kat, alt };
     });
     // 2026-11-15 kullanıcı: yalnızca TVplas Haber olarak yazılmış haberler; yazılmamış akış haberi yazılınca çıkar
-    for (let i = tum.length - 1; i >= 0; i--) if (!tum[i].tvy && tum[i].kat !== "Yazarlar" && tum[i].kat !== "Fotoğraflar") tum.splice(i, 1);
+    for (let i = tum.length - 1; i >= 0; i--) if (!tum[i].kat || (!tum[i].tvy && tum[i].kat !== "Yazarlar" && tum[i].kat !== "Fotoğraflar")) tum.splice(i, 1);   // 2026-11-24: menüsü olmayan haber atılır
     // 2026-11-15 kullanıcı: takip edilen yazarların en son yazısı (sunucu yazar_oku.py TAKIP: Nokta Kıbrıs – Hasan Hastürer)
     // takip edilen yazarın yazıları yalnızca takip edilen siteden gelir (aynı yazı başka gazetede de çıkıyorsa o kopya alınmaz)
     { const takipAd = new Set(((yazarJson && yazarJson.ekstra) || []).map(x => (x.yz || "").toLocaleLowerCase("tr")));
@@ -2385,14 +2385,14 @@ async function yukle(sessiz) {
         "TVplas Haber · " + new Date(x.t).toLocaleString("tr-TR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })]
         .filter(Boolean).join("\n\n"),
       tur: kat, kat, alt: null, tvplas: true, th: true, thf: true });
-    const thYazi = [...elleYazi.map(x => thKart(x, "TVplas Haber")), ...sunucuYazi.map(x => thKart(x, BOLUMLER.includes(x.kat) ? x.kat : "Kıbrıs"))];
+    const thYazi = [...elleYazi.map(x => thKart(x, "TVplas Haber")), ...sunucuYazi.map(x => thKart(x, x.kat === "Müzik" ? "Magazin" : BOLUMLER.includes(x.kat) ? x.kat : null)).filter(h => h.kat)];   // 2026-11-24: sunucunun Müzik haberleri Magazin'e (Müzik menüsü yok), bilinmeyen bölüm atlanır; önceden Kıbrıs menüsüne ve manşete düşüyordu
     for (let tur = 0; tur < 2; tur++) {   // bütün haberler arasında aynı olay tek (köşe yazıları ve fotoğraflar hariç); ikinci tur kalanlarla yeniden tartar
       const atilan = tekleTum([...tum.filter(h => h.kat !== "Yazarlar" && h.kat !== "Fotoğraflar"), ...thYazi, ...tvh.filter(h => h.v)]);
       for (const d of [tum, thYazi, tvh]) for (let i = d.length - 1; i >= 0; i--) if (atilan.has(d[i])) d.splice(i, 1);
     }
     [...benim, ...tum, ...tvh, ...thYazi].forEach(h => {
       h.ekBolum = [];
-      if (h.kat !== ORTAK && (h.v || h.vu)) h.ekBolum.push(ORTAK);   // videolu haber Video menüsünde de görünür
+      // 2026-11-24: videolu haberler artık Video menüsüne çapraz eklenmez (her menü yalnızca kendi haberleri)
       if (h.thf && h.kat !== "TVplas Haber") h.ekBolum.push("TVplas Haber");
     });
     haberler = [...benim.filter(h => h.sabit),
@@ -2400,7 +2400,7 @@ async function yukle(sessiz) {
       ...tum.filter(h => h.kat !== "Kıbrıs"), ...thYazi.filter(h => h.kat !== "Kıbrıs"), ...tvh.filter(h => h.v)];   // TVplas Haber menüsünde yalnızca video haberler
     // 2026-11-19 kullanıcı: "kıbrıs haberleri içine video haber koyma" -> videolu haberler Kıbrıs menüsünde yok
     // 2026-11-22 kullanıcı: yönetim panelinden kendi eklediğimiz videolu haberler (benim) Kıbrıs menüsünde çıkar; kural yalnızca otomatik gelenler için
-    haberler = haberler.filter(h => !(h.kat === "Kıbrıs" && (h.v || h.vu)) || benim.includes(h));
+    haberler = haberler.filter(h => h.kat && (!(h.kat === "Kıbrıs" && (h.v || h.vu)) || benim.includes(h)));   // 2026-11-24: menüsü olmayan haber hiçbir menüde çıkmaz
     // 2026-11-19 kullanıcı: "kıbrıs haberleri neden 24 adet değil?" -> son teklemesi 24'e kesmeden ÖNCE yapılır
     // (önceden kesimden sonra yapılıyordu, atılan benzerler yüzünden menü 21'e düşüyordu)
     { const at = tekleTum(haberler.filter(h => h.kat !== "Yazarlar" && h.kat !== "Fotoğraflar" && !(h.tvplas && !h.th))); if (at.size) haberler = haberler.filter(h => !at.has(h)); }
