@@ -1,0 +1,42 @@
+# Yedek yazıcı: sunucudaki TVplas Haber yazıcısı durursa Kıbrıs haberlerini GitHub Models ile TVplas Haber formatında yazar
+# (tvplas_yedek.json). Sunucu çalışırken hiçbir şey yazmaz, commit atmaz. Betik: .github/yedek_yazici.mjs
+name: Yedek yazıcı
+on:
+  schedule:
+    - cron: "7,27,47 * * * *"   # 20 dakikada bir
+  workflow_dispatch:
+    inputs:
+      deneme:
+        description: "Deneme: 2 haber yaz, günlüğe dök, kaydetme"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  models: read
+concurrency:
+  group: yedek-yazici
+  cancel-in-progress: false
+jobs:
+  yaz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: yaz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DENEME: ${{ inputs.deneme && '1' || '' }}
+        run: node .github/yedek_yazici.mjs tvplas_yedek.json
+      - name: kaydet
+        if: ${{ !inputs.deneme }}
+        run: |
+          git config user.name "tvplas-bot"
+          git config user.email "tvplas-bot@users.noreply.github.com"
+          [ -f tvplas_yedek.json ] || { echo "dosya yok"; exit 0; }
+          git add tvplas_yedek.json
+          if git diff --cached --quiet; then echo "değişiklik yok"; exit 0; fi
+          git commit -q -m "Yedek yazıcı $(date -u +%Y-%m-%d\ %H:%M)"
+          for i in 1 2 3; do git pull -q --rebase && git push -q && break; sleep 5; done
