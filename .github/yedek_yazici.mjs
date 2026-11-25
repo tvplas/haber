@@ -1,18 +1,19 @@
 // TVplas yedek yazıcı (2026-11-25 kullanıcı: "haberlerin TVplas formatında yazılmaya devam etmesi için GitHub üzerinde ikinci bir yedek yazıcı kur")
 // Asıl yazıcı Hetzner sunucusundadır (/haber/tvplas_tum.json). O durursa (son yazdığı Kıbrıs haberi 90 dakikadan eski ve
-// akışta daha yeni haber varsa) bu betik yazılmamış Kıbrıs haberlerini kaynağından okur, GitHub Models ile TVplas Haber
-// formatında yeniden yazar ve tvplas_yedek.json'a koyar. Portal bu dosyayı sunucunun yazılarıyla birlikte okur.
+// akışta daha yeni haber varsa) bu betik yazılmamış Kıbrıs haberlerini kaynağından okur, yapay zekâ ile TVplas Haber
+// formatında (Google Gemini API, depo sırrı GEMINI_API_KEY) yeniden yazar ve tvplas_yedek.json'a koyar. Portal bu dosyayı sunucunun yazılarıyla birlikte okur.
 // Kullanım: node .github/yedek_yazici.mjs tvplas_yedek.json   (DENEME=1: 2 haber yazar, günlüğe döker, dosyaya yazmaz)
 import fs from "node:fs";
 
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 const SUNUCU = "https://2-29-142-134.sslip.io/haber/tvplas_tum.json";
-const MODELLER = ["openai/gpt-4.1-mini", "openai/gpt-4o-mini"];
+// 2026-11-25: GitHub Models 30 Temmuz 2026'da kapandı; yazıcı sunucudaki gibi Google Gemini API'sini kullanır (depo sırrı GEMINI_API_KEY)
+const MODELLER = ["gemini-flash-latest", "gemini-2.5-flash", "gemma-4-31b-it"];
 const KIBRIS_TUR = new Set(["Haber sitesi", "Arama"]);
 const DURMA_DK = 90, TUR_BASINA = 8, SAKLA_GUN = 3, EN_COK = 150;
 const DOSYA = process.argv[2] || "tvplas_yedek.json";
 const DENEME = !!process.env.DENEME;
-const TOKEN = process.env.GITHUB_TOKEN;
+const TOKEN = process.env.GEMINI_API_KEY;
 
 // Portaldaki kimlik() ile aynı (tvplas.html)
 function kimlik(h) {
@@ -86,17 +87,25 @@ async function yaz(h, metin) {
   const kullanici = "Başlık: " + h.b + "\nTarih: " + h.t + "\n\nHaber metni:\n" + metin;
   let son;
   for (const model of MODELLER) {
-    const r = await fetch("https://models.github.ai/inference/chat/completions", {
-      method: "POST", signal: AbortSignal.timeout(90000),
-      headers: { "Authorization": "Bearer " + TOKEN, "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify({ model, temperature: 0.3, response_format: { type: "json_object" },
-        messages: [{ role: "system", content: SISTEM }, { role: "user", content: kullanici }] })
+    // Gemma modelleri sistem talimatını ve JSON kipini desteklemez: talimat isteğin başına eklenir
+    const gemma = model.startsWith("gemma");
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
+      method: "POST", signal: AbortSignal.timeout(120000),
+      headers: { "x-goog-api-key": TOKEN, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...(gemma ? {} : { systemInstruction: { parts: [{ text: SISTEM }] } }),
+        contents: [{ role: "user", parts: [{ text: (gemma ? SISTEM + "\n\n" : "") + kullanici }] }],
+        generationConfig: { temperature: 0.3, ...(gemma ? {} : { responseMimeType: "application/json" }) } })
     });
     const govde = await r.text();
     if (r.status === 429) { son = new SinirAsildi(model + " sınırı: " + govde.slice(0, 200)); continue; }
     if (!r.ok) { son = new Error(model + " → " + r.status + " " + govde.slice(0, 300)); continue; }
-    const icerik = JSON.parse(govde).choices?.[0]?.message?.content || "";
-    const x = JSON.parse(icerik.replace(/^```(?:json)?\s*|\s*```$/g, ""));
+    let x;
+    try {
+      const icerik = (JSON.parse(govde).candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
+      const j = icerik.slice(icerik.indexOf("{"), icerik.lastIndexOf("}") + 1);
+      x = JSON.parse(j);
+    } catch (e) { son = new Error(model + ": yanıt okunamadı (" + e.message + ")"); continue; }
     const p = (x.p || []).map(s => String(s).trim()).filter(Boolean), n = (x.n || []).map(s => String(s).trim()).filter(Boolean);
     if (!x.b || !x.s || !p.length) { son = new Error(model + ": eksik yanıt"); continue; }
     return { b: String(x.b).trim(), s: String(x.s).trim(), p, n, model };
@@ -105,7 +114,7 @@ async function yaz(h, metin) {
 }
 
 async function main() {
-  if (!TOKEN) throw new Error("GITHUB_TOKEN yok");
+  if (!TOKEN) { console.log("GEMINI_API_KEY depo sırrı tanımlı değil: yedek yazıcı çalışmıyor (Settings → Secrets and variables → Actions)"); return; }
   const simdi = Date.now();
   const eski = fs.existsSync(DOSYA) ? JSON.parse(fs.readFileSync(DOSYA, "utf8")) : { haberler: [] };
   const veri = await (await getir(API + "?ziyaret=0", 60000)).json();
