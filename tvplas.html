@@ -1529,10 +1529,9 @@ function detayAc(h) {
   if (h.l) kaynak.href = h.tvplas ? h.l : turkceAdres(h);
   // 2026-11-25 kullanıcı: "haberler çok kısa yazılıyor, detaylar neden yazılmıyor?" -> TVplas Haber olarak yazılmamış (yedek)
   // akış haberinin metni akışta 300 harfle kesik gelir. Pencere açılınca haberin paragrafları sunucudan (islem=ozet) alınır;
-  // metin yine de kısaltılmış olabileceği için haberin tamamına kaynak bağlantısı gösterilir.
+  // 2026-11-25 kullanıcı: "Haberin tamamı kaynağında" ibaresi olmayacak; haberler TVplas Haber formatında yazılır (sunucu yazıcısı)
   d._h = h;
   if (h.kat && h.kat !== "Yazarlar" && h.kat !== "Fotoğraflar" && !h.tvy && !h.tvplas && /^https?:/i.test(h.l || "")) {
-    kaynak.textContent = "Haberin tamamı kaynağında →"; kaynak.href = h.l; kaynak.hidden = false;
     const metin = d.querySelector(".metin");
     const yaz = p => { if (d._h === h && p.join(" ").length > (h.o || "").length) metin.textContent = p.join("\n\n"); };
     if (h._paragraflar) yaz(h._paragraflar);
