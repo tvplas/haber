@@ -123,6 +123,14 @@ main{max-width:1200px;margin:auto;padding:0 16px 40px;display:grid;grid-template
 .il-tek .il-dugme{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;color:#fff;background:var(--il)}
 .il-tek .il-dugme.il-wa{background:#25d366;color:#0b2914}
 .il-tek .il-dugme:hover{filter:brightness(1.1)}
+/* 2026-11-25 kullanıcı: MÜZİK menüsü, kendi şarkılarımız (kapak görseli + çalar) */
+.muzik-izgara{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.sarki-kart{background:#000;border:1px solid rgba(255,255,255,.12);border-top:4px solid #db2777;border-radius:14px;overflow:hidden;color:#f3f1f6;max-width:720px}
+.sarki-kart img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#111}
+.sarki-bilgi{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px}
+.sarki-bilgi b{font-size:19px;letter-spacing:.3px}
+.sarki-bilgi span{font-size:13.5px;color:#a7a2b2}
+.sarki-bilgi audio{width:100%;margin-top:8px;color-scheme:dark}
 @media (max-width:820px){.il-bolum{padding:12px}.iletisim-kartlar.duyuru-kutu{grid-template-columns:1fr 1fr}}
 @media (max-width:420px){.iletisim-kartlar.duyuru-kutu{grid-template-columns:1fr}}
 .basin-video{grid-column:1/-1;background:#0e0e14;border-radius:14px;overflow:hidden}
@@ -705,6 +713,7 @@ dialog#gazeteGoster::backdrop{background:rgba(0,0,0,.85);-webkit-backdrop-filter
     <button data-k="Yazarlar">✍️ YAZARLAR</button>
     <!-- 2026-11-17 kullanıcı: "Reklamsız haberler" kutusu ve Basında Bugün videosu İLETİŞİM menüsünde -->
     <button data-k="Gazeteler" style="display:none">📰 GAZETELER</button>
+    <button data-k="Müzik">🎵 MÜZİK</button><!-- 2026-11-25 kullanıcı: kendi şarkılarımız (muzik/ klasörü, SARKILAR listesi) -->
     <button data-k="İletişim">📞 İLETİŞİM</button>
   </nav>
 </div>
@@ -748,6 +757,11 @@ const KAPAK_MODU = new URLSearchParams(location.search).has("kapakcek");   // 20
 const BOLUMLER = ["Kıbrıs", "Güney", "Türkiye", "Dünya", "UK", "Video", "Kültür-Sanat", "Magazin", "Bilim", "Sağlık", "Ekonomi", "Spor", "Fotoğraflar", "Yazarlar", "TVplas Haber"];
 // Bazı bölümler tek menüde toplanır; haberin kendi türü (alt) kart etiketinde ve görselinde kalır
 // (Şu an birleşik menü yok: Müzik, Kültür-Sanat, Magazin, Bilim, Sağlık ve Ekonomi ayrı menülerde)
+// 2026-11-25 kullanıcı: MÜZİK menüsündeki kendi şarkılarımız (en yenisi en üstte). Dosyalar depodaki muzik/ klasöründe:
+// ses .m4a (AAC), kapak .jpg (16:9). Yeni şarkı için bu listeye bir satır eklenir.
+const SARKILAR = [
+  { ad: "Yarın Geç Olabilir", kim: "Ahmet Ömerağa (Albayrak) · TVplas Band", g: "muzik/yarin-gec-olabilir.jpg", s: "muzik/yarin-gec-olabilir.m4a" }
+];
 const GRUPLAR = {};
 // 2026-11-22 kullanıcı: "müzik menüsünü kaldırınız, yerine video menüsü ekleyiniz" -> Müzik menüsü yok; panelden "Müzik" bölümüne
 // eklenmiş eski kayıtlar Video menüsüne gider, otomatik gelen müzik haberleri Magazin'de çıkar, videolu bütün haberler Video'da da görünür.
@@ -1893,6 +1907,24 @@ function ciz() {
     if (!gazeteler.length) { liste.replaceChildren(el("div", "durum", "Bugünün gazeteleri henüz hazırlanıyor, haberler için menüden bir bölüm seçin.")); return; }
     const baslik = el("div", "bolum-baslik", "📰 " + (gazeteTarihi ? gazeteTarihi + " · " : "") + "Kıbrıs gazetelerinin birinci sayfaları (" + gazeteler.length + " gazete) · büyütmek için sayfaya dokunun");
     liste.replaceChildren(baslik, ...diz(gazeteler, gazeteKartYap, true));
+    return;
+  }
+  // 2026-11-25 kullanıcı: "MÜZİK diye bir menü aç ve ilk şarkımızı görselle birlikte yerleştir"
+  if (!q && bolum === "Müzik") {
+    const izgara = el("div", "muzik-izgara");
+    for (const s of SARKILAR) {
+      const kart = el("article", "sarki-kart");
+      const img = el("img"); img.src = s.g; img.alt = s.ad; img.loading = "lazy";
+      const ses = el("audio"); ses.controls = true; ses.preload = "metadata"; ses.src = s.s;
+      ses.addEventListener("play", () => document.querySelectorAll("audio, video").forEach(a => { if (a !== ses) a.pause(); }));   // aynı anda tek ses
+      const bilgi = el("div", "sarki-bilgi");
+      bilgi.append(el("b", "", s.ad), el("span", "", s.kim), ses);
+      kart.append(img, bilgi);
+      izgara.append(kart);
+    }
+    const kutu = el("section", "il-bolum");
+    kutu.append(izgara);
+    liste.replaceChildren(el("div", "bolum-baslik", "🎵 Müzik · TVplas Band şarkıları"), kutu);
     return;
   }
   if (!q && bolum === "İletişim") {
