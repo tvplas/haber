@@ -1,4 +1,4 @@
-# Yedek yazıcı: sunucudaki TVplas Haber yazıcısı durursa Kıbrıs haberlerini GitHub Models ile TVplas Haber formatında yazar
+# Yedek yazıcı: sunucudaki TVplas Haber yazıcısı durursa Kıbrıs haberlerini Google Gemini API ile (depo sırrı GEMINI_API_KEY) TVplas Haber formatında yazar
 # (tvplas_yedek.json). Sunucu çalışırken hiçbir şey yazmaz, commit atmaz. Betik: .github/yedek_yazici.mjs
 name: Yedek yazıcı
 on:
@@ -12,7 +12,6 @@ on:
         default: false
 permissions:
   contents: write
-  models: read
 concurrency:
   group: yedek-yazici
   cancel-in-progress: false
@@ -27,7 +26,7 @@ jobs:
           node-version: "20"
       - name: yaz
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DENEME: ${{ inputs.deneme && '1' || '' }}
         run: node .github/yedek_yazici.mjs tvplas_yedek.json
       - name: kaydet
