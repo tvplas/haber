@@ -2352,7 +2352,12 @@ async function yukle(sessiz) {
     const fbHaber = ((fbJson && fbJson.haberler) || []).map(x => ({ b: x.b, o: x.o, g: x.g || "", t: x.t, l: x.l, gl: "fb:" + x.id,
       k: "TVPLAS", kaynakYazi: "Facebook'taki paylaşımı aç →", tur: "Kıbrıs", kat: "Kıbrıs", alt: null, tvplas: true, th: true, fb: true, ekBolum: [] }));
     const tamYazi = (yazarJson && yazarJson.yazilar) || {};   // 2026-11-15: köşe yazısının tam metni (kimlik → {m})
-    const sunucuYazi = (sunucuJson && sunucuJson.haberler) || [];
+    // 2026-11-25 kullanıcı: sunucudaki yazıcı durursa GitHub'daki yedek yazıcının (.github/yedek_yazici.mjs) TVplas Haber
+    // yazıları (tvplas_yedek.json) da okunur; sunucunun sonradan yazdığı haberin yedek kopyası atlanır
+    const yedekJson = await fetch("tvplas_yedek.json?t=" + Date.now()).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+    const sunucuAsil = (sunucuJson && sunucuJson.haberler) || [];
+    const asilKapsar = new Set(sunucuAsil.flatMap(x => x.u || []));
+    const sunucuYazi = [...sunucuAsil, ...((yedekJson && yedekJson.haberler) || []).filter(x => !(x.u || []).some(k => asilKapsar.has(k)))];
     const kapsanan = new Set(sunucuYazi.flatMap(x => x.u || []));   // TVplas Haber olarak yazılmış kaynak haberler
     const tum = (veri.haberler || []).filter(h => h.tur !== "Etkinlikler" && !kapsanan.has(kimlik(h))).map(h => {
       let tur = h.tur;
