@@ -21,6 +21,10 @@ main{max-width:820px;margin:auto;padding:20px 16px 48px}
 a{color:var(--vurgu)}
 .geri{display:inline-block;margin-bottom:14px;font-weight:600;text-decoration:none}
 h1{margin:0 0 4px;font-size:28px;letter-spacing:-.3px}h1 span{color:var(--vurgu)}
+/* 2026-11-25 kullanıcı: form başlığında orijinal TVPLAS logosu (beyaz harfleri görünsün diye portalın koyu renginde şerit) */
+h1 .logo-bant{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#0a0d14;border-radius:14px;padding:14px 18px;margin:0 0 6px;color:#fff}
+h1 .logo-bant img{height:40px;width:auto;display:block}
+h1 .logo-bant .ad{color:#fff;font-size:24px;font-weight:800;letter-spacing:.2px}
 .alt{color:var(--soluk);margin:0 0 20px}
 section{background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:18px;margin-bottom:16px}
 h2{margin:0 0 12px;font-size:18px}
@@ -68,8 +72,8 @@ button.ana:disabled{opacity:.6;cursor:wait}
 
 <!-- Gönderme formu -->
 <div id="panel">
-  <h1><span>TVplas</span> Haber Gönder</h1>
-  <p class="alt">Okurlarımız ve kurumlar haberlerini buradan gönderebilir. Gönderiniz TVplas'ın onayından sonra portalın <b>Kıbrıs</b> bölümünde yayınlanır. <b>HABER DEĞERİ OLAN HER HABER İÇİN KAPIMIZ AÇIK.</b></p>
+  <h1><span class="logo-bant"><img src="tvplas_logo.png" alt="TVPLAS" width="195" height="40"><span class="ad">YAZI - HABER GÖNDER</span></span></h1>
+  <p class="alt">Okurlarımız ve kurumlar haberlerini, köşe yazarlarımız da yazılarını buradan gönderebilir. Gönderiniz TVplas'ın onayından sonra portalda yayınlanır. <b>HABER DEĞERİ OLAN HER HABER İÇİN KAPIMIZ AÇIK.</b></p>
 
   <form id="form" novalidate>
     <section>
@@ -341,16 +345,17 @@ const q = new URLSearchParams(location.search);
 // hangi karttan gelindiyse ona göre (?tur=duyuru). Gönderim türü sunucuya yine "haber" gider (onay akışı aynı).
 if (!q.get("no")) {
   const duyuru = q.get("tur") === "duyuru";
-  const ad = duyuru ? "Duyuru Gönder" : "Haber Gönder";
+  // 2026-11-25 kullanıcı: başlık "Yazı - Haber Gönder", orijinal TVPLAS logosuyla
+  const ad = duyuru ? "Duyuru Gönder" : "Yazı - Haber Gönder";
   document.title = ad + " – TVPLAS";
-  document.querySelector("#panel h1").innerHTML = "<span>TVplas</span> " + ad;
+  document.querySelector("#panel h1").innerHTML = '<span class="logo-bant"><img src="tvplas_logo.png" alt="TVPLAS" width="195" height="40"><span class="ad">' + ad.toLocaleUpperCase("tr") + '</span></span>';
   document.querySelector("#panel .alt").innerHTML = (duyuru
     ? "Kurumlar, dernekler, siyasi partiler ve belediyeler basın toplantısı, etkinlik ve diğer duyurularını buradan gönderebilir."
-    : "Okurlarımız ve kurumlar haberlerini buradan gönderebilir.")
-    + " Gönderiniz TVplas'ın onayından sonra portalın <b>Kıbrıs</b> bölümünde yayınlanır. <b>HABER DEĞERİ OLAN HER HABER İÇİN KAPIMIZ AÇIK.</b>";
+    : "Okurlarımız ve kurumlar haberlerini, köşe yazarlarımız da yazılarını buradan gönderebilir.")
+    + " Gönderiniz TVplas'ın onayından sonra portalda yayınlanır. <b>HABER DEĞERİ OLAN HER HABER İÇİN KAPIMIZ AÇIK.</b>";
   const secenek = document.querySelector(".turler label span");
-  secenek.querySelector("b").textContent = duyuru ? "📢 Duyuru" : "📰 Haber";
-  secenek.querySelector(".not").textContent = duyuru ? "Basın toplantısı, etkinlik, basın bülteni, duyuru" : "Haber, açıklama, olay, etkinlik haberi";
+  secenek.querySelector("b").textContent = duyuru ? "📢 Duyuru" : "📰 Haber · ✍️ Köşe yazısı";
+  secenek.querySelector(".not").textContent = duyuru ? "Basın toplantısı, etkinlik, basın bülteni, duyuru" : "Haber, açıklama, olay, etkinlik haberi ya da yazarlarımızın köşe yazısı";
 }
 if (q.get("no") && q.get("a")) {
   onayAc(q.get("no"), q.get("a"));
