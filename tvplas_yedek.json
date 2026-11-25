@@ -1,5 +1,176 @@
 {
- "guncel": "2026-11-25T08:43:33.685Z",
- "model": "",
- "haberler": []
+ "guncel": "2026-11-25T19:00:20.537Z",
+ "model": "gemma-4-31b-it",
+ "haberler": [
+  {
+   "id": "gh-qlehyz",
+   "kat": "Kıbrıs",
+   "b": "Mehmet Aktunç'tan kadına yönelik şiddete karşı toplumsal duyarlılık çağrısı",
+   "s": "UBP Lefkoşa Türk Belediyesi Başkan Adayı Mehmet Aktunç, 25 Kasım Kadına Yönelik Şiddete Karşı Uluslararası Mücadele Günü kapsamında şiddetin her türlüsüne karşı sessiz kalınmaması gerektiğini vurguladı.",
+   "p": [
+    "UBP Lefkoşa Türk Belediyesi Başkan Adayı Mehmet Aktunç, 25 Kasım Kadına Yönelik Şiddete Karşı Uluslararası Mücadele Günü nedeniyle sosyal medya hesabı üzerinden bir video paylaştı. Aktunç, paylaştığı videoda kadına yönelik her türlü şiddete karşı toplumsal bir duyarlılık geliştirilmesi çağrısında bulundu.",
+    "Şiddetin yalnızca fiziksel eylemlerden ibaret olmadığını belirten Aktunç; aşağılama, değersizleştirme, özgürlüklerin kısıtlanması ile yalan ve aldatma yoluyla yapılan manipülasyonların da psikolojik şiddetin birer parçası olduğuna dikkat çekti.",
+    "Yaşanan olayları anlatanların değil, şiddeti uygulayanların utanması ve hesap vermesi gerektiğini ifade eden Aktunç, hiçbir kadının evinde, sokağında ya da hayatının herhangi bir alanında korkuyla yaşamak zorunda kalmaması gerektiğini dile getirdi.",
+    "Bir oğul, eş, baba ve her şeyden önce bir insan olarak tüm yol arkadaşlarıyla birlikte kadına yönelik şiddetin karşısında olduğunu kaydeden Aktunç, kadınların susturulmadan, suçlanmadan, özgürce ve onurlarıyla yaşamalarının bir ayrıcalık değil, en temel insan hakkı olduğunu vurguladı.",
+    "Şiddetin insanın bedeninin yanı sıra ruhunda, onurunda ve özgüveninde de derin yaralar açtığına işaret eden Aktunç, kadına yönelik şiddetin görmezden gelinmemesi, normalleştirilmemesi ve bu duruma karşı sessiz kalınmaması gerektiğini belirtti."
+   ],
+   "n": [
+    "Kadına yönelik şiddetin fiziksel boyutunun yanı sıra psikolojik boyutlarının da tanımlanması.",
+    "Kadınların özgür ve onurlu yaşamının temel bir insan hakkı olduğunun hatırlatılması.",
+    "Şiddetin normalleştirilmesine karşı toplumsal farkındalık oluşturma çabası."
+   ],
+   "t": "2026-11-25T18:18:59.000Z",
+   "g": "https://kibrisgazetesi.com/wp-content/uploads/2026/11/post-1795630732-1608-1.jpg",
+   "gk": "Fotoğraf: Kıbrıs Gazetesi",
+   "u": [
+    "qlehyz"
+   ]
+  },
+  {
+   "id": "gh-jhx3hl",
+   "kat": "Kıbrıs",
+   "b": "Lefkoşa'da Kadına Yönelik Şiddete Karşı Uluslararası Mücadele Günü Yürüyüşü Düzenlendi",
+   "s": "25 Kasım Kadına Yönelik Şiddete Karşı Uluslararası Mücadele Günü kapsamında Lefkoşa'da yürüyüş gerçekleştiren gruplar, şiddeti önleyici etkili politikaların hayata geçirilmesini talep etti.",
+   "p": [
+    "Lefkoşa'da 25 Kasım Kadına Yönelik Şiddete Karşı Uluslararası Mücadele Günü nedeniyle bir yürüyüş organize edildi. Kadın cinayeti kurbanlarının isimlerinin okunmasıyla başlayan etkinlikte, katılımcılar Kemal Şemiler Caddesi'ndeki Mor Çember'den Cumhuriyet Meclisi önüne kadar yürüdü. Yürüyüş boyunca kadına yönelik şiddeti protesto eden pankart ve dövizler taşındı.",
+    "Kuir Kıbrıs temsilcisi Meryem Tarkan, yürüyüşün yaşam hakkı elinden alınan, sesi susturulan ve şiddete maruz kalan kadınları unutmamak, hayatta olanları yalnız bırakmamak ve özgür bir gelecek kurmak için yapıldığını belirtti. 25 Kasım'ın Dominik Cumhuriyeti'ndeki Mirabal kardeşlerin anısına kabul edildiğini hatırlatan Tarkan, \"Şiddete alışmayacağız, sessiz kalmayacağız, unutmayacağız\" ifadelerini kullandı.",
+    "Baraka Kültür Merkezi temsilcisi İncilay Gök, \"Susmuyoruz, Korkmuyoruz, İtaat Etmiyoruz\" başlıklı ortak bildiriyi okuyarak dayanışma mesajı verdi. Gök, mevcut düzenin kadınları, çocukları, emekçileri ve LGBTİ+ bireyleri hedef aldığını; sendikasız ve güvencesiz çalışan kadınların taciz, mobbing ve şiddete maruz kaldığını savundu.",
+    "TOCED Yasası kapsamındaki Kadına Karşı Şiddete Müdahale Şubeleri'ne her yıl ortalama 800 kadının başvurduğunu belirten Gök, ekonomik sorunlar ve güvenlik endişeleri nedeniyle birçok kadının şikayetçi olmadan aynı evde yaşamaya devam ettiğini söyledi. Gök, bu birimin vakalarda etkisiz kaldığını ve korunma talep eden kadınların mağdur olduğunu ifade etti.",
+    "Kadının yaşam biçimine, kıyafetine, söz hakkına ve bedenine müdahalenin şiddetin ilk adımı olduğunu vurgulayan Gök, cezalandırmanın tek başına yeterli olmadığını belirtti. İstanbul Sözleşmesi ve Toplumsal Cinsiyet Eşitliği Dairesi'nin önemine değinen Gök, hükümetin sistem kurma iradesinin olmadığını ve bütçede yeterli pay ayrılmadığını öne sürdü.",
+    "Şiddeti önlemek için kamusal kreşler, etüt merkezleri, yaşlı bakım merkezleri, aşevleri ve çamaşırhaneler açılması talep edildi. Ayrıca, kadın cinayeti şüphelilerine yönelik teminat kurallarının ağırlaştırılması ve tüm şüpheli kadın ölümlerinin etkin şekilde soruşturulması istendi. Yürüyüş; Alevi Kültür Merkezi, Baraka Kültür Merkezi, Kuir Kıbrıs Derneği, KTOEÖS, çeşitli sendikalar ve siyasi örgütlerden oluşan 25 Kasım Organizasyon Komitesi tarafından düzenlendi."
+   ],
+   "n": [
+    "Kadına yönelik şiddetle mücadelede sadece cezaların değil, önleyici sosyal politikaların ve kamusal destek mekanizmalarının gerekliliği vurgulanıyor.",
+    "Ekonomik bağımsızlık ve güvenlik eksikliğinin, şiddet gören kadınların şikayetçi olmasını engelleyen temel faktörler olduğu dikkat çekiliyor.",
+    "Kadın haklarının korunması için İstanbul Sözleşmesi gibi standartların uygulanması ve bütçeden yeterli pay ayrılması gerektiği hatırlatılıyor."
+   ],
+   "t": "2026-11-25T18:11:11.000Z",
+   "g": "https://www.havadiskibris.com/wp-content/uploads/2026/11/kadina-yonelik-siddete-karsi-uluslararasi-mucadele-gunu-dolayisiyla-yuruyus-duzenlendi.jpg",
+   "gk": "Fotoğraf: Havadis",
+   "u": [
+    "jhx3hl"
+   ]
+  },
+  {
+   "id": "gh-zrrgc4",
+   "kat": "Kıbrıs",
+   "b": "Lefkoşa'da kadına yönelik şiddete karşı yürüyüş düzenlendi",
+   "s": "Lefkoşa'da 25 Kasım kapsamında kadına yönelik şiddete karşı \"Susmuyoruz, korkmuyoruz, itaat etmiyoruz\" sloganıyla bir yürüyüş gerçekleştirildi.",
+   "p": [
+    "Lefkoşa'da kadına yönelik şiddete karşı bir yürüyüş hayata geçirildi. Katılımcılar etkinlikte kadına yönelik şiddeti protesto etti. Yürüyüşte \"Susmuyoruz, korkmuyoruz, itaat etmiyoruz\" sloganları atıldı."
+   ],
+   "n": [
+    "Kadına yönelik şiddet konusundaki toplumsal farkındalığı artırması beklenmektedir.",
+    "Şiddet karşıtı ortak tepkinin sokaktaki yansımasını göstermektedir."
+   ],
+   "t": "2026-11-25T18:08:00.000Z",
+   "g": "http://www.bing.com/th?id=ONUT.w8pIZ3FW_oFhZgaTDvGTwA&pid=News",
+   "gk": "Fotoğraf: Kıbrıs Postası",
+   "u": [
+    "zrrgc4"
+   ]
+  },
+  {
+   "id": "gh-1a5pnp0",
+   "kat": "Kıbrıs",
+   "b": "KKTC'deki faciada 28 can gitti direktör sorumluluk almadı",
+   "s": "Kuzey Kıbrıs Türk Cumhuriyeti'nde 28 kişinin hayatını kaybettiği facianın ardından direktör sorumluluk almazken, olayla ilgili dikkat çeken detaylar ortaya çıktı.",
+   "p": [
+    "Kuzey Kıbrıs Türk Cumhuriyeti'nde meydana gelen ve 28 kişinin yaşamını yitirdiği büyük facianın ardından soruşturma ve hukuki süreçler devam ediyor. Yaşanan felaketin sorumlularından biri olarak gösterilen direktörün yaşananlardan dolayı sorumluluk almadığı belirtildi."
+   ],
+   "n": [
+    "28 kişinin hayatını kaybettiği facianın sorumluluk boyutunu gözler önüne seriyor.",
+    "Adalet arayışı sürecindeki yeni detayları ve tanıklıkları aktarıyor."
+   ],
+   "t": "2026-11-25T17:56:06.000Z",
+   "g": "http://www.bing.com/th?id=ONUT.sdsVj4hjyJkZ72kWLEKsRw&pid=News",
+   "gk": "Fotoğraf: Takvim",
+   "u": [
+    "1a5pnp0"
+   ]
+  },
+  {
+   "id": "gh-3nzhpb",
+   "kat": "Kıbrıs",
+   "b": "Üstel: Halk kopyacılara değil, UBP'ye oy verecek",
+   "s": "Seçim kampanyasında gündemi belirlediklerini belirten Üstel, muhalefet partilerinin kendi çalışmalarını bırakıp UBP projelerini kopyaladığını savundu.",
+   "p": [
+    "Seçim kampanyasında gündemi belirleyen partinin UBP olduğunu savunan Üstel, diğer siyasi partilerin kendi çalışmalarını bir kenara bırakarak UBP'nin açıkladığı projelere yöneldiğini ifade etti. \"Biz ne söylüyorsak onlar da aynısını söylemeye çalışıyor\" diyen Üstel, muhalefetin özgün proje üretmekte yetersiz kaldığını dile getirdi.",
+    "Üstel, UBP'nin projelerine başlangıçta karşı çıkanların bugün aynı önerileri gündeme getirdiğini, hatta partisinin vizyon kitapçığındaki görsellerin dahi taklit edildiğini öne sürdü. Muhalefetin seçim kampanyalarının başarısız olduğunu savunan Üstel, rakiplerinin UBP'nin projelerine yönelmesini siyasi çaresizlik olarak değerlendirdi. Açıklamasında hangi projelerin hangi partiler tarafından kopyalandığına ilişkin somut bir karşılaştırma ise paylaşılmadı.",
+    "UBP'nin projeleri hayata geçirecek deneyim ve iradeye sahip olduğunu vurgulayan Üstel, seçimlerin ardından açıkladıkları yatırımları gerçekleştireceklerini belirtti. \"Halkımız kopyacılara değil, aslına oy verecek\" diyen Üstel, açıklamasını \"Herkes konuşur, UBP yapar\" sözleriyle noktaladı. Seçimler yaklaşırken iktidar ile muhalefet arasında projelerin sahipliği konusundaki tartışmalar sürerken, partilerin vaatlerinin uygulanabilirliği ve geçmiş icraatları seçmen değerlendirmesinde önem taşıyor."
+   ],
+   "n": [
+    "Seçim sürecinde partiler arası proje tartışmalarının ve iddialarının boyutunu göstermektedir.",
+    "İktidar kanadının muhalefetin seçim stratejilerine yönelik eleştirilerini ve siyasi yaklaşımını ortaya koymaktadır."
+   ],
+   "t": "2026-11-25T17:44:00.000Z",
+   "g": "https://topuzgazetesicom.teimg.com/crop/1280x720/topuzgazetesi-com/uploads/2026/11/sumeyye/5-69.png",
+   "gk": "Fotoğraf: Topuz Gazetesi",
+   "u": [
+    "3nzhpb"
+   ]
+  },
+  {
+   "id": "gh-bn5r8i",
+   "kat": "Kıbrıs",
+   "b": "Girne'de elektrik kesintisi yaşanacak",
+   "s": "Girne bölgesinde planlı veya arıza kaynaklı bir elektrik kesintisi meydana geldi.",
+   "p": [
+    "Girne genelinde elektrik kesintisi yaşandığı bildirildi."
+   ],
+   "n": [
+    "Bölge sakinlerinin elektrik kesintisinden etkilenmemek veya önlem almak için bilgilendirilmesi önem taşımaktadır.",
+    "Kesintinin detayları ve ne zaman sona ereceği konusunda güncel duyuruların takip edilmesi gerekmektedir."
+   ],
+   "t": "2026-11-25T17:43:02.000Z",
+   "g": "http://www.bing.com/th?id=ONUT.26r7ksPiyT7hn8lfZMQCjA&pid=News",
+   "gk": "Fotoğraf: Mağusa Haber Ajansı",
+   "u": [
+    "bn5r8i"
+   ]
+  },
+  {
+   "id": "gh-9v3lfz",
+   "kat": "Kıbrıs",
+   "b": "Atatürk Spor Kompleksi'nde çevre düzenlemesi sürüyor",
+   "s": "Spor Dairesi Müdürlüğü, Lefkoşa Atatürk Spor Kompleksi'nde çevre düzenleme ve yenileme çalışmalarına devam ediyor.",
+   "p": [
+    "Spor Dairesi Müdürlüğü tarafından Lefkoşa Atatürk Spor Kompleksi'nde başlatılan çevre düzenleme ve yenileme çalışmaları aralıksız sürdürülüyor.",
+    "Spor Dairesi Müdürü Ersan Karataş, devam eden çalışmaları yerinde incelemek amacıyla kompleksi ziyaret etti.",
+    "Ziyaret sırasında yetkililerden ve çalışanlardan yürütülen faaliyetler hakkında bilgi alan Karataş, kompleks genelindeki düzenlemelerin yanı sıra diğer bölgelerde de bakım, onarım ve yenileme çalışmalarının sürdüğünü belirtti."
+   ],
+   "n": [
+    "Spor tesislerinin güncel durumunun yerinde denetlenmesini sağlar.",
+    "Kompleksteki yenileme çalışmalarının ilerleyişi hakkında bilgi verir."
+   ],
+   "t": "2026-11-25T17:32:53.000Z",
+   "g": "https://www.havadiskibris.com/wp-content/uploads/2026/11/SAHA.jpg",
+   "gk": "Fotoğraf: Havadis",
+   "u": [
+    "9v3lfz"
+   ]
+  },
+  {
+   "id": "gh-bg1mq0",
+   "kat": "Kıbrıs",
+   "b": "Esentepe'de Ceyhun Kırok'a meşaleli karşılama",
+   "s": "Çatalköy-Esentepe Belediye Başkanı ve başkan adayı Ceyhun Kırok, seçim çalışmaları kapsamında ziyaret ettiği Esentepe'de gençler tarafından meşalelerle karşılandı.",
+   "p": [
+    "Çatalköy-Esentepe Belediye Başkanı ve başkan adayı Ceyhun Kırok, 6 Aralık'ta gerçekleştirilecek yerel seçimler öncesinde bölge ziyaretlerini sürdürüyor.",
+    "Seçim çalışmaları çerçevesinde akşam saatlerinde Esentepe'ye giden Kırok, burada bölge halkıyla bir araya geldi.",
+    "Ziyaret sırasında Esentepeli gençler, belediye başkanını karşılamak için bir araya gelerek ellerinde meşaleler yaktı.",
+    "Gençler, yaktıkları meşaleler eşliğinde Ceyhun Kırok'u büyük bir coşkuyla selamladı."
+   ],
+   "n": [
+    "6 Aralık yerel seçimleri öncesinde kampanya sürecinin devam etmesi.",
+    "Belediye Başkanı Ceyhun Kırok'un bölge gençleriyle kurduğu etkileşim."
+   ],
+   "t": "2026-11-25T17:29:00.000Z",
+   "g": "https://kibrisgercekcom.teimg.com/crop/1280x720/kibrisgercek-com/uploads/2026/11/ceyhun-kirok-mesalelerle-karsilandi1.jpg",
+   "gk": "Fotoğraf: Kıbrıs Gerçek",
+   "u": [
+    "bg1mq0"
+   ]
+  }
+ ]
 }
