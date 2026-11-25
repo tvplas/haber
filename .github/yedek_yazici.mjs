@@ -83,33 +83,53 @@ Yalnızca şu biçimde JSON ver: {"b":"...","s":"...","p":["..."],"n":["..."]}`;
 
 class SinirAsildi extends Error {}
 
+// Modelin yanıtındaki JSON: düz JSON, ```json bloğu ya da metnin içindeki ilk geçerli {"b": ...} nesnesi
+function jsonBul(s) {
+  const dene = t => { try { const x = JSON.parse(t); return x && typeof x === "object" && x.b ? x : null; } catch { return null; } };
+  let x = dene(s.trim());
+  if (x) return x;
+  for (const m of s.matchAll(/```(?:json)?\s*([\s\S]*?)```/gi)) if ((x = dene(m[1]))) return x;
+  const ac = [...s.matchAll(/\{/g)].map(m => m.index).slice(0, 40), kapa = [...s.matchAll(/\}/g)].map(m => m.index).reverse().slice(0, 40);
+  for (const i of ac) for (const j of kapa) if (j > i && (x = dene(s.slice(i, j + 1)))) return x;
+  throw new Error("JSON bulunamadı: " + s.slice(0, 120).replace(/\s+/g, " "));
+}
+
+const bekle = ms => new Promise(r => setTimeout(r, ms));
+
 async function yaz(h, metin) {
   const kullanici = "Başlık: " + h.b + "\nTarih: " + h.t + "\n\nHaber metni:\n" + metin;
-  let son;
+  let son, sinir = 0;
   for (const model of MODELLER) {
     // Gemma modelleri sistem talimatını ve JSON kipini desteklemez: talimat isteğin başına eklenir
     const gemma = model.startsWith("gemma");
-    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
-      method: "POST", signal: AbortSignal.timeout(120000),
-      headers: { "x-goog-api-key": TOKEN, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...(gemma ? {} : { systemInstruction: { parts: [{ text: SISTEM }] } }),
-        contents: [{ role: "user", parts: [{ text: (gemma ? SISTEM + "\n\n" : "") + kullanici }] }],
-        generationConfig: { temperature: 0.3, ...(gemma ? {} : { responseMimeType: "application/json" }) } })
-    });
-    const govde = await r.text();
-    if (r.status === 429) { son = new SinirAsildi(model + " sınırı: " + govde.slice(0, 200)); continue; }
-    if (!r.ok) { son = new Error(model + " → " + r.status + " " + govde.slice(0, 300)); continue; }
-    let x;
-    try {
-      const icerik = (JSON.parse(govde).candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("");
-      const j = icerik.slice(icerik.indexOf("{"), icerik.lastIndexOf("}") + 1);
-      x = JSON.parse(j);
-    } catch (e) { son = new Error(model + ": yanıt okunamadı (" + e.message + ")"); continue; }
-    const p = (x.p || []).map(s => String(s).trim()).filter(Boolean), n = (x.n || []).map(s => String(s).trim()).filter(Boolean);
-    if (!x.b || !x.s || !p.length) { son = new Error(model + ": eksik yanıt"); continue; }
-    return { b: String(x.b).trim(), s: String(x.s).trim(), p, n, model };
+    for (let deneme = 1; deneme <= 2; deneme++) {
+      let r, govde;
+      try {
+        r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
+          method: "POST", signal: AbortSignal.timeout(120000),
+          headers: { "x-goog-api-key": TOKEN, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...(gemma ? {} : { systemInstruction: { parts: [{ text: SISTEM }] } }),
+            contents: [{ role: "user", parts: [{ text: (gemma ? SISTEM + "\n\n" : "") + kullanici }] }],
+            generationConfig: { temperature: 0.3, ...(gemma ? {} : { responseMimeType: "application/json" }) } })
+        });
+        govde = await r.text();
+      } catch (e) { son = new Error(model + ": " + e.message); console.log("    " + son.message); break; }
+      if (r.status === 429) { sinir++; son = new Error(model + " sınırı: " + govde.slice(0, 200).replace(/\s+/g, " ")); console.log("    " + son.message); break; }
+      if (r.status >= 500 && deneme < 2) { console.log("    " + model + " → " + r.status + ", 15 sn sonra yeniden"); await bekle(15000); continue; }
+      if (!r.ok) { son = new Error(model + " → " + r.status + " " + govde.slice(0, 200).replace(/\s+/g, " ")); console.log("    " + son.message); break; }
+      let x;
+      try {
+        const icerik = (JSON.parse(govde).candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || "").join("");
+        x = jsonBul(icerik);
+      } catch (e) { son = new Error(model + ": yanıt okunamadı (" + e.message + ")"); console.log("    " + son.message); break; }
+      const p = (x.p || []).map(s => String(s).trim()).filter(Boolean), n = (x.n || []).map(s => String(s).trim()).filter(Boolean);
+      if (!x.b || !x.s || !p.length) { son = new Error(model + ": eksik yanıt"); console.log("    " + son.message); break; }
+      return { b: String(x.b).trim(), s: String(x.s).trim(), p, n, model };
+    }
   }
+  // bütün modeller sınırdaysa bu tur durur (sonraki haberler de yazılamaz)
+  if (sinir === MODELLER.length) throw new SinirAsildi(son.message);
   throw son;
 }
 
