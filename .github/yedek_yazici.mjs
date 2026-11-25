@@ -8,7 +8,7 @@ import fs from "node:fs";
 const API = "https://script.google.com/macros/s/AKfycbxB5rIkSgfjGzjRGLnAyvz72DFYdCCpEc2PtzZo5xxS65w5SrEeNZltzILxQG7FUetUIg/exec";
 const SUNUCU = "https://2-29-142-134.sslip.io/haber/tvplas_tum.json";
 // 2026-11-25: GitHub Models 30 Temmuz 2026'da kapandı; yazıcı sunucudaki gibi Google Gemini API'sini kullanır (depo sırrı GEMINI_API_KEY)
-const MODELLER = ["gemini-flash-latest", "gemini-2.5-flash", "gemma-4-31b-it"];
+const MODELLER = ["gemini-3.8-flash", "gemini-flash-latest", "gemini-flash-lite-latest", "gemma-4-31b-it"];
 const KIBRIS_TUR = new Set(["Haber sitesi", "Arama"]);
 const DURMA_DK = 90, TUR_BASINA = 8, SAKLA_GUN = 3, EN_COK = 150;
 const DOSYA = process.argv[2] || "tvplas_yedek.json";
