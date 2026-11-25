@@ -2352,7 +2352,17 @@ async function yukle(sessiz) {
       return { ...h, kat, alt };
     });
     // 2026-11-15 kullanıcı: yalnızca TVplas Haber olarak yazılmış haberler; yazılmamış akış haberi yazılınca çıkar
-    for (let i = tum.length - 1; i >= 0; i--) if (!tum[i].kat || (!tum[i].tvy && tum[i].kat !== "Yazarlar" && tum[i].kat !== "Fotoğraflar")) tum.splice(i, 1);   // 2026-11-24: menüsü olmayan haber atılır
+    // 2026-11-25 kullanıcı: "Kıbrıs menüsündeki haberler neden yenilenmiyor?" -> sunucudaki yazıcı (tvplas_tum.json) 24 Kasım
+    // öğleden beri yeni haber yazmıyordu; menü yalnızca yazılmış haberleri gösterdiği için dünkü haberlerde takılı kaldı.
+    // Yedek: bir menünün en yeni yazılmış haberi 3 saatten eskiyse (yazıcı durmuş) ondan sonra gelen yazılmamış akış haberleri
+    // de gösterilir; yazıcı yeniden çalışınca bu haberler yazılmış hâlleriyle yer değiştirir (kapsanan) ve kural kendiliğinden kapanır.
+    const sonYazilan = {};
+    const yaziTarihi = (kat, t) => { if (kat && t && t > (sonYazilan[kat] || "")) sonYazilan[kat] = t; };
+    sunucuYazi.forEach(x => yaziTarihi(x.kat === "Müzik" ? "Magazin" : x.kat, x.t));
+    tum.forEach(h => { if (h.tvy) yaziTarihi(h.kat, h.t); });
+    const yaziciDurdu = kat => sonYazilan[kat] && Date.now() - new Date(sonYazilan[kat]).getTime() > 3 * 3600 * 1000;
+    const yedekHaber = h => yaziciDurdu(h.kat) && (h.t || "") > sonYazilan[h.kat];
+    for (let i = tum.length - 1; i >= 0; i--) if (!tum[i].kat || (!tum[i].tvy && tum[i].kat !== "Yazarlar" && tum[i].kat !== "Fotoğraflar" && !yedekHaber(tum[i]))) tum.splice(i, 1);   // 2026-11-24: menüsü olmayan haber atılır
     // 2026-11-15 kullanıcı: takip edilen yazarların en son yazısı (sunucu yazar_oku.py TAKIP: Nokta Kıbrıs – Hasan Hastürer)
     // takip edilen yazarın yazıları yalnızca takip edilen siteden gelir (aynı yazı başka gazetede de çıkıyorsa o kopya alınmaz)
     { const takipAd = new Set(((yazarJson && yazarJson.ekstra) || []).map(x => (x.yz || "").toLocaleLowerCase("tr")));
